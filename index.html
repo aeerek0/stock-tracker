@@ -183,8 +183,11 @@
             </div>
             <div class="col-6">
                 <label class="form-label">Symbol ชื่อหุ้น</label>
-                <!-- ปรับปรุงจุดนี้: บังคับเปลี่ยนเป็นตัวใหญ่ทันทีขณะพิมพ์เพื่อความแม่นยำ -->
-                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" required style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase(); autoFillSector(this.value);">
+                <!-- ปรับปรุง: ใช้ list="stockOptions" เพื่อสร้างเมนูเด้งเลือกบนมือถือ และดึงค่าเมื่อพิมพ์เสร็จหรือจิ้มเลือก (change/blur) -->
+                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" required autocomplete="off" list="stockOptions" onchange="autoFillSector(this.value)" onblur="autoFillSector(this.value)">
+                <datalist id="stockOptions">
+                    <!-- รายชื่อหุ้นจะถูกใส่เข้ามาอัตโนมัติจากสคริปต์ด้านล่าง -->
+                </datalist>
             </div>
             <div class="col-6">
                 <label class="form-label">Sector (กลุ่มอุตสาหกรรม)</label>
@@ -245,7 +248,7 @@
 <script>
     let WEB_APP_URL = "";
     
-    // 📊 ฐานข้อมูล Master Data ล็อคตรงตามรูปภาพ
+    // 📊 ฐานข้อมูลล็อคตรงตามรูปภาพ
     const masterSectorMap = {
         "BA": "Transport",
         "BCH": "Health Care",
@@ -279,6 +282,9 @@
     });
 
     function initConnection() {
+        // สร้างรายการหุ้นแนะนำใส่ใน datalist ทันทีที่เปิดหน้าเว็บ
+        buildStockDropdown();
+
         const savedUrl = localStorage.getItem('user_google_sheet_url');
         if (savedUrl) {
             WEB_APP_URL = savedUrl;
@@ -288,6 +294,17 @@
             document.getElementById('submitBtn').disabled = false;
             fetchAndRenderData();
         }
+    }
+
+    // ฟังก์ชันสร้างเมนูตัวเลือกหุ้นอัตโนมัติ
+    function buildStockDropdown() {
+        const datalist = document.getElementById('stockOptions');
+        datalist.innerHTML = '';
+        Object.keys(masterSectorMap).forEach(stock => {
+            const option = document.createElement('option');
+            option.value = stock;
+            datalist.appendChild(option);
+        });
     }
 
     function saveSheetUrl() {
@@ -301,17 +318,18 @@
         initConnection();
     }
 
-    // 🛠️ ปรับปรุงแก้ไข: เติมค่าให้ทันทีแบบตัดช่องว่างส่วนเกินออก
+    // 🛠️ ปรับปรุงระบบดึงค่าใหม่: จัดการแก้ปัญหาแป้นพิมพ์มือถือพิมพ์สเปซบาร์ หรือตัวเล็กตัวใหญ่
     function autoFillSector(symbolValue) {
+        if (!symbolValue) return;
+        
+        // แปลงอินพุตให้เป็นตัวพิมพ์ใหญ่ และลบช่องว่างหัวท้ายที่มือถือแอบใส่ให้
         const sym = symbolValue.trim().toUpperCase();
+        document.getElementById('symbol').value = sym; 
         
         if (masterSectorMap[sym]) {
             document.getElementById('sector').value = masterSectorMap[sym];
         } else if (dynamicSectorMap[sym]) {
             document.getElementById('sector').value = dynamicSectorMap[sym];
-        } else {
-            // ถ้าไม่เจอหุ้นในฐานข้อมูล ให้ล้างช่อง Sector เผื่อไว้คีย์เอง
-            document.getElementById('sector').value = "";
         }
     }
 
