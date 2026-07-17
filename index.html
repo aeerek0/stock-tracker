@@ -518,7 +518,7 @@ function renderPortfolioAndRecords(trades) {
     recordsToShow.forEach(trade => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${trade.date.split("T")[0]}</td>
+            <td>${new Date(trade.date).toLocaleDateString('en-CA')}</td>
             <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
             <td class="fw-bold">${trade.symbol}</td>
             <td>${trade.sector || '-'}</td>
