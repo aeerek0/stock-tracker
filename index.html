@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stock Portfolio Google Sheets</title>
+    <title>Multi-User Stock Portfolio with Delete</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -85,22 +85,46 @@
             padding: 12px;
             color: white;
         }
-        .btn-primary:hover, .btn-primary:active {
+        .btn-primary:hover {
             background-color: #cf7956 !important;
             color: white !important;
         }
         
+        .btn-secondary-custom {
+            background-color: #ebd2c5;
+            color: #6e3b23;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: var(--pastel-sell);
+            border: 1px solid rgba(229, 107, 111, 0.4);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-delete:hover {
+            background-color: var(--pastel-sell);
+            color: white;
+        }
+
         .monitor-header {
             background-color: var(--pastel-orange-light) !important;
             color: #6e3b23;
         }
 
-        /* เอฟเฟกต์ตอนกำลังโหลดข้อมูล */
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: var(--pastel-orange-dark);
-            font-weight: bold;
+        .config-box {
+            background-color: #fff5ee;
+            border: 1px dashed var(--pastel-orange-dark);
+            border-radius: 12px;
+            padding: 12px;
         }
     </style>
 </head>
@@ -109,9 +133,22 @@
 <div class="container-fluid">
     <h3 class="mt-2 mb-3 text-center fw-bold" style="color: #6e3b23;">🍊 Stock Sheets Tracker</h3>
     
+    <!-- SECTION 0: CONFIG -->
+    <div class="card">
+        <h5 class="card-title mb-2">⚙️ ตั้งค่า Google Sheet ส่วนตัว</h5>
+        <div class="config-box">
+            <label class="form-label fw-bold text-danger">ระบุ Web App URL เวอร์ชันใหม่ของคุณ:</label>
+            <div class="d-flex gap-2 mt-1">
+                <input type="password" id="sheetUrlInput" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+                <button onclick="saveSheetUrl()" class="btn-secondary-custom px-3">เชื่อมต่อ</button>
+            </div>
+            <small id="connectionStatus" class="d-block mt-2 fw-bold text-muted">🔴 สถานะ: ยังไม่ได้เชื่อมต่อตาราง</small>
+        </div>
+    </div>
+
     <!-- SECTION 1: MONITOR -->
     <div class="card">
-        <h5 class="card-title mb-3">📊 Portfolio Monitor (ดึงข้อมูลจาก Google Sheet)</h5>
+        <h5 class="card-title mb-3">📊 Portfolio Monitor</h5>
         <div class="table-responsive" style="border-radius: 10px; overflow: hidden; border: 1px solid #f7dfd3;">
             <table class="table table-striped table-hover align-middle m-0 text-center">
                 <thead class="monitor-header">
@@ -124,7 +161,7 @@
                     </tr>
                 </thead>
                 <tbody id="monitorTableBody">
-                    <tr><td colspan="5" class="loading">กำลังโหลดข้อมูลจาก Google Sheets...</td></tr>
+                    <tr><td colspan="5" class="text-muted">กรุณาใส่ลิงก์ตั้งค่าด้านบน เพื่อดึงข้อมูลพอร์ตของคุณ</td></tr>
                 </tbody>
             </table>
         </div>
@@ -132,7 +169,7 @@
 
     <!-- SECTION 2: RECORD FORM -->
     <div class="card">
-        <h5 class="card-title mb-3">➕ บันทึกรายการใหม่เข้า Google Sheet</h5>
+        <h5 class="card-title mb-3">➕ บันทึกรายการใหม่</h5>
         <form id="tradeForm" class="row g-3">
             <div class="col-6">
                 <label class="form-label">วันที่ซื้อ-ขาย</label>
@@ -166,7 +203,7 @@
                 <input type="number" step="any" id="feeRate" class="form-control" value="0.0822">
             </div>
             <div class="col-12 mt-4">
-                <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold">💾 บันทึกส่งไปยัง Google Sheets</button>
+                <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold" disabled>💾 บันทึกส่งไปยัง Google Sheets</button>
             </div>
         </form>
     </div>
@@ -187,10 +224,11 @@
                         <th>ค่าธรรมเนียม</th>
                         <th>สุทธิ (Net)</th>
                         <th>กำไร/ขาดทุน</th>
+                        <th>จัดการ</th>
                     </tr>
                 </thead>
                 <tbody id="tradeTableBody">
-                    <tr><td colspan="9" class="loading">กำลังโหลดประวัติ...</td></tr>
+                    <tr><td colspan="10" class="text-muted">ไม่มีข้อมูลประวัติ</td></tr>
                 </tbody>
             </table>
         </div>
@@ -198,8 +236,7 @@
 </div>
 
 <script>
-    // ⚠️ สำคัญมาก: เอาลิงก์ Web App URL ที่ก๊อปปี้มาจาก Apps Script ในขั้นตอนที่ 1 มาวางแทนในเครื่องหมายอัญประกาศด้านล่างนี้ครับ
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzMl5YQVbL6XpHpSnU3yJa7A5p0sELzHJkxd75i9JNQthm31q66g3bbUREB8FCzMv58hQ/exec";
+    let WEB_APP_URL = "";
 
     document.getElementById('date').valueAsDate = new Date();
 
@@ -207,12 +244,34 @@
         this.value === 'ซื้อ' ? document.getElementById('feeRate').value = '0.0822' : document.getElementById('feeRate').value = '0.1822';
     });
 
-    // ดึงข้อมูลจาก Google Sheets มาคำนวณและแสดงผล
-    function fetchAndRenderData() {
-        if(WEB_APP_URL === "วาง_URL_เว็บแอปของคุณที่นี่") {
-            alert("กรุณาใส่ลิงก์ WEB_APP_URL ในโค้ดสคริปต์ก่อนใช้งานครับ!");
+    function initConnection() {
+        const savedUrl = localStorage.getItem('user_google_sheet_url');
+        if (savedUrl) {
+            WEB_APP_URL = savedUrl;
+            document.getElementById('sheetUrlInput').value = savedUrl;
+            document.getElementById('connectionStatus').innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ พร้อมใช้งาน";
+            document.getElementById('connectionStatus').className = "d-block mt-2 fw-bold text-success";
+            document.getElementById('submitBtn').disabled = false;
+            fetchAndRenderData();
+        }
+    }
+
+    function saveSheetUrl() {
+        const inputUrl = document.getElementById('sheetUrlInput').value.trim();
+        if(!inputUrl.startsWith("https://script.google.com")) {
+            alert("รูปแบบลิงก์ไม่ถูกต้อง!");
             return;
         }
+        localStorage.setItem('user_google_sheet_url', inputUrl);
+        alert("บันทึกลิงก์ชีทเรียบร้อยแล้ว!");
+        initConnection();
+    }
+
+    function fetchAndRenderData() {
+        if(!WEB_APP_URL) return;
+
+        document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" style="color:var(--pastel-orange-dark)">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
+        document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="10" style="color:var(--pastel-orange-dark)">กำลังโหลดประวัติ...</td></tr>`;
 
         fetch(WEB_APP_URL)
             .then(response => response.json())
@@ -220,9 +279,7 @@
                 renderPortfolioAndRecords(trades);
             })
             .catch(error => {
-                console.error("Error details:", error);
-                document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-danger">ไม่สามารถโหลดข้อมูลได้ ตรวจสอบการตั้งค่า Deploy</td></tr>`;
-                document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="9" class="text-danger">ไม่สามารถโหลดข้อมูลได้</td></tr>`;
+                document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-danger">ดึงข้อมูลล้มเหลว ตรวจสอบลิงก์ความถูกต้องอีกครั้ง</td></tr>`;
             });
     }
 
@@ -233,12 +290,11 @@
         tbodyRecord.innerHTML = '';
 
         if(trades.length === 0) {
-            document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-muted">ไม่มีข้อมูลหุ้นในชีทของคุณ</td></tr>`;
-            tbodyRecord.innerHTML = `<tr><td colspan="9" class="text-muted">ยังไม่มีประวัติในชีทของคุณ</td></tr>`;
+            document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-muted">ไม่มีข้อมูลหุ้นคงเหลือ</td></tr>`;
+            tbodyRecord.innerHTML = `<tr><td colspan="10" class="text-muted">ยังไม่มีประวัติในชีทของคุณ</td></tr>`;
             return;
         }
 
-        // วนลูปคำนวณต้นทุนสะสมและแสดงเรคคอร์ด
         trades.forEach(trade => {
             const sym = trade.symbol.toUpperCase();
             const units = parseInt(trade.units);
@@ -267,9 +323,17 @@
                 }
             }
 
-            // แปลงฟอร์แมตวันที่ให้อ่านง่ายขึ้น
             let dateDisplay = trade.date;
             if(dateDisplay.includes("T")) dateDisplay = dateDisplay.split("T")[0];
+
+            // สร้างก้อนข้อมูลดิบแนบไปกับปุ่มลบ เพื่อให้ฝั่งชีทค้นหาแถวเจอถูกต้อง
+            const rawTradeData = encodeURIComponent(JSON.stringify({
+                action: "delete",
+                date: trade.date,
+                type: trade.type,
+                symbol: sym,
+                units: units
+            }));
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -282,11 +346,11 @@
                 <td>${parseFloat(trade.feeTax).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 <td>${itemPnL}</td>
+                <td><button class="btn-delete" onclick="deleteRecord('${rawTradeData}')">🗑️ ลบ</button></td>
             `;
             tbodyRecord.insertBefore(row, tbodyRecord.firstChild);
         });
 
-        // แสดงพอร์ตโฟลิโอด้านบน
         const mBody = document.getElementById('monitorTableBody');
         mBody.innerHTML = '';
         Object.keys(portfolio).forEach(sym => {
@@ -305,13 +369,40 @@
         });
     }
 
-    // เมื่อกดส่งข้อมูลเข้า Google Sheets
+    // ฟังก์ชันสั่งลบเรคคอร์ด
+    function deleteRecord(encodedData) {
+        const tradeData = JSON.parse(decodeURIComponent(encodedData));
+        
+        // ขึ้นแจ้งเตือนถามเพื่อความแน่ใจก่อนลบ
+        if (!confirm(`คุณต้องการลบรายการ [${tradeData.type}] หุ้น ${tradeData.symbol} จำนวน ${tradeData.units.toLocaleString()} หุ้น ใช่หรือไม่?\n(ข้อมูลใน Google Sheet จะถูกลบถาวร)`)) {
+            return;
+        }
+
+        document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="10" style="color:var(--pastel-sell); font-weight:bold;">⏳ กำลังลบข้อมูลออกจาก Google Sheet...</td></tr>`;
+
+        fetch(WEB_APP_URL, {
+            method: "POST",
+            mode: "no-cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tradeData)
+        }).then(() => {
+            alert("ลบข้อมูลสำเร็จ!");
+            // รอรีเฟรชตารางใหม่หลังจากลบ 1.5 วินาที
+            setTimeout(fetchAndRenderData, 1500);
+        }).catch(error => {
+            alert("การลบล้มเหลว ตรวจสอบสัญญาณอินเทอร์เน็ต");
+            fetchAndRenderData();
+        });
+    }
+
     document.getElementById('tradeForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        if(!WEB_APP_URL) return;
         
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ กำลังบันทึกลง Google Sheet...";
+        submitBtn.innerText = "⏳ กำลังบันทึกลงชีท...";
 
         const price = parseFloat(document.getElementById('price').value);
         const units = parseInt(document.getElementById('units').value);
@@ -334,31 +425,27 @@
             netAmount: netAmount.toFixed(2)
         };
 
-        // ส่งข้อมูลแบบ POST ไปยัง Google Apps Script
         fetch(WEB_APP_URL, {
             method: "POST",
-            mode: "no-cors", // เพื่อป้องกันปัญหาระบบความปลอดภัยข้ามโดเมนบนมือถือ
+            mode: "no-cors",
             cache: "no-cache",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(newTrade)
         }).then(() => {
-            // ทำการล้างแบบฟอร์ม
             document.getElementById('symbol').value = '';
             document.getElementById('price').value = '';
             document.getElementById('units').value = '';
             submitBtn.disabled = false;
             submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
-            
-            // รอรีเฟรชข้อมูลใหม่หลังจากบันทึก 1.5 วินาที
             setTimeout(fetchAndRenderData, 1500);
         }).catch(error => {
-            alert("บันทึกล้มเหลว ตรวจสอบอินเทอร์เน็ตหรือลิงก์ชีท");
+            alert("บันทึกล้มเหลว");
             submitBtn.disabled = false;
             submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
         });
     });
 
-    window.onload = fetchAndRenderData;
+    window.onload = initConnection;
 </script>
 </body>
 </html>
