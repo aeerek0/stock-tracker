@@ -183,7 +183,8 @@
             </div>
             <div class="col-6">
                 <label class="form-label">Symbol ชื่อหุ้น</label>
-                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" required style="text-transform:uppercase" oninput="autoFillSector(this.value)">
+                <!-- ปรับปรุงจุดนี้: บังคับเปลี่ยนเป็นตัวใหญ่ทันทีขณะพิมพ์เพื่อความแม่นยำ -->
+                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" required style="text-transform:uppercase" oninput="this.value = this.value.toUpperCase(); autoFillSector(this.value);">
             </div>
             <div class="col-6">
                 <label class="form-label">Sector (กลุ่มอุตสาหกรรม)</label>
@@ -244,7 +245,7 @@
 <script>
     let WEB_APP_URL = "";
     
-    // 📊 ฐานข้อมูล Master Data ถอดจากรูปภาพที่คุณส่งมาให้ดึงอัตโนมัติ
+    // 📊 ฐานข้อมูล Master Data ล็อคตรงตามรูปภาพ
     const masterSectorMap = {
         "BA": "Transport",
         "BCH": "Health Care",
@@ -269,7 +270,7 @@
         "WHA": "Property (Indus)"
     };
 
-    let dynamicSectorMap = {}; // สำหรับเรียนรู้เพิ่มเติมจากประวัติที่คีย์เพิ่มเอง
+    let dynamicSectorMap = {}; 
 
     document.getElementById('date').valueAsDate = new Date();
 
@@ -300,13 +301,17 @@
         initConnection();
     }
 
-    // ฟังก์ชันช่วยเติมชื่อ Sector อัตโนมัติ (ตรวจจาก Master Data ก่อน ถ้าไม่มีค่อยไปตรวจประวัติเก่า)
+    // 🛠️ ปรับปรุงแก้ไข: เติมค่าให้ทันทีแบบตัดช่องว่างส่วนเกินออก
     function autoFillSector(symbolValue) {
         const sym = symbolValue.trim().toUpperCase();
+        
         if (masterSectorMap[sym]) {
             document.getElementById('sector').value = masterSectorMap[sym];
         } else if (dynamicSectorMap[sym]) {
             document.getElementById('sector').value = dynamicSectorMap[sym];
+        } else {
+            // ถ้าไม่เจอหุ้นในฐานข้อมูล ให้ล้างช่อง Sector เผื่อไว้คีย์เอง
+            document.getElementById('sector').value = "";
         }
     }
 
@@ -322,7 +327,7 @@
                 dynamicSectorMap = {};
                 trades.forEach(t => {
                     if(t.symbol && t.sector) {
-                        dynamicSectorMap[t.symbol.toUpperCase()] = t.sector;
+                        dynamicSectorMap[t.symbol.trim().toUpperCase()] = t.sector;
                     }
                 });
                 renderPortfolioAndRecords(trades);
@@ -345,7 +350,7 @@
         }
 
         trades.forEach(trade => {
-            const sym = trade.symbol.toUpperCase();
+            const sym = trade.symbol.trim().toUpperCase();
             const units = parseInt(trade.units);
             const netAmount = parseFloat(trade.netAmount);
             let itemPnL = '-';
@@ -462,7 +467,7 @@
         const newTrade = {
             date: document.getElementById('date').value,
             type: type,
-            symbol: document.getElementById('symbol').value.toUpperCase(),
+            symbol: document.getElementById('symbol').value.trim().toUpperCase(),
             sector: document.getElementById('sector').value,
             broker: document.getElementById('broker').value,
             price: price,
