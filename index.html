@@ -318,6 +318,7 @@
 <script>
     let WEB_APP_URL = "";
     let globalTradesData = []; // เก็บข้อมูลเพื่อดึงมาเข้าหน้าฟอร์มตอนแก้ไข
+    let displayCount = 50; //
     
     const masterSectorMap = {
         "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
@@ -467,17 +468,14 @@
         document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
     }
 function renderPortfolioAndRecords(trades) {
-    // แก้ไข: ประกาศตัวแปรแค่ครั้งเดียว
+    // 1. รับค่าและเตรียมการแสดงผล
+    if (trades) globalTradesData = trades; // เก็บข้อมูลทั้งหมดไว้ในตัวแปร global
     const portfolio = {}, realizedPnL = {}, tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
 
-    // --- เพิ่มส่วนคำนวณ Dashboard ---
-    let totalPortfolioValue = 0;
-    let totalPnL = 0;
-    let activeStocksCount = 0;
-
-    trades.forEach(trade => {
-        // บังคับให้เป็น String เสมอ เพื่อป้องกันไม่ให้คำว่า TRUE กลายเป็นค่าตรรกะ
+    // 2. คำนวณ Dashboard (ทำครั้งเดียวตอนโหลดข้อมูลมา)
+    let totalPortfolioValue = 0, totalPnL = 0, activeStocksCount = 0;
+    globalTradesData.forEach(trade => {
         const sym = String(trade.symbol || "").trim().toUpperCase();
         const units = parseInt(trade.units);
         const netAmount = parseFloat(trade.netAmount);
@@ -486,79 +484,86 @@ function renderPortfolioAndRecords(trades) {
             portfolio[sym] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
             realizedPnL[sym] = 0;
         }
-            
 
-            if (trade.type === 'ซื้อ') {
-                portfolio[sym].totalUnits += units;
-                portfolio[sym].totalCost += netAmount;
-                portfolio[sym].avgPrice = portfolio[sym].totalCost / portfolio[sym].totalUnits;
-            } else {
-                const costOfSoldShares = units * portfolio[sym].avgPrice;
-                realizedPnL[sym] += (netAmount - costOfSoldShares);
-                portfolio[sym].totalUnits -= units;
-                portfolio[sym].totalCost -= costOfSoldShares;
-                if(portfolio[sym].totalUnits <= 0) {
-                    portfolio[sym].totalUnits = 0; portfolio[sym].totalCost = 0; portfolio[sym].avgPrice = 0;
-                }
+        if (trade.type === 'ซื้อ') {
+            portfolio[sym].totalUnits += units;
+            portfolio[sym].totalCost += netAmount;
+            portfolio[sym].avgPrice = portfolio[sym].totalUnits > 0 ? portfolio[sym].totalCost / portfolio[sym].totalUnits : 0;
+        } else {
+            const costOfSoldShares = units * portfolio[sym].avgPrice;
+            realizedPnL[sym] += (netAmount - costOfSoldShares);
+            portfolio[sym].totalUnits -= units;
+            portfolio[sym].totalCost -= costOfSoldShares;
+            if(portfolio[sym].totalUnits <= 0) {
+                portfolio[sym].totalUnits = 0; portfolio[sym].totalCost = 0; portfolio[sym].avgPrice = 0;
             }
-        });
+        }
+    });
 
-        // สรุปยอดเข้า Dashboard
-        Object.keys(portfolio).forEach(sym => {
-            if (portfolio[sym].totalUnits > 0) {
-                activeStocksCount++;
-                totalPortfolioValue += portfolio[sym].totalCost;
-            }
-            totalPnL += realizedPnL[sym];
-        });
+    Object.keys(portfolio).forEach(sym => {
+        if (portfolio[sym].totalUnits > 0) {
+            activeStocksCount++;
+            totalPortfolioValue += portfolio[sym].totalCost;
+        }
+        totalPnL += realizedPnL[sym];
+    });
 
-        document.getElementById('dashTotalValue').innerText = totalPortfolioValue.toLocaleString(undefined, {maximumFractionDigits: 0});
-        document.getElementById('dashTotalPnL').innerText = (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, {minimumFractionDigits: 2});
-        document.getElementById('dashTotalStocks').innerText = activeStocksCount;
-        document.getElementById('dashTotalTrades').innerText = trades.length;
-        // --------------------------------
+    document.getElementById('dashTotalValue').innerText = totalPortfolioValue.toLocaleString(undefined, {maximumFractionDigits: 0});
+    document.getElementById('dashTotalPnL').innerText = (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('dashTotalStocks').innerText = activeStocksCount;
+    document.getElementById('dashTotalTrades').innerText = globalTradesData.length;
 
-        // Render ตารางประวัติ (ส่วนเดิมของคุณ)
-        trades.slice().reverse().forEach(trade => {
-            let dateDisplay = trade.date.split("T")[0];
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${dateDisplay}</td>
-                <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
-                <td class="fw-bold">${trade.symbol}</td>
-                <td>${trade.sector || '-'}</td>
-                <td>${trade.broker || '-'}</td>
-                <td>${parseFloat(trade.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                <td>${parseInt(trade.units).toLocaleString()}</td>
-                <td>${parseFloat(trade.grossAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                <td>${parseFloat(trade.feeTax).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                <td>-</td>
-                <td>
-                    <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
-                    <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
-                </td>
-            `;
-            tbodyRecord.appendChild(row);
-        });
+    // 3. Render ตารางประวัติ (แสดงทีละ 50 รายการจากหลังมาหน้า)
+    const recordsToShow = globalTradesData.slice(-displayCount).reverse();
+    recordsToShow.forEach(trade => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${trade.date.split("T")[0]}</td>
+            <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
+            <td class="fw-bold">${trade.symbol}</td>
+            <td>${trade.sector || '-'}</td>
+            <td>${trade.broker || '-'}</td>
+            <td>${parseFloat(trade.price).toLocaleString()}</td>
+            <td>${parseInt(trade.units).toLocaleString()}</td>
+            <td>${parseFloat(trade.grossAmount).toLocaleString()}</td>
+            <td>${parseFloat(trade.feeTax).toLocaleString()}</td>
+            <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td>
+            <td>-</td>
+            <td>
+                <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
+                <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
+            </td>`;
+        tbodyRecord.appendChild(row);
+    });
 
-        // Render Monitor Table
-        const mBody = document.getElementById('monitorTableBody');
-        mBody.innerHTML = '';
-        Object.keys(portfolio).forEach(sym => {
-            if (portfolio[sym].totalUnits > 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="fw-bold">${sym}</td>
-                    <td>${portfolio[sym].totalUnits.toLocaleString()}</td>
-                    <td>${portfolio[sym].avgPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                    <td>${portfolio[sym].totalCost.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                    <td class="${realizedPnL[sym] >= 0 ? 'profit' : 'loss'}">${realizedPnL[sym].toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                `;
-                mBody.appendChild(row);
-            }
-        });
+    // 4. ปุ่ม "ดูเพิ่มเติม"
+    if (displayCount < globalTradesData.length) {
+        const loadMoreRow = document.createElement('tr');
+        loadMoreRow.innerHTML = `<td colspan="12"><button class="btn w-100" onclick="loadMore()">ดูรายการก่อนหน้าเพิ่มเติม...</button></td>`;
+        tbodyRecord.appendChild(loadMoreRow);
     }
+
+    // 5. Render Monitor Table
+    const mBody = document.getElementById('monitorTableBody');
+    mBody.innerHTML = '';
+    Object.keys(portfolio).forEach(sym => {
+        if (portfolio[sym].totalUnits > 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td class="fw-bold">${sym}</td><td>${portfolio[sym].totalUnits.toLocaleString()}</td><td>${portfolio[sym].avgPrice.toLocaleString()}</td><td>${portfolio[sym].totalCost.toLocaleString()}</td><td class="${realizedPnL[sym] >= 0 ? 'profit' : 'loss'}">${realizedPnL[sym].toLocaleString()}</td>`;
+            mBody.appendChild(row);
+        }
+    });
+}
+
+    function loadMore() {
+    displayCount += 50;
+    renderPortfolioAndRecords();
+}
+
+    function cancelEditMode() {
+    displayCount = 50; // เมื่อบันทึกใหม่ ให้กลับมาโชว์ 50 รายการล่าสุด
+    // ... (โค้ดเดิมของคุณ)
+}
     function deleteRecord(rowIndex, symbol, units) {
         if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol} จำนวน ${units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
             return;
