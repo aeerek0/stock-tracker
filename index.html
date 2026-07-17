@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stock Portfolio Tracker with Master Data</title>
+    <title>Stock Portfolio Tracker with Edit Mode</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -14,6 +14,7 @@
             --pastel-card-bg: #ffffff;
             --pastel-buy: #4faba2;
             --pastel-sell: #e56b6f;
+            --pastel-edit: #f4a261;
         }
 
         body { 
@@ -100,6 +101,21 @@
             font-weight: 500;
         }
 
+        .btn-action-edit {
+            background-color: transparent;
+            color: var(--pastel-edit);
+            border: 1px solid rgba(244, 162, 97, 0.5);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+        .btn-action-edit:hover {
+            background-color: var(--pastel-edit);
+            color: white;
+        }
+
         .btn-delete {
             background-color: transparent;
             color: var(--pastel-sell);
@@ -124,6 +140,17 @@
             border: 1px dashed var(--pastel-orange-dark);
             border-radius: 12px;
             padding: 12px;
+        }
+
+        .edit-mode-alert {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            display: none;
         }
     </style>
 </head>
@@ -168,8 +195,17 @@
 
     <!-- SECTION 2: RECORD FORM -->
     <div class="card">
-        <h5 class="card-title mb-3">➕ บันทึกรายการใหม่</h5>
+        <h5 class="card-title mb-2" id="formTitle">➕ บันทึกรายการใหม่</h5>
+        
+        <!-- แจ้งเตือนเมื่ออยู่ในโหมดแก้ไข -->
+        <div id="editAlert" class="edit-mode-alert">
+            ⚠️ คุณกำลังอยู่ใน <b>"โหมดแก้ไขข้อมูล"</b> <button type="button" class="btn btn-sm btn-secondary float-end" style="font-size: 0.7rem; padding: 2px 6px;" onclick="cancelEditMode()">ยกเลิก</button>
+        </div>
+
         <form id="tradeForm" class="row g-3">
+            <!-- ซ่อน Row Index สำหรับส่งไปอัปเดตชีท -->
+            <input type="hidden" id="editRowIndex" value="">
+
             <div class="col-6">
                 <label class="form-label">วันที่ซื้อ-ขาย</label>
                 <input type="date" id="date" class="form-control" required>
@@ -183,11 +219,8 @@
             </div>
             <div class="col-6">
                 <label class="form-label">Symbol ชื่อหุ้น</label>
-                <!-- ปรับปรุง: ใช้ list="stockOptions" เพื่อสร้างเมนูเด้งเลือกบนมือถือ และดึงค่าเมื่อพิมพ์เสร็จหรือจิ้มเลือก (change/blur) -->
                 <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" required autocomplete="off" list="stockOptions" onchange="autoFillSector(this.value)" onblur="autoFillSector(this.value)">
-                <datalist id="stockOptions">
-                    <!-- รายชื่อหุ้นจะถูกใส่เข้ามาอัตโนมัติจากสคริปต์ด้านล่าง -->
-                </datalist>
+                <datalist id="stockOptions"></datalist>
             </div>
             <div class="col-6">
                 <label class="form-label">Sector (กลุ่มอุตสาหกรรม)</label>
@@ -247,30 +280,14 @@
 
 <script>
     let WEB_APP_URL = "";
+    let globalTradesData = []; // เก็บข้อมูลเพื่อดึงมาเข้าหน้าฟอร์มตอนแก้ไข
     
-    // 📊 ฐานข้อมูลล็อคตรงตามรูปภาพ
     const masterSectorMap = {
-        "BA": "Transport",
-        "BCH": "Health Care",
-        "BDMS": "Health Care",
-        "BGRIM": "Energy",
-        "CENTEL": "Tourism",
-        "CPALL": "Commerce",
-        "CPN": "Property",
-        "EPG": "Property & Construction",
-        "EA": "Energy",
-        "HMPRO": "Commerce",
-        "LH": "Property",
-        "MC": "Fashion",
-        "MINT": "Tourism",
-        "SABINA": "Fashion",
-        "SAT": "Automotive",
-        "SPALI": "Property",
-        "TIPH": "Insurance",
-        "TISCO": "Banking",
-        "TLI": "Insurance",
-        "TU": "Food & Bev",
-        "WHA": "Property (Indus)"
+        "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
+        "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
+        "EA": "Energy", "HMPRO": "Commerce", "LH": "Property", "MC": "Fashion", "MINT": "Tourism",
+        "SABINA": "Fashion", "SAT": "Automotive", "SPALI": "Property", "TIPH": "Insurance",
+        "TISCO": "Banking", "TLI": "Insurance", "TU": "Food & Bev", "WHA": "Property (Indus)"
     };
 
     let dynamicSectorMap = {}; 
@@ -278,13 +295,13 @@
     document.getElementById('date').valueAsDate = new Date();
 
     document.getElementById('type').addEventListener('change', function() {
-        this.value === 'ซื้อ' ? document.getElementById('feeRate').value = '0.0822' : document.getElementById('feeRate').value = '0.1822';
+        if(document.getElementById('editRowIndex').value === "") { // ปรับค่าธรรมเนียมตามประเภทเฉพาะโหมดเพิ่มปกติ
+            this.value === 'ซื้อ' ? document.getElementById('feeRate').value = '0.0822' : document.getElementById('feeRate').value = '0.1822';
+        }
     });
 
     function initConnection() {
-        // สร้างรายการหุ้นแนะนำใส่ใน datalist ทันทีที่เปิดหน้าเว็บ
         buildStockDropdown();
-
         const savedUrl = localStorage.getItem('user_google_sheet_url');
         if (savedUrl) {
             WEB_APP_URL = savedUrl;
@@ -296,7 +313,6 @@
         }
     }
 
-    // ฟังก์ชันสร้างเมนูตัวเลือกหุ้นอัตโนมัติ
     function buildStockDropdown() {
         const datalist = document.getElementById('stockOptions');
         datalist.innerHTML = '';
@@ -318,14 +334,10 @@
         initConnection();
     }
 
-    // 🛠️ ปรับปรุงระบบดึงค่าใหม่: จัดการแก้ปัญหาแป้นพิมพ์มือถือพิมพ์สเปซบาร์ หรือตัวเล็กตัวใหญ่
     function autoFillSector(symbolValue) {
         if (!symbolValue) return;
-        
-        // แปลงอินพุตให้เป็นตัวพิมพ์ใหญ่ และลบช่องว่างหัวท้ายที่มือถือแอบใส่ให้
         const sym = symbolValue.trim().toUpperCase();
         document.getElementById('symbol').value = sym; 
-        
         if (masterSectorMap[sym]) {
             document.getElementById('sector').value = masterSectorMap[sym];
         } else if (dynamicSectorMap[sym]) {
@@ -342,6 +354,7 @@
         fetch(WEB_APP_URL)
             .then(response => response.json())
             .then(trades => {
+                globalTradesData = trades; // บันทึกข้อมูลลงตัวแปร Global
                 dynamicSectorMap = {};
                 trades.forEach(t => {
                     if(t.symbol && t.sector) {
@@ -353,6 +366,52 @@
             .catch(error => {
                 document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-danger">ดึงข้อมูลล้มเหลว ตรวจสอบลิงก์ความถูกต้องอีกครั้ง</td></tr>`;
             });
+    }
+
+    // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
+    function startEditMode(rowIndex) {
+        const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
+        if(!trade) return;
+
+        // ดึงข้อมูลเก่าลงฟอร์มคีย์
+        let dateVal = trade.date;
+        if(dateVal.includes("T")) dateVal = dateVal.split("T")[0];
+        
+        document.getElementById('editRowIndex').value = trade.rowIndex;
+        document.getElementById('date').value = dateVal;
+        document.getElementById('type').value = trade.type;
+        document.getElementById('symbol').value = trade.symbol;
+        document.getElementById('sector').value = trade.sector || '';
+        document.getElementById('broker').value = trade.broker || '';
+        document.getElementById('price').value = trade.price;
+        document.getElementById('units').value = trade.units;
+        
+        // คำนวณหา % ค่าธรรมเนียมเดิมกลับมาโชว์
+        const gross = trade.price * trade.units;
+        const feePercent = ((trade.feeTax / gross) * 100).toFixed(4);
+        document.getElementById('feeRate').value = feePercent;
+
+        // เปลี่ยนดีไซน์หน้าตาฟอร์มให้รู้ว่ากำลังแก้ไข
+        document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
+        document.getElementById('editAlert').style.display = "block";
+        document.getElementById('submitBtn').innerText = "🆙 อัปเดตข้อมูลไปยัง Google Sheets";
+        document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-edit)";
+        
+        // เลื่อนหน้าจอขึ้นไปที่ฟอร์มคีย์อัตโนมัติ
+        document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ฟังก์ชันยกเลิกโหมดแก้ไข
+    function cancelEditMode() {
+        document.getElementById('editRowIndex').value = "";
+        document.getElementById('tradeForm').reset();
+        document.getElementById('date').valueAsDate = new Date();
+        document.getElementById('feeRate').value = "0.0822";
+        
+        document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
+        document.getElementById('editAlert').style.display = "none";
+        document.getElementById('submitBtn').innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+        document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
     }
 
     function renderPortfolioAndRecords(trades) {
@@ -398,14 +457,6 @@
             let dateDisplay = trade.date;
             if(dateDisplay.includes("T")) dateDisplay = dateDisplay.split("T")[0];
 
-            const rawTradeData = encodeURIComponent(JSON.stringify({
-                action: "delete",
-                date: trade.date,
-                type: trade.type,
-                symbol: sym,
-                units: units
-            }));
-
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${dateDisplay}</td>
@@ -419,7 +470,10 @@
                 <td>${parseFloat(trade.feeTax).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 <td>${itemPnL}</td>
-                <td><button class="btn-delete" onclick="deleteRecord('${rawTradeData}')">🗑️ ลบ</button></td>
+                <td>
+                    <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️ แก้ไข</button>
+                    <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${sym}', ${units})">🗑️ ลบ</button>
+                </td>
             `;
             tbodyRecord.insertBefore(row, tbodyRecord.firstChild);
         });
@@ -442,9 +496,8 @@
         });
     }
 
-    function deleteRecord(encodedData) {
-        const tradeData = JSON.parse(decodeURIComponent(encodedData));
-        if (!confirm(`คุณต้องการลบรายการ [${tradeData.type}] หุ้น ${tradeData.symbol} จำนวน ${tradeData.units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
+    function deleteRecord(rowIndex, symbol, units) {
+        if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol} จำนวน ${units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
             return;
         }
 
@@ -455,9 +508,10 @@
             mode: "no-cors",
             cache: "no-cache",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(tradeData)
+            body: JSON.stringify({ action: "delete", rowIndex: rowIndex })
         }).then(() => {
             alert("ลบข้อมูลสำเร็จ!");
+            cancelEditMode();
             setTimeout(fetchAndRenderData, 1500);
         }).catch(error => {
             alert("การลบล้มเหลว");
@@ -470,8 +524,10 @@
         if(!WEB_APP_URL) return;
         
         const submitBtn = document.getElementById('submitBtn');
+        const editRowIndex = document.getElementById('editRowIndex').value;
+        
         submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ กำลังบันทึกลงชีท...";
+        submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
 
         const price = parseFloat(document.getElementById('price').value);
         const units = parseInt(document.getElementById('units').value);
@@ -482,7 +538,9 @@
         const feeTax = grossAmount * feeRate;
         const netAmount = type === 'ซื้อ' ? (grossAmount + feeTax) : (grossAmount - feeTax);
 
-        const newTrade = {
+        const tradeData = {
+            action: editRowIndex !== "" ? "edit" : "insert",
+            rowIndex: editRowIndex,
             date: document.getElementById('date').value,
             type: type,
             symbol: document.getElementById('symbol').value.trim().toUpperCase(),
@@ -500,20 +558,14 @@
             mode: "no-cors",
             cache: "no-cache",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newTrade)
+            body: JSON.stringify(tradeData)
         }).then(() => {
-            dynamicSectorMap[newTrade.symbol] = newTrade.sector;
-            document.getElementById('symbol').value = '';
-            document.getElementById('sector').value = '';
-            document.getElementById('price').value = '';
-            document.getElementById('units').value = '';
-            submitBtn.disabled = false;
-            submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+            alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
+            cancelEditMode();
             setTimeout(fetchAndRenderData, 1500);
         }).catch(error => {
             alert("บันทึกล้มเหลว");
             submitBtn.disabled = false;
-            submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
         });
     });
 
