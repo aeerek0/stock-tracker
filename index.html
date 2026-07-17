@@ -367,27 +367,34 @@
         }
     });
 
-    function updateMonitor(view) {
+function updateMonitor(view) {
     currentMonitorView = view;
-    renderPortfolioAndRecords(); // สั่งวาดใหม่
+    // เพิ่มการวาดตารางใหม่หลังจากเปลี่ยนค่า View
+    renderPortfolioAndRecords(); 
 }
 
     function toggleDetails(type) {
-            const container = document.getElementById('detailsContainer');
-            if (container.style.display === "block") { container.style.display = "none"; return; }
-            container.style.display = "block";
-            let totalVal = 0, dataMap = {};
-            globalTradesData.forEach(t => {
-                let key = (type === 'byStock') ? t.symbol : (t.sector || 'อื่นๆ');
-                dataMap[key] = (dataMap[key] || 0) + parseFloat(t.netAmount || 0);
-                totalVal += parseFloat(t.netAmount || 0);
-            });
-            document.getElementById('detailTitle').innerText = (type === 'byStock' ? 'สัดส่วนหุ้น (%)' : 'สัดส่วนกลุ่ม (%)');
-            document.getElementById('detailBody').innerHTML = Object.keys(dataMap).map(k => 
-                `<div class="mb-2"><div class="d-flex justify-content-between"><small>${k}</small><small>${((dataMap[k]/totalVal)*100).toFixed(1)}%</small></div><div class="progress" style="height:8px;"><div class="progress-bar" style="width:${((dataMap[k]/totalVal)*100).toFixed(1)}%; background-color:#e88d67;"></div></div></div>`
-            ).join('');
-        }
-
+    const container = document.getElementById('detailsContainer');
+    
+    // ถ้าปิดอยู่ ให้เปิด และถ้าเปิดอยู่ให้ปิด
+    if (container.style.display === "block") {
+        container.style.display = "none";
+    } else {
+        container.style.display = "block";
+        // คำนวณข้อมูลใหม่
+        let totalVal = 0, dataMap = {};
+        globalTradesData.forEach(t => {
+            let key = (type === 'byStock') ? t.symbol : (t.sector || 'อื่นๆ');
+            dataMap[key] = (dataMap[key] || 0) + parseFloat(t.netAmount || 0);
+            totalVal += parseFloat(t.netAmount || 0);
+        });
+        
+        document.getElementById('detailTitle').innerText = (type === 'byStock' ? 'สัดส่วนหุ้น (%)' : 'สัดส่วนกลุ่ม (%)');
+        document.getElementById('detailBody').innerHTML = Object.keys(dataMap).map(k => 
+            `<div class="mb-2"><div class="d-flex justify-content-between"><small>${k}</small><small>${((dataMap[k]/totalVal)*100).toFixed(1)}%</small></div><div class="progress" style="height:8px;"><div class="progress-bar" style="width:${((dataMap[k]/totalVal)*100).toFixed(1)}%; background-color:#e88d67;"></div></div></div>`
+        ).join('');
+    }
+    }
     function initConnection() {
         buildStockDropdown();
         const savedUrl = localStorage.getItem('user_google_sheet_url');
