@@ -389,7 +389,7 @@
 
     function autoFillSector(symbolValue) {
         if (!symbolValue) return;
-        const sym = symbolValue.trim().toUpperCase();
+       const sym = String(symbolValue).trim().toUpperCase();
         document.getElementById('symbol').value = sym; 
         if (masterSectorMap[sym]) {
             document.getElementById('sector').value = masterSectorMap[sym];
@@ -479,7 +479,7 @@
 
         trades.forEach(trade => {
             // บังคับให้เป็น String เสมอ เพื่อป้องกันไม่ให้คำว่า TRUE กลายเป็นค่าตรรกะ
-const sym = String(trade.symbol || "").trim().toUpperCase();
+            const sym = String(trade.symbol || "").trim().toUpperCase();
             const units = parseInt(trade.units);
             const netAmount = parseFloat(trade.netAmount);
 
