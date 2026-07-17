@@ -288,31 +288,29 @@
     </div>
 
     <!-- SECTION 3: TRANSACTION RECORD -->
-    <div class="card">
-        <h5 class="card-title mb-3">📜 ประวัติการซื้อ-ขายใน Google Sheet</h5>
-        <div class="table-responsive" style="border-radius: 10px; overflow: hidden; border: 1px solid #f7dfd3;">
-            <table class="table table-striped table-hover align-middle m-0 text-center">
-                <thead class="table-header-custom">
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Symbol</th>
-                        <th>Sector</th>
-                        <th>Broker</th>
-                        <th>Price/ DPU</th>
-                        <th>Units</th>
-                        <th>Gross Amount</th>
-                        <th>Fee&Tax</th>
-                        <th>Net Amount</th>
-                        <th>กำไร/ขาดทุน</th>
-                        <th>จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody id="tradeTableBody">
-                    <tr><td colspan="12" class="text-muted">ไม่มีข้อมูลประวัติ</td></tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="table-responsive" style="border-radius: 10px; overflow-x: auto; border: 1px solid #f7dfd3;">
+    <table class="table table-striped table-hover align-middle m-0 text-center" style="min-width: 800px;">
+        <thead class="table-header-custom">
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>Sector</th>
+                <th>Broker</th>
+                <th>Price/ DPU</th>
+                <th>Units</th>
+                <th>Gross</th>
+                <th>Fee&Tax</th>
+                <th>Net</th>
+                <th>P&L</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+        <tbody id="tradeTableBody">
+            <!-- ข้อมูลของคุณ -->
+        </tbody>
+    </table>
+</div>
         <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">💡 ปัดตาราง ซ้าย-ขวา เพื่อดูคอลัมน์ทั้งหมดบนมือถือ</small>
     </div>
 </div>
