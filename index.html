@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -306,6 +308,12 @@
                 <th>จัดการ</th>
             </tr>
         </thead>
+
+        <div class="mb-3">
+    <input type="text" id="searchInput" class="form-control" 
+           placeholder="🔍 ค้นหาหุ้น (เช่น TRUE) หรือวันที่ (เช่น 2026-07-17)..." 
+           onkeyup="searchTrades()">
+</div>
         <tbody id="tradeTableBody">
             <!-- ข้อมูลของคุณ -->
         </tbody>
@@ -468,6 +476,7 @@
         document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
     }
 function renderPortfolioAndRecords(trades) {
+    document.getElementById('searchInput').value = "";
     // 1. รับค่าและเตรียมการแสดงผล
     if (trades) globalTradesData = trades; // เก็บข้อมูลทั้งหมดไว้ในตัวแปร global
     const portfolio = {}, realizedPnL = {}, tbodyRecord = document.getElementById('tradeTableBody');
@@ -564,6 +573,55 @@ function renderPortfolioAndRecords(trades) {
     displayCount = 50; // เมื่อบันทึกใหม่ ให้กลับมาโชว์ 50 รายการล่าสุด
     // ... (โค้ดเดิมของคุณ)
 }
+
+function searchTrades() {
+    const input = document.getElementById("searchInput").value.toUpperCase();
+    
+    // ถ้าช่องค้นหาว่าง ให้แสดงรายการปกติ (ตามจำนวน displayCount)
+    if (input === "") {
+        renderPortfolioAndRecords();
+        return;
+    }
+
+    // ถ้ามีการพิมพ์ค้นหา ให้กรองข้อมูลทั้งหมด
+    const filteredData = globalTradesData.filter(trade => {
+        const dateStr = trade.date.split("T")[0]; // วันที่
+        const sym = String(trade.symbol || "").toUpperCase(); // ชื่อหุ้น
+        
+        return sym.includes(input) || dateStr.includes(input);
+    });
+
+    // วาดตารางใหม่ด้วยผลลัพธ์ที่กรองแล้ว (แสดงทั้งหมดที่หาเจอ)
+    renderTableOnly(filteredData);
+}
+
+// ฟังก์ชันพิเศษ: วาดแค่ตาราง โดยไม่คำนวณ Dashboard ซ้ำ
+function renderTableOnly(data) {
+    const tbodyRecord = document.getElementById('tradeTableBody');
+    tbodyRecord.innerHTML = '';
+    
+    data.slice().reverse().forEach(trade => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${trade.date.split("T")[0]}</td>
+            <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
+            <td class="fw-bold">${trade.symbol}</td>
+            <td>${trade.sector || '-'}</td>
+            <td>${trade.broker || '-'}</td>
+            <td>${parseFloat(trade.price).toLocaleString()}</td>
+            <td>${parseInt(trade.units).toLocaleString()}</td>
+            <td>${parseFloat(trade.grossAmount).toLocaleString()}</td>
+            <td>${parseFloat(trade.feeTax).toLocaleString()}</td>
+            <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td>
+            <td>-</td>
+            <td>
+                <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
+                <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
+            </td>`;
+        tbodyRecord.appendChild(row);
+    });
+}
+    
     function deleteRecord(rowIndex, symbol, units) {
         if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol} จำนวน ${units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
             return;
