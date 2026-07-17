@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stock Trading Tracker</title>
+    <!-- นำเข้า Bootstrap CSS เพื่อความสวยงาม -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --pastel-bg: #f4f9f4;
+            --pastel-green-dark: #6ba37b;
+            --pastel-green-light: #e8f4ea;
+            --pastel-green-accent: #a3d9b1;
+            --pastel-card-bg: #ffffff;
+            --pastel-buy: #52b788;
+            --pastel-sell: #e56b6f;
+        }
+
+        body { 
+            background-color: var(--pastel-bg); 
+            padding: 12px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            color: #3d4a41;
+        }
+
+        .container-fluid {
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+        .card { 
+            border-radius: 16px; 
+            box-shadow: 0 4px 12px rgba(107, 163, 123, 0.08); 
+            border: 1px solid rgba(163, 217, 177, 0.3); 
+            background-color: var(--pastel-card-bg);
+            padding: 16px !important;
+            margin-bottom: 16px !important;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            color: #2d4c38;
+        }
+
+        /* ปรับสไตล์ฟอร์มให้เหมาะกับมือถือ */
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: #4a5d51;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #c2dcc8;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            background-color: #fafdfa;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--pastel-green-dark);
+            box-shadow: 0 0 0 0.25rem rgba(107, 163, 123, 0.2);
+            background-color: #ffffff;
+        }
+
+        /* ปรับแต่งหัวตารางพาสเทล */
+        .table-header-custom { 
+            background-color: var(--pastel-green-accent); 
+            color: #2d4c38;
+            font-size: 0.85rem;
+        }
+
+        .table-header-custom th {
+            font-weight: 600;
+            padding: 12px 8px;
+        }
+
+        /* ขนาดตารางสำหรับการดูบนมือถือ */
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .table td {
+            padding: 12px 8px;
+        }
+
+        .type-buy { color: var(--pastel-buy); font-weight: bold; }
+        .type-sell { color: var(--pastel-sell); font-weight: bold; }
+
+        /* ปุ่มกดขนาดใหญ่ขึ้นสำหรับมือถือ */
+        .btn-primary {
+            background-color: var(--pastel-green-dark);
+            border-color: var(--pastel-green-dark);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover, .btn-primary:active, .btn-primary:focus {
+            background-color: #568462 !important;
+            border-color: #568462 !important;
+        }
+
+        .btn-outline-danger {
+            border-radius: 8px;
+            font-size: 0.8rem;
+            border-color: #e56b6f;
+            color: #e56b6f;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #e56b6f;
+            color: white;
+        }
+
+        .btn-danger-custom {
+            background-color: #fceeed;
+            color: var(--pastel-sell);
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* ซ่อน Action แถวว่างเมื่อไม่มีข้อมูลให้ดูเรียบร้อย */
+        .text-muted {
+            padding: 30px 0 !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <h3 class="mt-2 mb-3 text-center fw-bold" style="color: #3b6649;">📉 Stock Tracker</h3>
+    
+    <!-- ส่วนของฟอร์มกรอกข้อมูล (จัดเป็น 1-2 คอลัมน์บนมือถือ) -->
+    <div class="card">
+        <h5 class="card-title mb-3 fw-bold">➕ เพิ่มรายการใหม่</h5>
+        <form id="tradeForm" class="row g-3">
+            <div class="col-6">
+                <label class="form-label">วันที่</label>
+                <input type="date" id="date" class="form-control" required>
+            </div>
+            <div class="col-6">
+                <label class="form-label">ประเภท</label>
+                <select id="type" class="form-select" required>
+                    <option value="ซื้อ">ซื้อ (BUY)</option>
+                    <option value="ขาย">ขาย (SELL)</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <label class="form-label">ชื่อหุ้น (Symbol)</label>
+                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" required style="text-transform:uppercase">
+            </div>
+            <div class="col-6">
+                <label class="form-label">กลุ่ม (Sector)</label>
+                <input type="text" id="sector" class="form-control" placeholder="เช่น ENERG">
+            </div>
+            <div class="col-12">
+                <label class="form-label">โบรคเกอร์ (Broker)</label>
+                <input type="text" id="broker" class="form-control" placeholder="เช่น บล.บัวหลวง">
+            </div>
+            <div class="col-6">
+                <label class="form-label">ราคา/หุ้น</label>
+                <input type="number" step="any" id="price" class="form-control" placeholder="0.00" required>
+            </div>
+            <div class="col-6">
+                <label class="form-label">จำนวนหุ้น (Units)</label>
+                <input type="number" id="units" class="form-control" placeholder="0" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">ค่าธรรมเนียม & ภาษี (Fee & Tax %)</label>
+                <input type="number" step="any" id="feeRate" class="form-control" value="0.157" placeholder="0.157">
+            </div>
+            <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary w-100 fw-bold">💾 บันทึกรายการ</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ส่วนของตารางแสดงข้อมูลปัดซ้ายขวาได้บนมือถือ -->
+    <div class="card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title fw-bold m-0">📊 ประวัติการซื้อขาย</h5>
+            <button onclick="clearAllData()" class="btn btn-outline-danger btn-sm">ล้างทั้งหมด</button>
+        </div>
+        
+        <div class="table-responsive" style="border-radius: 10px; overflow: hidden; border: 1px solid #e1eee4;">
+            <table class="table table-striped table-hover align-middle m-0">
+                <thead class="table-header-custom text-center">
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Symbol</th>
+                        <th>Sector</th>
+                        <th>Broker</th>
+                        <th>Price</th>
+                        <th>Units</th>
+                        <th>Gross</th>
+                        <th>Fee&Tax</th>
+                        <th>Net Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeTableBody" class="text-center">
+                    <!-- ข้อมูลจะถูกแสดงที่นี่ -->
+                </tbody>
+            </table>
+        </div>
+        <small class="text-muted text-center d-block d-md-none mt-2" style="font-size: 0.75rem;">💡 เลื่อนตารางไปทางซ้าย-ขวา เพื่อดูข้อมูลทั้งหมด</small>
+    </div>
+</div>
+
+<script>
+    // ตั้งค่าวันที่ปัจจุบันให้ฟอร์มอัตโนมัติ
+    document.getElementById('date').valueAsDate = new Date();
+
+    // ฟังก์ชันโหลดข้อมูลจาก LocalStorage
+    function loadData() {
+        const trades = JSON.parse(localStorage.getItem('stockTrades')) || [];
+        const tbody = document.getElementById('tradeTableBody');
+        tbody.innerHTML = '';
+
+        if(trades.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="11" class="text-muted text-center">ยังไม่มีข้อมูลการซื้อขาย</td></tr>`;
+            return;
+        }
+
+        // เรียงลำดับเอาข้อมูลล่าสุดขึ้นก่อน เพื่อให้ดูบนมือถือง่ายขึ้นไม่ต้องเลื่อนลงไปล่างสุด
+        trades.slice().reverse().forEach((trade, reversedIndex) => {
+            // คำนวณหา index ที่แท้จริงเพื่อใช้ในการลบ
+            const actualIndex = trades.length - 1 - reversedIndex; 
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${trade.date}</td>
+                <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
+                <td class="fw-bold">${trade.symbol.toUpperCase()}</td>
+                <td>${trade.sector || '-'}</td>
+                <td>${trade.broker || '-'}</td>
+                <td>${parseFloat(trade.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td>${parseInt(trade.units).toLocaleString()}</td>
+                <td>${parseFloat(trade.grossAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td>${parseFloat(trade.feeTax).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td class="fw-bold text-dark">${parseFloat(trade.netAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td><button onclick="deleteTrade(${actualIndex})" class="btn-danger-custom">ลบ</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // ฟังก์ชันบันทึกข้อมูล
+    document.getElementById('tradeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const price = parseFloat(document.getElementById('price').value);
+        const units = parseInt(document.getElementById('units').value);
+        const feeRate = parseFloat(document.getElementById('feeRate').value) / 100;
+        const type = document.getElementById('type').value;
+
+        // คำนวณเงิน
+        const grossAmount = price * units;
+        const feeTax = grossAmount * feeRate;
+        const netAmount = type === 'ซื้อ' ? (grossAmount + feeTax) : (grossAmount - feeTax);
+
+        const newTrade = {
+            date: document.getElementById('date').value,
+            type: type,
+            symbol: document.getElementById('symbol').value,
+            sector: document.getElementById('sector').value,
+            broker: document.getElementById('broker').value,
+            price: price,
+            units: units,
+            grossAmount: grossAmount.toFixed(2),
+            feeTax: feeTax.toFixed(2),
+            netAmount: netAmount.toFixed(2)
+        };
+
+        const trades = JSON.parse(localStorage.getItem('stockTrades')) || [];
+        trades.push(newTrade);
+        localStorage.setItem('stockTrades', JSON.stringify(trades));
+
+        // รีเซ็ตฟอร์มบางส่วน
+        document.getElementById('symbol').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('units').value = '';
+        
+        loadData();
+    });
+
+    // ฟังก์ชันลบรายการทีละแถว
+    function deleteTrade(index) {
+        if(confirm('คุณต้องการลบรายการนี้ใช่หรือไม่?')) {
+            const trades = JSON.parse(localStorage.getItem('stockTrades')) || [];
+            trades.splice(index, 1);
+            localStorage.setItem('stockTrades', JSON.stringify(trades));
+            loadData();
+        }
+    }
+
+    // ฟังก์ชันล้างข้อมูลทั้งหมด
+    function clearAllData() {
+        if(confirm('⚠️ คุณต้องการล้างข้อมูลการซื้อขายทั้งหมดใช่หรือไม่?')) {
+            localStorage.removeItem('stockTrades');
+            loadData();
+        }
+    }
+
+    // โหลดข้อมูลขึ้นมาแสดงตอนเปิดเว็บครั้งแรก
+    window.onload = loadData;
+</script>
+
+</body>
+</html>
