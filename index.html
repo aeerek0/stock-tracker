@@ -622,20 +622,22 @@ function renderPortfolioAndRecords(trades) {
             cache: "no-cache",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(tradeData)
-       }).then(() => {
-    alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
-    
-    // --- เพิ่ม 2 บรรทัดนี้ ---
-    cancelEditMode(); // เคลียร์ฟอร์มและรีเซ็ตโหมด
-    document.getElementById('submitBtn').disabled = false; // ปลดล็อกปุ่ม
-    // ----------------------
-    
-    setTimeout(fetchAndRenderData, 1000); // ดึงข้อมูลใหม่มาแสดงทันที
-}).catch(error => {
-    alert("บันทึกล้มเหลว");
-    document.getElementById('submitBtn').disabled = false; // ปลดล็อกปุ่มถ้าพลาด
-});
+}).then(() => {
+        alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
+        
+        // --- ส่วนสำคัญ: เคลียร์ค่าและปลดล็อกปุ่ม ---
+        cancelEditMode(); 
+        submitBtn.disabled = false; // ปลดล็อกปุ่ม
+        submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+        
+        // อัปเดตตารางใหม่โดยไม่ต้องรีเฟรช
+        fetchAndRenderData();
+    }).catch(error => {
+        alert("บันทึกล้มเหลว");
+        submitBtn.disabled = false; // ปลดล็อกถ้าเกิดข้อผิดพลาด
+        submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
     });
+});
     window.onload = initConnection;
 </script>
 </body>
