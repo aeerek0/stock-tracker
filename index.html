@@ -157,65 +157,81 @@
     </style>
 </head>
 <body>
-
 <div class="container-fluid">
     <h3 class="mt-2 mb-3 text-center fw-bold" style="color: #6e3b23;">🍊 Stock Sheets Tracker</h3>
 
-    <!-- DASHBOARD SECTION -->
-<div class="row g-2 mb-3">
-    <div class="col-6 col-md-3">
-        <div class="card p-2 text-center" style="background: #fff5ee;">
-            <small class="text-muted" style="font-size: 0.7rem;">มูลค่าพอร์ต (คงเหลือ)</small>
-            <div id="dashTotalValue" class="fw-bold" style="color:#6e3b23;">0.00</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card p-2 text-center" style="background: #fff5ee;">
-            <small class="text-muted" style="font-size: 0.7rem;">กำไร/ขาดทุนสะสม</small>
-            <div id="dashTotalPnL" class="fw-bold" style="color:#4faba2;">0.00</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card p-2 text-center" style="background: #fff5ee;">
-            <small class="text-muted" style="font-size: 0.7rem;">หุ้นในพอร์ต</small>
-            <div id="dashTotalStocks" class="fw-bold" style="color:#e88d67;">0</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card p-2 text-center" style="background: #fff5ee;">
-            <small class="text-muted" style="font-size: 0.7rem;">จำนวนรายการ</small>
-            <div id="dashTotalTrades" class="fw-bold" style="color:#6e3b23;">0</div>
-        </div>
-    </div>
-</div>
-<div class="d-flex justify-content-center gap-2 mb-3">
-    <button onclick="toggleDetails('byStock')" class="btn btn-sm btn-outline-secondary">ดูตามรายหุ้น (%)</button>
-    <button onclick="toggleDetails('bySector')" class="btn btn-sm btn-outline-secondary">ดูตามกลุ่ม (%)</button>
-
-<div id="detailsContainer" class="card" style="display: none;">
-    <h6 id="detailTitle" class="card-title text-center"></h6>
-    <div id="detailBody"></div>
-</div>
-    
-
-    
-    
-    <!-- SECTION 0: CONFIG -->
+    <!-- SECTION 0: CONFIG (ไว้บนสุด) -->
     <div class="card">
-        <h5 class="card-title mb-2">⚙️ ตั้งค่า Google Sheet ส่วนตัว</h5>
+        <h5 class="card-title mb-2">⚙️ ตั้งค่า Google Sheet</h5>
         <div class="config-box">
-            <label class="form-label fw-bold text-danger">ระบุ Web App URL ของคุณ:</label>
-            <div class="d-flex gap-2 mt-1">
-                <input type="password" id="sheetUrlInput" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+            <div class="d-flex gap-2">
+                <input type="password" id="sheetUrlInput" class="form-control" placeholder="ใส่ Web App URL ที่นี่...">
                 <button onclick="saveSheetUrl()" class="btn-secondary-custom px-3">เชื่อมต่อ</button>
             </div>
-            <small id="connectionStatus" class="d-block mt-2 fw-bold text-muted">🔴 สถานะ: ยังไม่ได้เชื่อมต่อตาราง</small>
+            <small id="connectionStatus" class="d-block mt-2 fw-bold text-muted">🔴 สถานะ: ยังไม่ได้เชื่อมต่อ</small>
         </div>
     </div>
-</div>
-    <div class="mb-3">
-    <button class="btn btn-sm btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
-    <button class="btn btn-sm btn-outline-success" onclick="updateMonitor('sector')">ราย Sector</button>
+
+    <!-- DASHBOARD SECTION -->
+    <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center" style="background: #fff5ee;">
+                <small class="text-muted" style="font-size: 0.7rem;">มูลค่าพอร์ต</small>
+                <div id="dashTotalValue" class="fw-bold" style="color:#6e3b23;">0.00</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center" style="background: #fff5ee;">
+                <small class="text-muted" style="font-size: 0.7rem;">กำไร/ขาดทุน</small>
+                <div id="dashTotalPnL" class="fw-bold" style="color:#4faba2;">0.00</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center" style="background: #fff5ee;">
+                <small class="text-muted" style="font-size: 0.7rem;">หุ้นในพอร์ต</small>
+                <div id="dashTotalStocks" class="fw-bold" style="color:#e88d67;">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center" style="background: #fff5ee;">
+                <small class="text-muted" style="font-size: 0.7rem;">จำนวนรายการ</small>
+                <div id="dashTotalTrades" class="fw-bold" style="color:#6e3b23;">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: MONITOR & CONTROLS -->
+    <div class="card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">📊 Portfolio Monitor</h5>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
+                <button class="btn btn-outline-success" onclick="updateMonitor('sector')">ราย Sector</button>
+                <button onclick="toggleDetails('byStock')" class="btn btn-outline-secondary">% รายหุ้น</button>
+                <button onclick="toggleDetails('bySector')" class="btn btn-outline-secondary">% รายกลุ่ม</button>
+            </div>
+        </div>
+
+        <div id="detailsContainer" class="card mb-3" style="display: none; background: #fffaf0;">
+            <h6 id="detailTitle" class="card-title text-center"></h6>
+            <div id="detailBody"></div>
+        </div>
+
+        <div class="table-responsive" style="border-radius: 10px; border: 1px solid #f7dfd3;">
+            <table class="table table-striped table-hover align-middle m-0 text-center">
+                <thead class="monitor-header">
+                    <tr>
+                        <th>Symbol</th><th>คงเหลือ</th><th>ต้นทุน/หน่วย</th><th>มูลค่ารวม</th><th>กำไร/ขาดทุน</th>
+                    </tr>
+                </thead>
+                <tbody id="monitorTableBody">
+                    <tr><td colspan="5" class="text-muted">กรุณาเชื่อมต่อเพื่อดึงข้อมูล</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- ต่อด้วยส่วน Form และ Table รายการซื้อขายของคุณ... -->
 </div>
     <!-- SECTION 1: MONITOR -->
     <div class="card">
