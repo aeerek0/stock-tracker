@@ -191,11 +191,7 @@
 <div class="d-flex justify-content-center gap-2 mb-3">
     <button onclick="toggleDetails('byStock')" class="btn btn-sm btn-outline-secondary">ดูตามรายหุ้น (%)</button>
     <button onclick="toggleDetails('bySector')" class="btn btn-sm btn-outline-secondary">ดูตามกลุ่ม (%)</button>
-</div>
-    <div class="mb-3">
-    <button class="btn btn-sm btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
-    <button class="btn btn-sm btn-outline-success" onclick="updateMonitor('sector')">ราย Sector</button>
-</div>
+
 <div id="detailsContainer" class="card" style="display: none;">
     <h6 id="detailTitle" class="card-title text-center"></h6>
     <div id="detailBody"></div>
@@ -216,7 +212,11 @@
             <small id="connectionStatus" class="d-block mt-2 fw-bold text-muted">🔴 สถานะ: ยังไม่ได้เชื่อมต่อตาราง</small>
         </div>
     </div>
-
+</div>
+    <div class="mb-3">
+    <button class="btn btn-sm btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
+    <button class="btn btn-sm btn-outline-success" onclick="updateMonitor('sector')">ราย Sector</button>
+</div>
     <!-- SECTION 1: MONITOR -->
     <div class="card">
         <h5 class="card-title mb-3">📊 Portfolio Monitor</h5>
