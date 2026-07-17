@@ -466,27 +466,27 @@
         document.getElementById('submitBtn').innerText = "💾 บันทึกส่งไปยัง Google Sheets";
         document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
     }
-    function renderPortfolioAndRecords(trades) {
-        const portfolio = {};
-        const realizedPnL = {};
-        const tbodyRecord = document.getElementById('tradeTableBody');
-        tbodyRecord.innerHTML = '';
+function renderPortfolioAndRecords(trades) {
+    // แก้ไข: ประกาศตัวแปรแค่ครั้งเดียว
+    const portfolio = {}, realizedPnL = {}, tbodyRecord = document.getElementById('tradeTableBody');
+    tbodyRecord.innerHTML = '';
 
-        // --- เพิ่มส่วนคำนวณ Dashboard ---
-        let totalPortfolioValue = 0;
-        let totalPnL = 0;
-        let activeStocksCount = 0;
+    // --- เพิ่มส่วนคำนวณ Dashboard ---
+    let totalPortfolioValue = 0;
+    let totalPnL = 0;
+    let activeStocksCount = 0;
 
-        trades.forEach(trade => {
-            // บังคับให้เป็น String เสมอ เพื่อป้องกันไม่ให้คำว่า TRUE กลายเป็นค่าตรรกะ
-            const sym = String(trade.symbol || "").trim().toUpperCase();
-            const units = parseInt(trade.units);
-            const netAmount = parseFloat(trade.netAmount);
+    trades.forEach(trade => {
+        // บังคับให้เป็น String เสมอ เพื่อป้องกันไม่ให้คำว่า TRUE กลายเป็นค่าตรรกะ
+        const sym = String(trade.symbol || "").trim().toUpperCase();
+        const units = parseInt(trade.units);
+        const netAmount = parseFloat(trade.netAmount);
 
-            if (!portfolio[sym]) {
-                portfolio[sym] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
-                realizedPnL[sym] = 0;
-            }
+        if (!portfolio[sym]) {
+            portfolio[sym] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
+            realizedPnL[sym] = 0;
+        }
+            
 
             if (trade.type === 'ซื้อ') {
                 portfolio[sym].totalUnits += units;
