@@ -623,19 +623,14 @@ function renderPortfolioAndRecords(trades) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(tradeData)
        }).then(() => {
-    alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
-    
-    // --- เพิ่ม 2 บรรทัดนี้ ---
-    cancelEditMode(); // เคลียร์ฟอร์มและรีเซ็ตโหมด
-    document.getElementById('submitBtn').disabled = false; // ปลดล็อกปุ่ม
-    // ----------------------
-    
-    setTimeout(fetchAndRenderData, 1000); // ดึงข้อมูลใหม่มาแสดงทันที
-}).catch(error => {
-    alert("บันทึกล้มเหลว");
-    document.getElementById('submitBtn').disabled = false; // ปลดล็อกปุ่มถ้าพลาด
-});
-
+            alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
+            cancelEditMode();
+            setTimeout(fetchAndRenderData, 1500);
+        }).catch(error => {
+            alert("บันทึกล้มเหลว");
+            submitBtn.disabled = false;
+        });
+    });
     window.onload = initConnection;
 </script>
 </body>
