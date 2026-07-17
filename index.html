@@ -158,7 +158,34 @@
 
 <div class="container-fluid">
     <h3 class="mt-2 mb-3 text-center fw-bold" style="color: #6e3b23;">🍊 Stock Sheets Tracker</h3>
-    
+
+    <!-- DASHBOARD SECTION -->
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card p-2 text-center" style="background: #fff5ee;">
+            <small class="text-muted" style="font-size: 0.7rem;">มูลค่าพอร์ต (คงเหลือ)</small>
+            <div id="dashTotalValue" class="fw-bold" style="color:#6e3b23;">0.00</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-2 text-center" style="background: #fff5ee;">
+            <small class="text-muted" style="font-size: 0.7rem;">กำไร/ขาดทุนสะสม</small>
+            <div id="dashTotalPnL" class="fw-bold" style="color:#4faba2;">0.00</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-2 text-center" style="background: #fff5ee;">
+            <small class="text-muted" style="font-size: 0.7rem;">หุ้นในพอร์ต</small>
+            <div id="dashTotalStocks" class="fw-bold" style="color:#e88d67;">0</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-2 text-center" style="background: #fff5ee;">
+            <small class="text-muted" style="font-size: 0.7rem;">จำนวนรายการ</small>
+            <div id="dashTotalTrades" class="fw-bold" style="color:#6e3b23;">0</div>
+        </div>
+    </div>
+</div>
     <!-- SECTION 0: CONFIG -->
     <div class="card">
         <h5 class="card-title mb-2">⚙️ ตั้งค่า Google Sheet ส่วนตัว</h5>
@@ -412,25 +439,21 @@
         document.getElementById('editAlert').style.display = "none";
         document.getElementById('submitBtn').innerText = "💾 บันทึกส่งไปยัง Google Sheets";
         document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
-    }
-
-    function renderPortfolioAndRecords(trades) {
+    }function renderPortfolioAndRecords(trades) {
         const portfolio = {};
         const realizedPnL = {};
         const tbodyRecord = document.getElementById('tradeTableBody');
         tbodyRecord.innerHTML = '';
 
-        if(trades.length === 0) {
-            document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-muted">ไม่มีข้อมูลหุ้นคงเหลือ</td></tr>`;
-            tbodyRecord.innerHTML = `<tr><td colspan="12" class="text-muted">ยังไม่มีประวัติในชีทของคุณ</td></tr>`;
-            return;
-        }
+        // --- เพิ่มส่วนคำนวณ Dashboard ---
+        let totalPortfolioValue = 0;
+        let totalPnL = 0;
+        let activeStocksCount = 0;
 
         trades.forEach(trade => {
             const sym = trade.symbol.trim().toUpperCase();
             const units = parseInt(trade.units);
             const netAmount = parseFloat(trade.netAmount);
-            let itemPnL = '-';
 
             if (!portfolio[sym]) {
                 portfolio[sym] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
@@ -443,59 +466,71 @@
                 portfolio[sym].avgPrice = portfolio[sym].totalCost / portfolio[sym].totalUnits;
             } else {
                 const costOfSoldShares = units * portfolio[sym].avgPrice;
-                const pnl = netAmount - costOfSoldShares;
-                realizedPnL[sym] += pnl;
-                itemPnL = `<span class="${pnl >= 0 ? 'profit' : 'loss'}">${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}</span>`;
-
+                realizedPnL[sym] += (netAmount - costOfSoldShares);
                 portfolio[sym].totalUnits -= units;
                 portfolio[sym].totalCost -= costOfSoldShares;
                 if(portfolio[sym].totalUnits <= 0) {
                     portfolio[sym].totalUnits = 0; portfolio[sym].totalCost = 0; portfolio[sym].avgPrice = 0;
                 }
             }
+        });
 
-            let dateDisplay = trade.date;
-            if(dateDisplay.includes("T")) dateDisplay = dateDisplay.split("T")[0];
+        // สรุปยอดเข้า Dashboard
+        Object.keys(portfolio).forEach(sym => {
+            if (portfolio[sym].totalUnits > 0) {
+                activeStocksCount++;
+                totalPortfolioValue += portfolio[sym].totalCost;
+            }
+            totalPnL += realizedPnL[sym];
+        });
 
+        document.getElementById('dashTotalValue').innerText = totalPortfolioValue.toLocaleString(undefined, {maximumFractionDigits: 0});
+        document.getElementById('dashTotalPnL').innerText = (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('dashTotalStocks').innerText = activeStocksCount;
+        document.getElementById('dashTotalTrades').innerText = trades.length;
+        // --------------------------------
+
+        // Render ตารางประวัติ (ส่วนเดิมของคุณ)
+        trades.slice().reverse().forEach(trade => {
+            let dateDisplay = trade.date.split("T")[0];
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${dateDisplay}</td>
                 <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
-                <td class="fw-bold">${sym}</td>
+                <td class="fw-bold">${trade.symbol}</td>
                 <td>${trade.sector || '-'}</td>
                 <td>${trade.broker || '-'}</td>
                 <td>${parseFloat(trade.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                <td>${units.toLocaleString()}</td>
+                <td>${parseInt(trade.units).toLocaleString()}</td>
                 <td>${parseFloat(trade.grossAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 <td>${parseFloat(trade.feeTax).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                <td>${itemPnL}</td>
+                <td>-</td>
                 <td>
-                    <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️ แก้ไข</button>
-                    <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${sym}', ${units})">🗑️ ลบ</button>
+                    <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
+                    <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
                 </td>
             `;
-            tbodyRecord.insertBefore(row, tbodyRecord.firstChild);
+            tbodyRecord.appendChild(row);
         });
 
+        // Render Monitor Table
         const mBody = document.getElementById('monitorTableBody');
         mBody.innerHTML = '';
         Object.keys(portfolio).forEach(sym => {
-            if (portfolio[sym].totalUnits > 0 || realizedPnL[sym] !== 0) {
-                const pnl = realizedPnL[sym];
+            if (portfolio[sym].totalUnits > 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="fw-bold">${sym}</td>
                     <td>${portfolio[sym].totalUnits.toLocaleString()}</td>
-                    <td>${portfolio[sym].avgPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 4})}</td>
+                    <td>${portfolio[sym].avgPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                     <td>${portfolio[sym].totalCost.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                    <td class="${pnl >= 0 ? 'profit' : 'loss'}">${pnl >= 0 ? '+' : ''}${pnl.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    <td class="${realizedPnL[sym] >= 0 ? 'profit' : 'loss'}">${realizedPnL[sym].toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 `;
                 mBody.appendChild(row);
             }
         });
     }
-
     function deleteRecord(rowIndex, symbol, units) {
         if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol} จำนวน ${units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
             return;
