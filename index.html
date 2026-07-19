@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -287,6 +288,10 @@
                 <label class="form-label">Units</label>
                 <input type="number" id="units" class="form-control" placeholder="0" required>
             </div>
+            <div class="col-12" id="amountContainer" style="display: none;">
+             <label class="form-label">จำนวนเงิน (สำหรับฝาก/ถอน)</label>
+            <input type="number" step="any" id="amount" class="form-control" placeholder="0.00">
+            </div>    
             <div class="col-12">
                 <label class="form-label">ค่าธรรมเนียม & ภาษี %</label>
                 <input type="number" step="any" id="feeRate" class="form-control" value="0.0">
@@ -338,7 +343,20 @@
     let currentMonitorView = 'stock';
     let sortDirection = 1; // 1 = มากไปน้อย, -1 = น้อยไปมาก
 
+    document.getElementById('type').addEventListener('change', function() {
+    const amountContainer = document.getElementById('amountContainer');
+    const isCash = (this.value === 'ฝากเงิน' || this.value === 'ถอนเงิน');
+    amountContainer.style.display = isCash ? 'block' : 'none';
     
+    // สลับเปิด/ปิด required ของช่องที่จำเป็น
+    document.getElementById('symbol').required = !isCash;
+    document.getElementById('price').required = !isCash;
+    document.getElementById('units').required = !isCash;
+
+    if(document.getElementById('editRowIndex').value === "") { 
+        this.value === 'ซื้อ' ? document.getElementById('feeRate').value = '0.0' : document.getElementById('feeRate').value = '0.1822';
+    }
+});
     const masterSectorMap = {
         "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
         "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
