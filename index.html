@@ -814,13 +814,17 @@ if(tradeForm){
 tradeForm.addEventListener('submit', function(e){
 
     e.preventDefault();
-    if(!WEB_APP_URL) return;
-    
-    const submitBtn = document.getElementById('submitBtn');
-    const editRowIndex = document.getElementById('editRowIndex').value;
-    
-    submitBtn.disabled = true;
-    submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
+
+    if(!WEB_APP_URL){
+        alert("ยังไม่ได้เชื่อม Google Sheet");
+        return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    const editRowIndex = document.getElementById('editRowIndex').value;
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
 
     const price = parseFloat(document.getElementById('price').value) || 0;
     const units = parseInt(document.getElementById('units').value) || 0;
@@ -854,47 +858,55 @@ tradeForm.addEventListener('submit', function(e){
         netAmount: netAmount.toFixed(2)
     };
 
-fetch(WEB_APP_URL, {
-    method: "POST",
-    cache: "no-cache",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(tradeData)
-})
-.then(() => {
+    fetch(WEB_APP_URL,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify(tradeData)
+    })
+    .then(response=>response.text())
+    .then(result=>{
 
-    alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
+        console.log("Google Response:",result);
 
-    cancelEditMode();
+        alert(
+            editRowIndex !== "" 
+            ? "อัปเดตข้อมูลสำเร็จ!" 
+            : "บันทึกข้อมูลสำเร็จ!"
+        );
 
-    submitBtn.disabled = false;
-    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+        cancelEditMode();
 
-    fetchAndRenderData();   // โหลดข้อมูลใหม่
+        submitBtn.disabled=false;
+        submitBtn.innerText="💾 บันทึกส่งไปยัง Google Sheets";
 
-})
-.catch(err => {
+        fetchAndRenderData();
 
-    console.error(err);
+    })
+    .catch(err=>{
 
-    submitBtn.disabled = false;
-    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+        console.error(err);
 
-    alert("บันทึกข้อมูลไม่สำเร็จ");
+        alert("บันทึกไม่สำเร็จ");
+
+        submitBtn.disabled=false;
+
+    });
+
 
 });
 
-}); // <<< สำคัญ ปิด tradeForm.addEventListener ตรงนี้
+}
 
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
-window.onload = function() {
+window.onload=function(){
 
-    const dateInput = document.getElementById('date');
+    const dateInput=document.getElementById('date');
 
-    if(dateInput) {
-        dateInput.valueAsDate = new Date();
+    if(dateInput){
+        dateInput.valueAsDate=new Date();
     }
 
     initConnection();
