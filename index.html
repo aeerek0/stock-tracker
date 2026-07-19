@@ -201,59 +201,45 @@
     </div>
 
     <!-- SECTION 1: MONITOR & CONTROLS -->
-    <div class="card">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <h5 class="card-title mb-0">📊 Portfolio Monitor</h5>
-            <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
-                <button class="btn btn-outline-success" onclick="updateMonitor('sector')">ราย Sector</button>
-                <button onclick="toggleDetails('byStock')" class="btn btn-outline-secondary">% รายหุ้น</button>
-                <button onclick="toggleDetails('bySector')" class="btn btn-outline-secondary">% รายกลุ่ม</button>
-            </div>
-        </div>
-
-        <div id="detailsContainer" class="card mb-3" style="display: none; background: #fffaf0;">
-            <h6 id="detailTitle" class="card-title text-center"></h6>
-            <div id="detailBody"></div>
-        </div>
-
-        <div class="table-responsive" style="border-radius: 10px; border: 1px solid #f7dfd3;">
-            <table class="table table-striped table-hover align-middle m-0 text-center">
-                <thead class="monitor-header">
-                    <tr>
-                        <th>Symbol</th><th>คงเหลือ</th><th>ต้นทุน/หน่วย</th><th>มูลค่ารวม</th><th>กำไร/ขาดทุน</th>
-                    </tr>
-                </thead>
-                <tbody id="monitorTableBody">
-                    <tr><td colspan="5" class="text-muted">กรุณาเชื่อมต่อเพื่อดึงข้อมูล</td></tr>
-                </tbody>
-            </table>
+<div class="card mb-3">
+    <!-- ส่วนหัวและปุ่มควบคุม -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">📊 Portfolio Monitor</h5>
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
+            <button class="btn btn-outline-success" onclick="updateMonitor('sector')">รายกลุ่ม</button>
+            <!-- ปุ่มเรียกดูรายละเอียดพิเศษ -->
+            <button onclick="toggleDetails('byStock')" class="btn btn-outline-secondary">รายละเอียดหุ้น</button>
         </div>
     </div>
-    
-    <!-- ต่อด้วยส่วน Form และ Table รายการซื้อขายของคุณ... -->
+
+    <!-- ส่วนแสดงรายละเอียดที่คลิกดูได้ (ซ่อนอยู่ตอนเริ่ม) -->
+    <div id="detailsContainer" class="card mb-3" style="display: none; background: #fffaf0; border: 1px dashed #d6a085;">
+        <div class="card-body py-2">
+            <h6 id="detailTitle" class="card-title text-center mb-1"></h6>
+            <div id="detailBody" class="small text-muted text-center"></div>
+        </div>
+    </div>
+
+    <!-- ตารางหลักที่แสดง % พอร์ตตลอดเวลา -->
+    <div class="table-responsive" style="border-radius: 10px; border: 1px solid #f7dfd3;">
+        <table class="table table-striped table-hover align-middle m-0 text-center" style="min-width: 500px;">
+            <thead class="monitor-header">
+                <tr>
+                    <th>Symbol</th>
+                    <th>คงเหลือ</th>
+                    <th>ต้นทุน/หน่วย</th>
+                    <th>มูลค่ารวม</th>
+                    <th>% พอร์ต</th>
+                    <th>กำไร/ขาดทุน</th>
+                </tr>
+            </thead>
+            <tbody id="monitorTableBody">
+                <tr><td colspan="6" class="text-muted">กรุณาเชื่อมต่อเพื่อดึงข้อมูล</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
-    <!-- SECTION 1: MONITOR -->
-    <div class="card">
-        <h5 class="card-title mb-3">📊 Portfolio Monitor</h5>
-<div class="table-responsive" style="border-radius: 10px; overflow-x: auto !important; border: 1px solid #f7dfd3;">
-    <table class="table table-striped table-hover align-middle m-0 text-center" style="min-width: 400px;">
-                <thead class="monitor-header">
-                    <tr>
-                        <th>Symbol</th>
-                        <th>หุ้นคงเหลือ</th>
-                        <th>ราคาต้นทุน/หน่วย</th>
-                        <th>มูลค่าต้นทุนรวม</th>
-                        <th>% พอร์ต</th>
-                        <th>กำไร/ขาดทุนสะสม</th>
-                    </tr>
-                </thead>
-                <tbody id="monitorTableBody">
-                    <tr><td colspan="5" class="text-muted">กรุณาใส่ลิงก์ตั้งค่าด้านบน เพื่อดึงข้อมูลพอร์ตของคุณ</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
 
     <!-- SECTION 2: RECORD FORM -->
     <div class="card">
@@ -374,28 +360,44 @@ function updateMonitor(view) {
     renderPortfolioAndRecords(); 
 }
 
-    function toggleDetails(type) {
+function toggleDetails(type) {
     const container = document.getElementById('detailsContainer');
     
-    // ถ้าปิดอยู่ ให้เปิด และถ้าเปิดอยู่ให้ปิด
     if (container.style.display === "block") {
         container.style.display = "none";
-    } else {
-        container.style.display = "block";
-        // คำนวณข้อมูลใหม่
-        let totalVal = 0, dataMap = {};
-        globalTradesData.forEach(t => {
-            let key = (type === 'byStock') ? t.symbol : (t.sector || 'อื่นๆ');
-            dataMap[key] = (dataMap[key] || 0) + parseFloat(t.netAmount || 0);
-            totalVal += parseFloat(t.netAmount || 0);
-        });
-        
-        document.getElementById('detailTitle').innerText = (type === 'byStock' ? 'สัดส่วนหุ้น (%)' : 'สัดส่วนกลุ่ม (%)');
-        document.getElementById('detailBody').innerHTML = Object.keys(dataMap).map(k => 
-            `<div class="mb-2"><div class="d-flex justify-content-between"><small>${k}</small><small>${((dataMap[k]/totalVal)*100).toFixed(1)}%</small></div><div class="progress" style="height:8px;"><div class="progress-bar" style="width:${((dataMap[k]/totalVal)*100).toFixed(1)}%; background-color:#e88d67;"></div></div></div>`
-        ).join('');
-    }
-    }
+        return;
+    } 
+    
+    container.style.display = "block";
+    
+    // เลือกใช้ตัวแปรที่คำนวณไว้แล้วใน renderPortfolioAndRecords
+    // หมายเหตุ: ต้องมั่นใจว่าตัวแปร portfolio และ sectorPortfolio เป็น global 
+    // หรือถ้าไม่ใช่ ให้คำนวณจากผลลัพธ์ของฟังก์ชันหลักครับ
+    const dataMap = (type === 'byStock') ? portfolio : sectorPortfolio;
+    
+    let totalVal = 0;
+    Object.keys(dataMap).forEach(k => {
+        if (dataMap[k].totalUnits > 0) totalVal += dataMap[k].totalCost;
+    });
+
+    document.getElementById('detailTitle').innerText = (type === 'byStock' ? 'สัดส่วนหุ้น (%)' : 'สัดส่วนกลุ่ม (%)');
+    
+    document.getElementById('detailBody').innerHTML = Object.keys(dataMap)
+        .filter(k => dataMap[k].totalUnits > 0) // กรองเอาเฉพาะตัวที่มีหุ้นเหลือ
+        .map(k => {
+            const pct = (dataMap[k].totalCost / totalVal) * 100;
+            return `
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <small class="fw-bold">${k}</small>
+                        <small>${pct.toFixed(1)}%</small>
+                    </div>
+                    <div class="progress" style="height:8px;">
+                        <div class="progress-bar" style="width:${pct}%; background-color:#e88d67;"></div>
+                    </div>
+                </div>`;
+        }).join('');
+}
     function initConnection() {
         buildStockDropdown();
         const savedUrl = localStorage.getItem('user_google_sheet_url');
