@@ -343,35 +343,31 @@
     let sortDirection = 1;
 
     // --- 1. ส่วนเชื่อมต่อ (แก้ไขตรงนี้เพื่อให้เชื่อมต่อได้ทันที) ---
+// --- ส่วนเชื่อมต่อ (ชุดเดียวและสมบูรณ์) ---
 function initConnection() {
-        try {
-            // ดึง URL จากทั้ง Input และ LocalStorage
-            const inputUrl = document.getElementById('sheetUrlInput') ? document.getElementById('sheetUrlInput').value.trim() : "";
-            const savedUrl = inputUrl || localStorage.getItem('user_google_sheet_url');
-
-            if (savedUrl) {
-                WEB_APP_URL = savedUrl;
-                localStorage.setItem('user_google_sheet_url', savedUrl);
-                
-                // อัปเดต UI
-                const statusEl = document.getElementById('connectionStatus');
-                if(statusEl) {
-                    statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ";
-                    statusEl.className = "d-block mt-2 fw-bold text-success";
-                }
-                
-                console.log("เชื่อมต่อสำเร็จที่ URL:", WEB_APP_URL);
-                
-                // เรียกใช้ฟังก์ชันดึงข้อมูลและ dropdown
-                fetchAndRenderData();
-                buildStockDropdown();
-            } else {
-                console.log("ยังไม่มี URL ในระบบ");
+    try {
+        const savedUrl = localStorage.getItem('user_google_sheet_url');
+        if (savedUrl) {
+            WEB_APP_URL = savedUrl;
+            // ถ้ามีช่อง input ให้ใส่ค่าที่โหลดมาลงไปด้วย
+            const inputEl = document.getElementById('sheetUrlInput');
+            if(inputEl) inputEl.value = savedUrl;
+            
+            const statusEl = document.getElementById('connectionStatus');
+            if(statusEl) {
+                statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ";
+                statusEl.className = "d-block mt-2 fw-bold text-success";
             }
-        } catch (e) {
-            console.error("เกิดข้อผิดพลาดตอนเชื่อมต่อ:", e);
+            console.log("เชื่อมต่อสำเร็จที่ URL:", WEB_APP_URL);
+            fetchAndRenderData();
+            if(typeof buildStockDropdown === 'function') buildStockDropdown();
+        } else {
+            console.log("ยังไม่มี URL ในระบบ");
         }
+    } catch (e) {
+        console.error("เกิดข้อผิดพลาดตอนเชื่อมต่อ:", e);
     }
+}
 
     window.saveSheetUrl = function() {
         const urlInput = document.getElementById('sheetUrlInput');
@@ -415,16 +411,7 @@ function initConnection() {
             this.value === 'ซื้อ' ? document.getElementById('feeRate').value = '0.0' : document.getElementById('feeRate').value = '0.1822';
         }
     });
-// --- 6. เริ่มการทำงานทันทีเมื่อโหลดหน้าเว็บ ---
-// --- สั่งให้เริ่มทำงานเมื่อโหลดหน้าเว็บเสร็จ ---
-window.onload = function() {
-    // 1. ตั้งค่าวันที่ให้เป็นปัจจุบัน
-    const dateInput = document.getElementById('date');
-    if(dateInput) dateInput.valueAsDate = new Date();
-    
-    // 2. เริ่มเชื่อมต่อ Google Sheet
-    initConnection();
-};
+
 
     // --- 7. ฟังก์ชันเสริมที่จำเป็นต้องมี ---
     function buildStockDropdown() {
@@ -914,7 +901,13 @@ function renderTableOnly(data) {
         submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
     });
 });
-
+// --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
+window.onload = function() {
+    const dateInput = document.getElementById('date');
+    if(dateInput) dateInput.valueAsDate = new Date();
+    
+    initConnection();
+};
 </script> 
 </body>
 </html>
