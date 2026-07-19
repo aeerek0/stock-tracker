@@ -411,18 +411,18 @@ function initConnection() {
     });
 
 
-    // --- 7. ฟังก์ชันเสริมที่จำเป็นต้องมี ---
-    function buildStockDropdown() {
-        const datalist = document.getElementById('stockOptions');
-        if(datalist) {
-            datalist.innerHTML = '';
-            Object.keys(masterSectorMap).forEach(stock => {
-                const option = document.createElement('option');
-                option.value = stock;
-                datalist.appendChild(option);
-            });
-        }
+// --- 7. ฟังก์ชันเสริม ---
+function buildStockDropdown() {
+    const datalist = document.getElementById('stockOptions');
+    if(datalist) {
+        datalist.innerHTML = '';
+        Object.keys(masterSectorMap).forEach(stock => {
+            const option = document.createElement('option');
+            option.value = stock;
+            datalist.appendChild(option);
+        });
     }
+}
 function updateMonitor(view) {
     currentMonitorView = view;
     // เพิ่มการวาดตารางใหม่หลังจากเปลี่ยนค่า View
@@ -512,15 +512,6 @@ function toggleDetails(type) {
         }).join('');
 }
 
-    function buildStockDropdown() {
-        const datalist = document.getElementById('stockOptions');
-        datalist.innerHTML = '';
-        Object.keys(masterSectorMap).forEach(stock => {
-            const option = document.createElement('option');
-            option.value = stock;
-            datalist.appendChild(option);
-        });
-    }
 
 function saveSheetUrl() {
     const inputUrl = document.getElementById('sheetUrlInput').value.trim();
