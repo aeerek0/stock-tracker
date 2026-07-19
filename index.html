@@ -465,18 +465,33 @@ function toggleDetails(type) {
 }
 
     
-    function initConnection() {
-        buildStockDropdown();
-        const savedUrl = localStorage.getItem('user_google_sheet_url');
+function initConnection() {
+    try {
+        const inputUrl = document.getElementById('sheetUrlInput').value.trim();
+        const savedUrl = inputUrl || localStorage.getItem('user_google_sheet_url');
+
         if (savedUrl) {
             WEB_APP_URL = savedUrl;
-            document.getElementById('sheetUrlInput').value = savedUrl;
-            document.getElementById('connectionStatus').innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ พร้อมใช้งาน";
-            document.getElementById('connectionStatus').className = "d-block mt-2 fw-bold text-success";
-            document.getElementById('submitBtn').disabled = false;
-            fetchAndRenderData();
+            localStorage.setItem('user_google_sheet_url', savedUrl);
+            
+            // อัปเดตสถานะหน้าจอ
+            const statusEl = document.getElementById('connectionStatus');
+            if(statusEl) {
+                statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ";
+                statusEl.className = "text-success fw-bold";
+            }
+            
+            console.log("เชื่อมต่อสำเร็จที่ URL:", WEB_APP_URL);
+            
+            // ลองดึงข้อมูลทันทีถ้าจำเป็น
+            if(typeof buildStockDropdown === 'function') buildStockDropdown();
+        } else {
+            console.log("ยังไม่มี URL ในระบบ");
         }
+    } catch (e) {
+        console.error("เกิดข้อผิดพลาดตอนเชื่อมต่อ:", e);
     }
+}
 
     function buildStockDropdown() {
         const datalist = document.getElementById('stockOptions');
