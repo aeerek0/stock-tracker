@@ -594,24 +594,6 @@ function updateMonitor(view) {
 
 }
 
-function sortMonitorBy(type) {
-    // 1. ดึงข้อมูลออกมาจากตารางหรือจากตัวแปร portfolio
-    // เราจะสร้าง Array ของหุ้นเพื่อนำมา Sort
-    const keys = Object.keys(portfolio).filter(k => portfolio[k].totalUnits > 0);
-    
-    keys.sort((a, b) => {
-        const valA = realizedPnL[a]; // หรือใช้ค่า ROI ถ้าอยากเรียงตาม %
-        const valB = realizedPnL[b];
-        return (valA - valB) * sortDirection;
-    });
-
-    // สลับทิศทางการเรียงในครั้งถัดไป
-    sortDirection *= -1;
-
-    // 2. สั่ง Render ใหม่โดยใช้ลำดับที่เรียงแล้ว
-    sortMonitorBy(keys);
-}
-
 function sortMonitorBy() {
 
     const dataMap = currentMonitorView === "stock"
@@ -632,16 +614,13 @@ function sortMonitorBy() {
             const roiB = dataMap[b].totalCost === 0 ? 0 :
                 pnLMap[b] / dataMap[b].totalCost;
 
-            return (roiA-roiB)*sortDirection;
-
+            return (roiA - roiB) * sortDirection;
         });
 
     sortDirection *= -1;
 
-    renderMonitorTable(dataMap,pnLMap,sorted);
-
+    renderMonitorTable(dataMap, pnLMap, sorted);
 }
-
     function autoFillSector(symbolValue) {
         if (!symbolValue) return;
        const sym = String(symbolValue).trim().toUpperCase();
