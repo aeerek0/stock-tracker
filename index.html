@@ -967,19 +967,32 @@ function renderTableOnly(data) {
 
         document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12" style="color:var(--pastel-sell); font-weight:bold;">⏳ กำลังลบข้อมูล...</td></tr>`;
 
-        fetch(WEB_APP_URL, {
-            method: "POST",
-            cache: "no-cache",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "delete", rowIndex: rowIndex })
-        }).then(() => {
-            alert("ลบข้อมูลสำเร็จ!");
-            cancelEditMode();
-            setTimeout(fetchAndRenderData, 1500);
-        }).catch(error => {
-            alert("การลบล้มเหลว");
-            fetchAndRenderData();
-        });
+       fetch(WEB_APP_URL,{
+ method:"POST",
+ cache:"no-cache",
+ headers:{
+   "Content-Type":"text/plain;charset=utf-8"
+ },
+ body:JSON.stringify({
+   action:"delete",
+   rowIndex:rowIndex
+ })
+})
+.then(r=>r.json())
+.then(()=>{
+
+alert("ลบข้อมูลสำเร็จ!");
+
+fetchAndRenderData();
+
+})
+.catch(err=>{
+
+console.error(err);
+
+alert("ลบข้อมูลล้มเหลว");
+
+});
     }
         
 const tradeForm = document.getElementById('tradeForm');
@@ -1033,44 +1046,36 @@ tradeForm.addEventListener('submit', function(e){
         netAmount: netAmount.toFixed(2)
     };
 
-    fetch(WEB_APP_URL,{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify(tradeData)
-    })
-    .then(response=>response.text())
-    .then(result=>{
+  fetch(WEB_APP_URL,{
+ method:"POST",
+ cache:"no-cache",
+ headers:{
+   "Content-Type":"text/plain;charset=utf-8"
+ },
+ body:JSON.stringify(tradeData)
+})
+.then(response=>response.json())
+.then(result=>{
 
-        console.log("Google Response:",result);
+ if(result.status==="success"){
 
-        alert(
-            editRowIndex !== "" 
-            ? "อัปเดตข้อมูลสำเร็จ!" 
-            : "บันทึกข้อมูลสำเร็จ!"
-        );
+ alert(editRowIndex!==""?
+ "อัปเดตข้อมูลสำเร็จ!"
+ :
+ "บันทึกข้อมูลสำเร็จ!"
+ );
 
-        cancelEditMode();
+ cancelEditMode();
+ fetchAndRenderData();
 
-        submitBtn.disabled=false;
-        submitBtn.innerText="💾 บันทึกส่งไปยัง Google Sheets";
+ }
 
-        fetchAndRenderData();
+})
+.catch(err=>{
 
-    })
-.catch(err => {
+console.error(err);
 
-    console.error("POST ERROR:",err);
-
-    submitBtn.disabled = false;
-
-    submitBtn.innerText =
-    "💾 บันทึกส่งไปยัง Google Sheets";
-
-    alert(
-      "บันทึกไม่สำเร็จ\n\n" + err.message
-    );
+alert("บันทึกข้อมูลไม่สำเร็จ");
 
 });
 
