@@ -351,41 +351,120 @@ function initConnection() {
 
     const savedUrl = localStorage.getItem('user_google_sheet_url');
 
+    const statusEl = document.getElementById('connectionStatus');
+    const inputEl = document.getElementById('sheetUrlInput');
+
     if(savedUrl){
 
         WEB_APP_URL = savedUrl;
 
-        const inputEl = document.getElementById('sheetUrlInput');
-        if(inputEl) inputEl.value = savedUrl;
+        if(inputEl){
+            inputEl.value = savedUrl;
+        }
 
-
-        // เปลี่ยนสถานะ
-        const status = document.getElementById('connectionStatus');
-
-        if(status){
-            status.innerHTML = "🟢 เชื่อมต่อแล้ว";
-            status.className = "text-success";
+        // แสดงสถานะกำลังเชื่อม
+        if(statusEl){
+            statusEl.innerHTML = "🟡 สถานะ: กำลังเชื่อมต่อ...";
+            statusEl.className = "d-block mt-2 fw-bold text-warning";
         }
 
 
-        buildStockDropdown();
+        // โหลดรายชื่อหุ้น
+        if(typeof buildStockDropdown === 'function'){
+            buildStockDropdown();
+        }
 
-        fetchAndRenderData();
+
+        // ทดสอบ Connection
+        fetch(WEB_APP_URL)
+        .then(response => {
+
+            if(!response.ok){
+                throw new Error("Connection Error");
+            }
+
+            return response.json();
+
+        })
+        .then(data => {
+
+            globalTradesData = data;
+
+
+            if(statusEl){
+
+                statusEl.innerHTML = 
+                "🟢 สถานะ: เชื่อมต่อ Google Sheet สำเร็จ (" 
+                + data.length + " รายการ)";
+
+                statusEl.className =
+                "d-block mt-2 fw-bold text-success";
+
+            }
+
+
+            renderPortfolioAndRecords(data);
+
+
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            if(statusEl){
+
+                statusEl.innerHTML =
+                "🔴 สถานะ: เชื่อมต่อไม่สำเร็จ";
+
+                statusEl.className =
+                "d-block mt-2 fw-bold text-danger";
+
+            }
+
+        });
+
+
+    }else{
+
+        if(statusEl){
+
+            statusEl.innerHTML =
+            "🔴 สถานะ: ยังไม่ได้เชื่อมต่อ";
+
+            statusEl.className =
+            "d-block mt-2 fw-bold text-muted";
+
+        }
 
     }
 
 }
 
-    window.saveSheetUrl = function() {
-        const urlInput = document.getElementById('sheetUrlInput');
-        const url = urlInput.value.trim();
-        if (url === "") { alert("กรุณาใส่ URL ครับ"); return; }
-        
-        localStorage.setItem('user_google_sheet_url', url);
-        WEB_APP_URL = url; // อัปเดต URL ทันทีที่บันทึก
-        alert("บันทึกสำเร็จ!");
-        initConnection();
-    };
+window.saveSheetUrl = function(){
+
+    const urlInput = document.getElementById('sheetUrlInput');
+
+    const url = urlInput.value.trim();
+
+
+    if(url === ""){
+        alert("กรุณาใส่ Web App URL");
+        return;
+    }
+
+
+    localStorage.setItem(
+        'user_google_sheet_url',
+        url
+    );
+
+
+    WEB_APP_URL = url;
+
+
+    initConnection();
+
+};
 
 const typeElement = document.getElementById('type');
 
@@ -604,27 +683,86 @@ function toggleDetails(type) {
         document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
     }
 function renderMonitorTable(dataMap, pnLMap) {
-    const mBody = document.getElementById('monitorTableBody');
-    mBody.innerHTML = '';
-    
-    Object.keys(dataMap).forEach(key => {
-        const data = dataMap[key];
-        if (data.totalUnits > 0) {
-            const roi = data.totalCost > 0 ? (pnLMap[key] / data.totalCost) * 100 : 0;
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="fw-bold">${key}</td>
-                <td>${data.totalUnits.toLocaleString()}</td>
-                <td>${data.avgPrice.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
-                <td>${data.totalCost.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
-                <td class="${pnLMap[key] >= 0 ? 'text-success' : 'text-danger'}">
-                    ${pnLMap[key].toLocaleString(undefined, {maximumFractionDigits: 2})} 
-                    <small>(${roi.toFixed(2)}%)</small>
-                </td>
-            `;
-            mBody.appendChild(row);
-        }
-    });
+
+    const mBody = document.getElementById('monitorTableBody');
+    mBody.innerHTML = '';
+
+    let totalValue = 0;
+
+    Object.keys(dataMap).forEach(key => {
+
+        if(dataMap[key].totalUnits > 0){
+            totalValue += dataMap[key].totalCost;
+        }
+
+    });
+
+
+    Object.keys(dataMap).forEach(key => {
+
+        const data = dataMap[key];
+
+        if(data.totalUnits > 0){
+
+            const roi = data.totalCost > 0 
+                ? (pnLMap[key] / data.totalCost) * 100 
+                : 0;
+
+
+            const weight = totalValue > 0
+                ? (data.totalCost / totalValue) * 100
+                : 0;
+
+
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+
+                <td class="fw-bold">${key}</td>
+
+                <td>
+                    ${data.totalUnits.toLocaleString()}
+                </td>
+
+                <td>
+                    ${data.avgPrice.toLocaleString(undefined,{
+                        maximumFractionDigits:2
+                    })}
+                </td>
+
+                <td>
+                    ${data.totalCost.toLocaleString(undefined,{
+                        maximumFractionDigits:2
+                    })}
+                </td>
+
+                <td class="text-secondary fw-bold">
+                    ${weight.toFixed(1)}%
+                </td>
+
+                <td class="${pnLMap[key]>=0 
+                    ? 'text-success' 
+                    : 'text-danger'}">
+
+                    ${pnLMap[key].toLocaleString(undefined,{
+                        maximumFractionDigits:2
+                    })}
+
+                    <br>
+                    <small>
+                        (${roi.toFixed(2)}%)
+                    </small>
+
+                </td>
+
+            `;
+
+            mBody.appendChild(row);
+
+        }
+
+    });
+
 }
 function renderPortfolioAndRecords(trades) {
     document.getElementById('searchInput').value = "";
