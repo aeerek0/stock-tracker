@@ -884,12 +884,20 @@ function renderTableOnly(data) {
         submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
         
         // อัปเดตตารางใหม่โดยไม่ต้องรีเฟรช
-        fetchAndRenderData();
-    }).catch(error => {
-        alert("บันทึกล้มเหลว");
-        submitBtn.disabled = false; // ปลดล็อกถ้าเกิดข้อผิดพลาด
-        submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
-    });
+ fetch(WEB_APP_URL)
+.then(async response => {
+    if (!response.ok) {
+        throw new Error(response.status + " " + response.statusText);
+    }
+    return response.json();
+})
+.then(data => {
+    console.log(data);
+})
+.catch(err => {
+    console.error(err);
+    alert(err.message);
+});
 });
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
