@@ -162,39 +162,17 @@
     text-align: center !important;
     vertical-align: middle;
 }
-        .monitor-table {
+.monitor-table {
     width:100%;
-    table-layout:fixed;
+    min-width:650px;
+    table-layout:auto;
 }
 
-.monitor-table th:nth-child(1),
-.monitor-table td:nth-child(1){
-    width:15%;
-}
-
-.monitor-table th:nth-child(2),
-.monitor-table td:nth-child(2){
-    width:15%;
-}
-
-.monitor-table th:nth-child(3),
-.monitor-table td:nth-child(3){
-    width:18%;
-}
-
-.monitor-table th:nth-child(4),
-.monitor-table td:nth-child(4){
-    width:18%;
-}
-
-.monitor-table th:nth-child(5),
-.monitor-table td:nth-child(5){
-    width:14%;
-}
-
-.monitor-table th:nth-child(6),
-.monitor-table td:nth-child(6){
-    width:20%;
+.monitor-table th,
+.monitor-table td {
+    text-align:center !important;
+    vertical-align:middle;
+    white-space:nowrap;
 }
     </style>
 </head>
@@ -262,7 +240,8 @@
     </div>
 
     <!-- ตารางหลัก -->
-    <div class="table-responsive" style="border-radius: 10px; border: 1px solid #f7dfd3;">
+  <div class="table-responsive" 
+style="border-radius:10px;border:1px solid #f7dfd3;overflow-x:auto;">
         <table class="table table-striped table-hover align-middle m-0 text-center monitor-table">
             <thead class="monitor-header">
                 <tr>
@@ -1080,15 +1059,20 @@ tradeForm.addEventListener('submit', function(e){
         fetchAndRenderData();
 
     })
-    .catch(err=>{
+.catch(err => {
 
-        console.error(err);
+    console.error("POST ERROR:",err);
 
-        alert("บันทึกไม่สำเร็จ");
+    submitBtn.disabled = false;
 
-        submitBtn.disabled=false;
+    submitBtn.innerText =
+    "💾 บันทึกส่งไปยัง Google Sheets";
 
-    });
+    alert(
+      "บันทึกไม่สำเร็จ\n\n" + err.message
+    );
+
+});
 
 
 });
