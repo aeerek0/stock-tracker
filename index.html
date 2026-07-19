@@ -863,6 +863,7 @@ fetch(WEB_APP_URL, {
     body: JSON.stringify(tradeData)
 })
 .then(() => {
+
     alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
 
     cancelEditMode();
@@ -871,16 +872,23 @@ fetch(WEB_APP_URL, {
     submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
 
     fetchAndRenderData();   // โหลดข้อมูลใหม่
+
 })
 .catch(err => {
+
     console.error(err);
+
     submitBtn.disabled = false;
     submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+
     alert("บันทึกข้อมูลไม่สำเร็จ");
+
 });
-        
+
+}); // <<< สำคัญ ปิด tradeForm.addEventListener ตรงนี้
+
+
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
-    
 window.onload = function() {
 
     const dateInput = document.getElementById('date');
