@@ -155,10 +155,11 @@
             margin-bottom: 12px;
             display: none;
         }
-   .monitor-table {
+.monitor-table {
     width:100%;
     min-width:650px;
-    table-layout:fixed;
+    table-layout:auto;
+    border-collapse:collapse;
 }
 
 .monitor-table th,
@@ -166,7 +167,7 @@
     text-align:center !important;
     vertical-align:middle;
     white-space:nowrap;
-    padding:6px 5px;
+    padding:6px 8px;
     font-size:0.8rem;
 }
 
@@ -299,11 +300,11 @@
                     <th>% พอร์ต</th>
                     <th>
                      กำไร/ขาดทุน
-    <button onclick="sortMonitorBy('roi')" 
-    class="btn btn-sm btn-link p-0"
-    style="color:white;text-decoration:none;">
-    ⇅
-    </button>
+   <button onclick="sortMonitorBy('roi')" 
+class="btn btn-sm p-0"
+style="border:0;background:none;color:#6e3b23;">
+⇅
+</button>
 </th>
                 </tr>
             </thead>
