@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -780,33 +778,35 @@ function renderTableOnly(data) {
         });
     }
 
-    document.getElementById('tradeForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        if(!WEB_APP_URL) return;
-        
-        const submitBtn = document.getElementById('submitBtn');
-        const editRowIndex = document.getElementById('editRowIndex').value;
-        
-        submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
+   document.getElementById('tradeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if(!WEB_APP_URL) return;
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const editRowIndex = document.getElementById('editRowIndex').value;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
 
-        const price = parseFloat(document.getElementById('price').value);
-        const units = parseInt(document.getElementById('units').value);
-        const feeRate = parseFloat(document.getElementById('feeRate').value) / 100;
-        const type = document.getElementById('type').value;
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const units = parseInt(document.getElementById('units').value) || 0;
+    const feeRate = parseFloat(document.getElementById('feeRate').value) / 100;
+    const type = document.getElementById('type').value;
 
-        const grossAmount = price * units;
-        const feeTax = grossAmount * feeRate;
-        const netAmount = type === 'ซื้อ' ? (grossAmount + feeTax) : (grossAmount - feeTax);
-        let netAmount = 0;
-        if (type === 'ฝากเงิน') {
-        netAmount = parseFloat(document.getElementById('amount').value); // ถ้าคุณมีช่องกรอกยอดเงินฝากถอนแยก
-        } else if (type === 'ถอนเงิน') {
-        netAmount = parseFloat(document.getElementById('amount').value);
-        } else {
+    const grossAmount = price * units;
+    const feeTax = grossAmount * feeRate;
+
+    // แก้ไขตรงนี้: คำนวณ netAmount ให้จบในที่เดียว
+    let netAmount = 0;
+    if (type === 'ฝากเงิน') {
+        netAmount = parseFloat(document.getElementById('amount').value) || 0;
+    } else if (type === 'ถอนเงิน') {
+        netAmount = parseFloat(document.getElementById('amount').value) || 0;
+    } else {
         netAmount = type === 'ซื้อ' ? (grossAmount + feeTax) : (grossAmount - feeTax);
-        }
-     const tradeData = {
+    }
+
+    const tradeData = {
         action: editRowIndex !== "" ? "edit" : "insert",
         rowIndex: editRowIndex,
         date: document.getElementById('date').value,
@@ -819,6 +819,8 @@ function renderTableOnly(data) {
         feeTax: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : feeTax.toFixed(2),
         netAmount: netAmount.toFixed(2)
     };
+
+
 
         fetch(WEB_APP_URL, {
             method: "POST",
