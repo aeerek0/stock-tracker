@@ -152,20 +152,10 @@
             margin-bottom: 12px;
             display: none;
         }
-        .monitor-header th {
-    text-align: center !important;
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-#monitorTableBody td {
-    text-align: center !important;
-    vertical-align: middle;
-}
-.monitor-table {
+   .monitor-table {
     width:100%;
     min-width:650px;
-    table-layout:auto;
+    table-layout:fixed;
 }
 
 .monitor-table th,
@@ -173,48 +163,48 @@
     text-align:center !important;
     vertical-align:middle;
     white-space:nowrap;
-}
-        .portfolio-table {
-    min-width: 700px;
-    table-layout: fixed;
+    padding:6px 5px;
+    font-size:0.8rem;
 }
 
-.portfolio-table th,
-.portfolio-table td {
-    padding: 10px 6px;
-    vertical-align: middle;
-    text-align: center;
-    white-space: nowrap;
+
+/* กำหนดความกว้างแต่ละ Column */
+.monitor-table th:nth-child(1),
+.monitor-table td:nth-child(1){
+    width:90px;
 }
 
-.portfolio-table th:nth-child(1),
-.portfolio-table td:nth-child(1){
-    width: 90px;
+.monitor-table th:nth-child(2),
+.monitor-table td:nth-child(2){
+    width:90px;
 }
 
-.portfolio-table th:nth-child(2),
-.portfolio-table td:nth-child(2){
-    width: 90px;
+.monitor-table th:nth-child(3),
+.monitor-table td:nth-child(3){
+    width:120px;
 }
 
-.portfolio-table th:nth-child(3),
-.portfolio-table td:nth-child(3){
-    width: 110px;
+.monitor-table th:nth-child(4),
+.monitor-table td:nth-child(4){
+    width:120px;
 }
 
-.portfolio-table th:nth-child(4),
-.portfolio-table td:nth-child(4){
-    width: 120px;
+.monitor-table th:nth-child(5),
+.monitor-table td:nth-child(5){
+    width:80px;
 }
 
-.portfolio-table th:nth-child(5),
-.portfolio-table td:nth-child(5){
-    width: 80px;
+.monitor-table th:nth-child(6),
+.monitor-table td:nth-child(6){
+    width:140px;
 }
 
-.portfolio-table th:nth-child(6),
-.portfolio-table td:nth-child(6){
-    width: 130px;
+
+.monitor-scroll{
+    border-radius:10px;
+    border:1px solid #f7dfd3;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
 }
    .monitor-scroll{
     border-radius:10px;
