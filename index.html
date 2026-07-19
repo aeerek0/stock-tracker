@@ -341,31 +341,29 @@
     let displayCount = 50;
     let currentMonitorView = 'stock';
     let sortDirection = 1;
-
-    // --- 1. ส่วนเชื่อมต่อ (แก้ไขตรงนี้เพื่อให้เชื่อมต่อได้ทันที) ---
-// --- ส่วนเชื่อมต่อ (ชุดเดียวและสมบูรณ์) ---
+// --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
-    try {
-        const savedUrl = localStorage.getItem('user_google_sheet_url');
-        if (savedUrl) {
-            WEB_APP_URL = savedUrl;
-            // ถ้ามีช่อง input ให้ใส่ค่าที่โหลดมาลงไปด้วย
-            const inputEl = document.getElementById('sheetUrlInput');
-            if(inputEl) inputEl.value = savedUrl;
-            
-            const statusEl = document.getElementById('connectionStatus');
-            if(statusEl) {
-                statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ";
-                statusEl.className = "d-block mt-2 fw-bold text-success";
-            }
-            console.log("เชื่อมต่อสำเร็จที่ URL:", WEB_APP_URL);
-            fetchAndRenderData();
-            if(typeof buildStockDropdown === 'function') buildStockDropdown();
-        } else {
-            console.log("ยังไม่มี URL ในระบบ");
+    const savedUrl = localStorage.getItem('user_google_sheet_url');
+    
+    if (savedUrl) {
+        WEB_APP_URL = savedUrl;
+        
+        // อัปเดตช่อง Input ให้ตรงกับที่บันทึกไว้
+        const inputEl = document.getElementById('sheetUrlInput');
+        if(inputEl) inputEl.value = savedUrl;
+        
+        // อัปเดตสถานะการเชื่อมต่อ
+        const statusEl = document.getElementById('connectionStatus');
+        if(statusEl) {
+            statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ";
+            statusEl.className = "text-success fw-bold";
         }
-    } catch (e) {
-        console.error("เกิดข้อผิดพลาดตอนเชื่อมต่อ:", e);
+        
+        // เริ่มต้นการทำงานส่วนอื่นๆ
+        if(typeof buildStockDropdown === 'function') buildStockDropdown();
+        fetchAndRenderData();
+    } else {
+        console.log("ยังไม่มี URL บันทึกไว้ในระบบ");
     }
 }
 
