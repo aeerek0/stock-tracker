@@ -416,12 +416,15 @@ function initConnection() {
         }
     });
 // --- 6. เริ่มการทำงานทันทีเมื่อโหลดหน้าเว็บ ---
-    window.onload = function() {
-        initConnection();
-        // ตรวจสอบว่ามีช่องกรอกวันที่หรือไม่ ถ้ามีให้ตั้งเป็นวันที่ปัจจุบัน
-        const dateInput = document.getElementById('date');
-        if(dateInput) dateInput.valueAsDate = new Date();
-    };
+// --- สั่งให้เริ่มทำงานเมื่อโหลดหน้าเว็บเสร็จ ---
+window.onload = function() {
+    // 1. ตั้งค่าวันที่ให้เป็นปัจจุบัน
+    const dateInput = document.getElementById('date');
+    if(dateInput) dateInput.valueAsDate = new Date();
+    
+    // 2. เริ่มเชื่อมต่อ Google Sheet
+    initConnection();
+};
 
     // --- 7. ฟังก์ชันเสริมที่จำเป็นต้องมี ---
     function buildStockDropdown() {
@@ -911,7 +914,7 @@ function renderTableOnly(data) {
         submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
     });
 });
-    window.onload = initConnection;
+
 </script> 
 </body>
 </html>
