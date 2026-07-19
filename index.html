@@ -336,7 +336,7 @@
 </div>
     <script>
     // --- ตัวแปร Global ---
-    let WEB_APP_URL = localStorage.getItem('user_google_sheet_url') || "";
+    let WEB_APP_URL = "";
     let globalTradesData = [];
     let displayCount = 50;
     let currentMonitorView = 'stock';
@@ -347,27 +347,24 @@ let realizedPnL = {};
 let sectorPnL = {};
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
+
     const savedUrl = localStorage.getItem('user_google_sheet_url');
-    
-    if (savedUrl) {
+
+    if(savedUrl){
+
         WEB_APP_URL = savedUrl;
-        
-        // อัปเดตช่อง Input ให้ตรงกับที่บันทึกไว้
+
         const inputEl = document.getElementById('sheetUrlInput');
         if(inputEl) inputEl.value = savedUrl;
-        
-        // อัปเดตสถานะการเชื่อมต่อ
-        const statusEl = document.getElementById('connectionStatus');
-        if(statusEl) {
-            statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ";
-            statusEl.className = "text-success fw-bold";
+
+
+        if(typeof buildStockDropdown === 'function'){
+            buildStockDropdown();
         }
-        
-        // เริ่มต้นการทำงานส่วนอื่นๆ
-        if(typeof buildStockDropdown === 'function') buildStockDropdown();
+
+
         fetchAndRenderData();
-    } else {
-        console.log("ยังไม่มี URL บันทึกไว้ในระบบ");
+
     }
 }
 
@@ -406,7 +403,7 @@ function initConnection() {
 
     let dynamicSectorMap = {}; 
 
-    document.getElementById('date').valueAsDate = new Date();
+    
     
 // --- 7. ฟังก์ชันเสริม ---
 function buildStockDropdown() {
@@ -871,11 +868,17 @@ fetch(WEB_APP_URL, {
 });
         
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
-window.onload = function() {
-    const dateInput = document.getElementById('date');
-    if(dateInput) dateInput.valueAsDate = new Date();
     
+window.onload = function() {
+
+    const dateInput = document.getElementById('date');
+
+    if(dateInput) {
+        dateInput.valueAsDate = new Date();
+    }
+
     initConnection();
+
 };
 </script> 
 </body>
