@@ -334,6 +334,7 @@
         <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">💡 ปัดตาราง ซ้าย-ขวา เพื่อดูคอลัมน์ทั้งหมดบนมือถือ</small>
     </div>
 </div>
+    
     <script>
     // --- ตัวแปร Global ---
     let WEB_APP_URL = "";
@@ -347,7 +348,6 @@ let realizedPnL = {};
 let sectorPnL = {};
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
-
     const savedUrl = localStorage.getItem('user_google_sheet_url');
 
     if(savedUrl){
@@ -379,20 +379,31 @@ function initConnection() {
         initConnection();
     };
 
-    document.getElementById('type').addEventListener('change', function() {
-    const amountContainer = document.getElementById('amountContainer');
-    const isCash = (this.value === 'ฝากเงิน' || this.value === 'ถอนเงิน');
-    amountContainer.style.display = isCash ? 'block' : 'none';
-    
-    // สลับเปิด/ปิด required ของช่องที่จำเป็น
-    document.getElementById('symbol').required = !isCash;
-    document.getElementById('price').required = !isCash;
-    document.getElementById('units').required = !isCash;
+const typeElement = document.getElementById('type');
 
-    if(document.getElementById('editRowIndex').value === "") { 
-        this.value === 'ซื้อ' ? document.getElementById('feeRate').value = '0.0' : document.getElementById('feeRate').value = '0.1822';
-    }
+if(typeElement){
+
+typeElement.addEventListener('change', function() {
+
+    const amountContainer = document.getElementById('amountContainer');
+    const isCash = (this.value === 'ฝากเงิน' || this.value === 'ถอนเงิน');
+
+    if(amountContainer){
+        amountContainer.style.display = isCash ? 'block' : 'none';
+    }
+
+    document.getElementById('symbol').required = !isCash;
+    document.getElementById('price').required = !isCash;
+    document.getElementById('units').required = !isCash;
+
+    if(document.getElementById('editRowIndex').value === "") { 
+        document.getElementById('feeRate').value =
+        this.value === 'ซื้อ' ? '0.0' : '0.1822';
+    }
+
 });
+
+}
     const masterSectorMap = {
         "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
         "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
@@ -505,9 +516,6 @@ function toggleDetails(type) {
                 </div>`;
         }).join('');
 }
-
-
-
     function autoFillSector(symbolValue) {
         if (!symbolValue) return;
        const sym = String(symbolValue).trim().toUpperCase();
@@ -729,7 +737,6 @@ sectorPnL = {};
     renderPortfolioAndRecords();
 }
 
-
 function searchTrades() {
     const input = document.getElementById("searchInput").value.toUpperCase();
     
@@ -799,9 +806,14 @@ function renderTableOnly(data) {
             fetchAndRenderData();
         });
     }
+        
+const tradeForm = document.getElementById('tradeForm');
 
-   document.getElementById('tradeForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+if(tradeForm){
+
+tradeForm.addEventListener('submit', function(e){
+
+    e.preventDefault();
     if(!WEB_APP_URL) return;
     
     const submitBtn = document.getElementById('submitBtn');
