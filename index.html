@@ -404,11 +404,6 @@ function initConnection() {
     let dynamicSectorMap = {}; 
 
     document.getElementById('date').valueAsDate = new Date();
-
-    document.getElementById('type').addEventListener('change', function() {
-        if(document.getElementById('editRowIndex').value === "") { // ปรับค่าธรรมเนียมตามประเภทเฉพาะโหมดเพิ่มปกติ
-            this.value === 'ซื้อ' ? document.getElementById('feeRate').value = '0.0' : document.getElementById('feeRate').value = '0.1822';
-        }
     });
 
 
@@ -514,21 +509,6 @@ function toggleDetails(type) {
 }
 
 
-function saveSheetUrl() {
-    const inputUrl = document.getElementById('sheetUrlInput').value.trim();
-    
-    // ตัดเงื่อนไขเช็คชื่อเว็บออกชั่วคราวเพื่อให้แน่ใจว่ามันบันทึกแน่นอน
-    if(inputUrl === "") {
-        alert("กรุณาใส่ Web App URL ครับ!");
-        return;
-    }
-    
-    localStorage.setItem('user_google_sheet_url', inputUrl);
-    alert("บันทึกลิงก์เรียบร้อยแล้ว!");
-    
-    // เรียกใช้ initConnection ทันทีหลังจากบันทึก
-    initConnection();
-}
 
     function autoFillSector(symbolValue) {
         if (!symbolValue) return;
@@ -749,10 +729,6 @@ function renderPortfolioAndRecords(trades) {
     renderPortfolioAndRecords();
 }
 
-    function cancelEditMode() {
-    displayCount = 50; // เมื่อบันทึกใหม่ ให้กลับมาโชว์ 50 รายการล่าสุด
-    // ... (โค้ดเดิมของคุณ)
-}
 
 function searchTrades() {
     const input = document.getElementById("searchInput").value.toUpperCase();
