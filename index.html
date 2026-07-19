@@ -700,17 +700,33 @@ function toggleDetails(type) {
     }
 
     // ฟังก์ชันยกเลิกโหมดแก้ไข
-    function cancelEditMode() {
-        document.getElementById('editRowIndex').value = "";
-        document.getElementById('tradeForm').reset();
-        document.getElementById('date').valueAsDate = new Date();
-        document.getElementById('feeRate').value = "0.0822";
-        
-        document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
-        document.getElementById('editAlert').style.display = "none";
-        document.getElementById('submitBtn').innerText = "💾 บันทึกส่งไปยัง Google Sheets";
-        document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
-    }
+function cancelEditMode() {
+
+    document.getElementById('editRowIndex').value = "";
+
+    document.getElementById('tradeForm').reset();
+
+    document.getElementById('date').valueAsDate = new Date();
+
+    document.getElementById('feeRate').value = "0.0";
+
+
+    document.getElementById('formTitle').innerText =
+        "➕ บันทึกรายการใหม่";
+
+    document.getElementById('editAlert').style.display = "none";
+
+
+    const btn = document.getElementById('submitBtn');
+
+    btn.disabled = false;   // <<< เพิ่มบรรทัดนี้
+
+    btn.innerText =
+        "💾 บันทึกส่งไปยัง Google Sheets";
+
+    btn.style.backgroundColor =
+        "var(--pastel-orange-dark)";
+}
 function renderMonitorTable(dataMap, pnLMap) {
 
     const mBody = document.getElementById('monitorTableBody');
