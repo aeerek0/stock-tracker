@@ -276,17 +276,10 @@
         <div class="btn-group btn-group-sm">
             <button class="btn btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
             <button class="btn btn-outline-success" onclick="updateMonitor('sector')">รายกลุ่ม</button>
-            <button onclick="toggleDetails('byStock')" class="btn btn-outline-secondary">รายละเอียด</button>
         </div>
     </div>
 
-    <!-- ส่วนแสดงรายละเอียดที่คลิกดูได้ -->
-    <div id="detailsContainer" class="card mb-3" style="display: none; background: #fffaf0; border: 1px dashed #d6a085;">
-        <div class="card-body py-2">
-            <h6 id="detailTitle" class="card-title text-center mb-1"></h6>
-            <div id="detailBody" class="small text-muted text-center"></div>
-        </div>
-    </div>
+
 
     <!-- ตารางหลัก -->
 <div class="table-responsive monitor-scroll">
@@ -616,73 +609,39 @@ function sortMonitorBy(type) {
     sortDirection *= -1;
 
     // 2. สั่ง Render ใหม่โดยใช้ลำดับที่เรียงแล้ว
-    renderSortedMonitor(keys);
+    sortMonitorBy(keys);
 }
 
-function renderSortedMonitor(sortedKeys) {
-    const mBody = document.getElementById('monitorTableBody');
-    mBody.innerHTML = '';
-    
-    // คำนวณ total เพื่อหา % ใหม่
-    let totalMonitorValue = 0;
-    sortedKeys.forEach(k => totalMonitorValue += portfolio[k].totalCost);
+function sortMonitorBy() {
 
-    sortedKeys.forEach(k => {
-        const roi = portfolio[k].totalCost > 0 ? (realizedPnL[k] / portfolio[k].totalCost) * 100 : 0;
-        const weight = totalMonitorValue > 0 ? (portfolio[k].totalCost / totalMonitorValue) * 100 : 0;
-        
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="fw-bold">${k}</td>
-            <td>${portfolio[k].totalUnits.toLocaleString()}</td>
-            <td>${portfolio[k].avgPrice.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
-            <td>${portfolio[k].totalCost.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-            <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td>
-            <td class="${realizedPnL[k] >= 0 ? 'text-success' : 'text-danger'}">
-${realizedPnL[k].toLocaleString(undefined,{maximumFractionDigits:0})}
-<br><small>(${roi.toFixed(1)}%)</small>
-            </td>`;
-        mBody.appendChild(row);
-    });
-}
-function toggleDetails(type) {
-    const container = document.getElementById('detailsContainer');
-    
-    if (container.style.display === "block") {
-        container.style.display = "none";
-        return;
-    } 
-    
-    container.style.display = "block";
-    
-    // เลือกใช้ตัวแปรที่คำนวณไว้แล้วใน renderPortfolioAndRecords
-    // หมายเหตุ: ต้องมั่นใจว่าตัวแปร portfolio และ sectorPortfolio เป็น global 
-    // หรือถ้าไม่ใช่ ให้คำนวณจากผลลัพธ์ของฟังก์ชันหลักครับ
-    const dataMap = (type === 'byStock') ? portfolio : sectorPortfolio;
-    
-    let totalVal = 0;
-    Object.keys(dataMap).forEach(k => {
-        if (dataMap[k].totalUnits > 0) totalVal += dataMap[k].totalCost;
-    });
+    const dataMap = currentMonitorView === "stock"
+        ? portfolio
+        : sectorPortfolio;
 
-    document.getElementById('detailTitle').innerText = (type === 'byStock' ? 'สัดส่วนหุ้น (%)' : 'สัดส่วนกลุ่ม (%)');
-    
-    document.getElementById('detailBody').innerHTML = Object.keys(dataMap)
-        .filter(k => dataMap[k].totalUnits > 0) // กรองเอาเฉพาะตัวที่มีหุ้นเหลือ
-        .map(k => {
-            const pct = (dataMap[k].totalCost / totalVal) * 100;
-            return `
-                <div class="mb-2">
-                    <div class="d-flex justify-content-between">
-                        <small class="fw-bold">${k}</small>
-                        <small>${pct.toFixed(1)}%</small>
-                    </div>
-                    <div class="progress" style="height:8px;">
-                        <div class="progress-bar" style="width:${pct}%; background-color:#e88d67;"></div>
-                    </div>
-                </div>`;
-        }).join('');
+    const pnLMap = currentMonitorView === "stock"
+        ? realizedPnL
+        : sectorPnL;
+
+    const sorted = Object.keys(dataMap)
+        .filter(k => dataMap[k].totalUnits > 0)
+        .sort((a,b)=>{
+
+            const roiA = dataMap[a].totalCost === 0 ? 0 :
+                pnLMap[a] / dataMap[a].totalCost;
+
+            const roiB = dataMap[b].totalCost === 0 ? 0 :
+                pnLMap[b] / dataMap[b].totalCost;
+
+            return (roiA-roiB)*sortDirection;
+
+        });
+
+    sortDirection *= -1;
+
+    renderMonitorTable(dataMap,pnLMap,sorted);
+
 }
+
     function autoFillSector(symbolValue) {
         if (!symbolValue) return;
        const sym = String(symbolValue).trim().toUpperCase();
@@ -778,14 +737,16 @@ function cancelEditMode() {
     btn.style.backgroundColor =
         "var(--pastel-orange-dark)";
 }
-function renderMonitorTable(dataMap, pnLMap) {
+function renderMonitorTable(dataMap,pnLMap,sortedKeys=null){
 
     const mBody = document.getElementById('monitorTableBody');
     mBody.innerHTML = '';
 
     let totalValue = 0;
 
-    Object.keys(dataMap).forEach(key => {
+    const keys = sortedKeys || Object.keys(dataMap);
+
+keys.forEach(key=>{
 
         if(dataMap[key].totalUnits > 0){
             totalValue += dataMap[key].totalCost;
