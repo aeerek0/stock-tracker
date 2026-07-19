@@ -591,9 +591,14 @@ function buildStockDropdown() {
     }
 }
 function updateMonitor(view) {
-    currentMonitorView = view;
-    // เพิ่มการวาดตารางใหม่หลังจากเปลี่ยนค่า View
-    renderPortfolioAndRecords(); 
+
+    currentMonitorView = view;
+
+    const dataMap = (view === 'stock') ? portfolio : sectorPortfolio;
+    const pnLMap = (view === 'stock') ? realizedPnL : sectorPnL;
+
+    renderMonitorTable(dataMap, pnLMap);
+
 }
 
 function sortMonitorBy(type) {
@@ -940,34 +945,11 @@ sectorPnL = {};
     }
 
     // 4. Render Monitor Table ตาม View ที่เลือก (stock หรือ sector)
-    const mBody = document.getElementById('monitorTableBody');
-    mBody.innerHTML = '';
-    const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
-    const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
+  // 4. Render Monitor Table
+const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
+const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
 
-    let totalMonitorValue = 0;
-    Object.keys(dataMap).forEach(key => {
-        if (dataMap[key].totalUnits > 0) totalMonitorValue += dataMap[key].totalCost;
-    });
-    
-    Object.keys(dataMap).forEach(key => {
-        if (dataMap[key].totalUnits > 0) {
-            const roi = dataMap[key].totalCost > 0 ? (pnLMap[key] / dataMap[key].totalCost) * 100 : 0;
-            const weight = totalMonitorValue > 0 ? (dataMap[key].totalCost / totalMonitorValue) * 100 : 0;
-            const row = document.createElement('tr');
-               row.innerHTML = `
-                <td class="fw-bold">${key}</td>
-                <td>${dataMap[key].totalUnits.toLocaleString()}</td>
-                <td>${dataMap[key].avgPrice.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
-                <td>${dataMap[key].totalCost.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
-                <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td> 
-                <td class="${pnLMap[key] >= 0 ? 'text-success' : 'text-danger'}">
-                    ${pnLMap[key].toLocaleString(undefined, {maximumFractionDigits: 2})} 
-                    <small>(${roi.toFixed(2)}%)</small>
-                </td>`;
-            mBody.appendChild(row);
-        }
-    });
+renderMonitorTable(dataMap, pnLMap);
 }
     function loadMore() {
     displayCount += 50;
