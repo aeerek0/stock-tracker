@@ -348,6 +348,7 @@ let realizedPnL = {};
 let sectorPnL = {};
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
+
     const savedUrl = localStorage.getItem('user_google_sheet_url');
 
     if(savedUrl){
@@ -358,14 +359,21 @@ function initConnection() {
         if(inputEl) inputEl.value = savedUrl;
 
 
-        if(typeof buildStockDropdown === 'function'){
-            buildStockDropdown();
+        // เปลี่ยนสถานะ
+        const status = document.getElementById('connectionStatus');
+
+        if(status){
+            status.innerHTML = "🟢 เชื่อมต่อแล้ว";
+            status.className = "text-success";
         }
 
+
+        buildStockDropdown();
 
         fetchAndRenderData();
 
     }
+
 }
 
     window.saveSheetUrl = function() {
