@@ -72,7 +72,10 @@
         }
 
         .table { font-size: 0.85rem; }
-        .table td { padding: 12px 8px; white-space: nowrap; }
+       .table td { 
+    padding: 8px 6px;
+    white-space: nowrap;
+}
 
         .type-buy { color: var(--pastel-buy); font-weight: bold; }
         .type-sell { color: var(--pastel-sell); font-weight: bold; }
@@ -206,11 +209,18 @@
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
 }
-   .monitor-scroll{
-    border-radius:10px;
-    border:1px solid #f7dfd3;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
+@media (max-width:576px){
+
+    .monitor-table {
+        min-width:600px;
+    }
+
+    .monitor-table th,
+    .monitor-table td {
+        padding:5px 4px;
+        font-size:0.75rem;
+    }
+
 }
     </style>
 </head>
@@ -287,15 +297,13 @@
                     <th>ต้นทุน/หน่วย</th>
                     <th>มูลค่ารวม</th>
                     <th>% พอร์ต</th>
-                   <th>
-    <div class="d-flex justify-content-center align-items-center gap-1">
-        <span>กำไร/ขาดทุน</span>
-        <button onclick="sortMonitorBy('roi')" 
-        class="btn btn-sm btn-link p-0"
-        style="color:white;text-decoration:none;">
-        ⇅
-        </button>
-    </div>
+                    <th>
+                     กำไร/ขาดทุน
+    <button onclick="sortMonitorBy('roi')" 
+    class="btn btn-sm btn-link p-0"
+    style="color:white;text-decoration:none;">
+    ⇅
+    </button>
 </th>
                 </tr>
             </thead>
