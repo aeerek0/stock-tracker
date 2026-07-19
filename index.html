@@ -341,7 +341,10 @@
     let displayCount = 50;
     let currentMonitorView = 'stock';
     let sortDirection = 1;
-    
+let portfolio = {};
+let sectorPortfolio = {};
+let realizedPnL = {};
+let sectorPnL = {};
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
     const savedUrl = localStorage.getItem('user_google_sheet_url');
@@ -404,9 +407,7 @@ function initConnection() {
     let dynamicSectorMap = {}; 
 
     document.getElementById('date').valueAsDate = new Date();
-    });
-
-
+    
 // --- 7. ฟังก์ชันเสริม ---
 function buildStockDropdown() {
     const datalist = document.getElementById('stockOptions');
@@ -463,8 +464,8 @@ function renderSortedMonitor(sortedKeys) {
             <td>${portfolio[k].totalCost.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
             <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td>
             <td class="${realizedPnL[k] >= 0 ? 'text-success' : 'text-danger'}">
-                ${realizedPnL[k].toLocaleString(undefined, {maximumFractionDigits: 0)}
-                <br><small>(${roi.toFixed(1)}%)</small>
+${realizedPnL[k].toLocaleString(undefined,{maximumFractionDigits:0})}
+<br><small>(${roi.toFixed(1)}%)</small>
             </td>`;
         mBody.appendChild(row);
     });
@@ -617,8 +618,10 @@ function renderPortfolioAndRecords(trades) {
     if (trades) globalTradesData = trades;
     
     // 1. เตรียมตัวแปรสำหรับเก็บข้อมูลทั้งแบบรายหุ้นและราย Sector
-    const portfolio = {}, sectorPortfolio = {};
-    const realizedPnL = {}, sectorPnL = {};
+portfolio = {};
+sectorPortfolio = {};
+realizedPnL = {};
+sectorPnL = {};
     const tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
 
@@ -787,7 +790,6 @@ function renderTableOnly(data) {
 
         fetch(WEB_APP_URL, {
             method: "POST",
-            mode: "no-cors",
             cache: "no-cache",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "delete", rowIndex: rowIndex })
@@ -843,24 +845,33 @@ function renderTableOnly(data) {
         netAmount: netAmount.toFixed(2)
     };
 
+fetch(WEB_APP_URL, {
+    method: "POST",
+    cache: "no-cache",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(tradeData)
+})
+.then(() => {
+    alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
 
+    cancelEditMode();
 
-        fetch(WEB_APP_URL, {
-            method: "POST",
-            mode: "no-cors",
-            cache: "no-cache",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(tradeData)
-}).then(() => {
-        alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
-        
-        // --- ส่วนสำคัญ: เคลียร์ค่าและปลดล็อกปุ่ม ---
-        cancelEditMode(); 
-        submitBtn.disabled = false; // ปลดล็อกปุ่ม
-        submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+    submitBtn.disabled = false;
+    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+
+    fetchAndRenderData();   // โหลดข้อมูลใหม่
+})
+.catch(err => {
+    console.error(err);
+    submitBtn.disabled = false;
+    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+    alert("บันทึกข้อมูลไม่สำเร็จ");
+});
         
         // อัปเดตตารางใหม่โดยไม่ต้องรีเฟรช
- fetch(WEB_APP_URL)
+fetchAndRenderData();
 .then(async response => {
     if (!response.ok) {
         throw new Error(response.status + " " + response.statusText);
