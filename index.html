@@ -488,16 +488,21 @@ function toggleDetails(type) {
         });
     }
 
-    function saveSheetUrl() {
-        const inputUrl = document.getElementById('sheetUrlInput').value.trim();
-        if(!inputUrl.startsWith("https://script.google.com")) {
-            alert("รูปแบบลิงก์ไม่ถูกต้อง!");
-            return;
-        }
-        localStorage.setItem('user_google_sheet_url', inputUrl);
-        alert("บันทึกลิงก์ชีทเรียบร้อยแล้ว!");
-        initConnection();
+function saveSheetUrl() {
+    const inputUrl = document.getElementById('sheetUrlInput').value.trim();
+    
+    // ตัดเงื่อนไขเช็คชื่อเว็บออกชั่วคราวเพื่อให้แน่ใจว่ามันบันทึกแน่นอน
+    if(inputUrl === "") {
+        alert("กรุณาใส่ Web App URL ครับ!");
+        return;
     }
+    
+    localStorage.setItem('user_google_sheet_url', inputUrl);
+    alert("บันทึกลิงก์เรียบร้อยแล้ว!");
+    
+    // เรียกใช้ initConnection ทันทีหลังจากบันทึก
+    initConnection();
+}
 
     function autoFillSector(symbolValue) {
         if (!symbolValue) return;
