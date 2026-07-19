@@ -201,6 +201,7 @@
     </div>
 
     <!-- SECTION 1: MONITOR & CONTROLS -->
+<!-- SECTION 1: MONITOR & CONTROLS -->
 <div class="card mb-3">
     <!-- ส่วนหัวและปุ่มควบคุม -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
@@ -208,12 +209,11 @@
         <div class="btn-group btn-group-sm">
             <button class="btn btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
             <button class="btn btn-outline-success" onclick="updateMonitor('sector')">รายกลุ่ม</button>
-            <!-- ปุ่มเรียกดูรายละเอียดพิเศษ -->
-            <button onclick="toggleDetails('byStock')" class="btn btn-outline-secondary">รายละเอียดหุ้น</button>
+            <button onclick="toggleDetails('byStock')" class="btn btn-outline-secondary">รายละเอียด</button>
         </div>
     </div>
 
-    <!-- ส่วนแสดงรายละเอียดที่คลิกดูได้ (ซ่อนอยู่ตอนเริ่ม) -->
+    <!-- ส่วนแสดงรายละเอียดที่คลิกดูได้ -->
     <div id="detailsContainer" class="card mb-3" style="display: none; background: #fffaf0; border: 1px dashed #d6a085;">
         <div class="card-body py-2">
             <h6 id="detailTitle" class="card-title text-center mb-1"></h6>
@@ -221,7 +221,7 @@
         </div>
     </div>
 
-    <!-- ตารางหลักที่แสดง % พอร์ตตลอดเวลา -->
+    <!-- ตารางหลัก -->
     <div class="table-responsive" style="border-radius: 10px; border: 1px solid #f7dfd3;">
         <table class="table table-striped table-hover align-middle m-0 text-center" style="min-width: 500px;">
             <thead class="monitor-header">
@@ -231,11 +231,10 @@
                     <th>ต้นทุน/หน่วย</th>
                     <th>มูลค่ารวม</th>
                     <th>% พอร์ต</th>
-                    <th>กำไร/ขาดทุน</th>
                     <th>
-            กำไร/ขาดทุน 
-            <button onclick="sortMonitorBy('roi')" class="btn btn-sm btn-link p-0 text-white">⇅</button>
-        </th>
+                        กำไร/ขาดทุน 
+                        <button onclick="sortMonitorBy('roi')" class="btn btn-sm btn-link p-0" style="color:white; text-decoration:none;">⇅</button>
+                    </th>
                 </tr>
             </thead>
             <tbody id="monitorTableBody">
