@@ -334,142 +334,294 @@
         <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">💡 ปัดตาราง ซ้าย-ขวา เพื่อดูคอลัมน์ทั้งหมดบนมือถือ</small>
     </div>
 </div>
-<script>
-    // --- 1. ตัวแปร Global ---
-    let WEB_APP_URL = "";
+    <script>
+    // --- ตัวแปร Global ---
+    let WEB_APP_URL = localStorage.getItem('user_google_sheet_url') || "";
     let globalTradesData = [];
     let displayCount = 50;
     let currentMonitorView = 'stock';
     let sortDirection = 1;
-
-    const masterSectorMap = {
-        "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
-        "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
-        "EA": "Energy", "HMPRO": "Commerce", "LH": "Property", "MC": "Fashion", "MINT": "Tourism",
-        "SABINA": "Fashion", "SAT": "Automotive", "SPALI": "Property", "TIPH": "Insurance",
-        "TISCO": "Banking", "TLI": "Insurance", "TU": "Food & Bev", "WHA": "Property (Indus)", "TRUE": "Telecommunications"
-    };
-    let dynamicSectorMap = {};
-
-    // --- 2. การตั้งค่าเริ่มต้น ---
-    window.onload = function() {
-        document.getElementById('date').valueAsDate = new Date();
-        initConnection();
-    };
-
-    // --- 3. ฟังก์ชันเชื่อมต่อ Google Sheet ---
-    function initConnection() {
-        const savedUrl = localStorage.getItem('user_google_sheet_url');
-        if (savedUrl) {
-            WEB_APP_URL = savedUrl;
-            document.getElementById('sheetUrlInput').value = savedUrl;
-            const statusEl = document.getElementById('connectionStatus');
-            if(statusEl) {
-                statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ";
-                statusEl.className = "text-success fw-bold";
-            }
-            buildStockDropdown();
-            fetchAndRenderData();
+let portfolio = {};
+let sectorPortfolio = {};
+let realizedPnL = {};
+let sectorPnL = {};
+// --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
+function initConnection() {
+    const savedUrl = localStorage.getItem('user_google_sheet_url');
+    
+    if (savedUrl) {
+        WEB_APP_URL = savedUrl;
+        
+        // อัปเดตช่อง Input ให้ตรงกับที่บันทึกไว้
+        const inputEl = document.getElementById('sheetUrlInput');
+        if(inputEl) inputEl.value = savedUrl;
+        
+        // อัปเดตสถานะการเชื่อมต่อ
+        const statusEl = document.getElementById('connectionStatus');
+        if(statusEl) {
+            statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อสำเร็จ";
+            statusEl.className = "text-success fw-bold";
         }
+        
+        // เริ่มต้นการทำงานส่วนอื่นๆ
+        if(typeof buildStockDropdown === 'function') buildStockDropdown();
+        fetchAndRenderData();
+    } else {
+        console.log("ยังไม่มี URL บันทึกไว้ในระบบ");
     }
+}
 
     window.saveSheetUrl = function() {
-        const inputUrl = document.getElementById('sheetUrlInput').value.trim();
-        if(inputUrl === "") { alert("กรุณาใส่ Web App URL ครับ!"); return; }
-        localStorage.setItem('user_google_sheet_url', inputUrl);
-        alert("บันทึกลิงก์เรียบร้อยแล้ว!");
+        const urlInput = document.getElementById('sheetUrlInput');
+        const url = urlInput.value.trim();
+        if (url === "") { alert("กรุณาใส่ URL ครับ"); return; }
+        
+        localStorage.setItem('user_google_sheet_url', url);
+        WEB_APP_URL = url; // อัปเดต URL ทันทีที่บันทึก
+        alert("บันทึกสำเร็จ!");
         initConnection();
     };
 
-    // --- 4. ฟังก์ชันจัดการฟอร์ม ---
-    document.getElementById('type').addEventListener('change', function() {
-        const amountContainer = document.getElementById('amountContainer');
-        const isCash = (this.value === 'ฝากเงิน' || this.value === 'ถอนเงิน');
-        amountContainer.style.display = isCash ? 'block' : 'none';
-        
-        document.getElementById('symbol').required = !isCash;
-        document.getElementById('price').required = !isCash;
-        document.getElementById('units').required = !isCash;
+    document.getElementById('type').addEventListener('change', function() {
+    const amountContainer = document.getElementById('amountContainer');
+    const isCash = (this.value === 'ฝากเงิน' || this.value === 'ถอนเงิน');
+    amountContainer.style.display = isCash ? 'block' : 'none';
+    
+    // สลับเปิด/ปิด required ของช่องที่จำเป็น
+    document.getElementById('symbol').required = !isCash;
+    document.getElementById('price').required = !isCash;
+    document.getElementById('units').required = !isCash;
 
-        if(document.getElementById('editRowIndex').value === "") {
-            document.getElementById('feeRate').value = (this.value === 'ซื้อ') ? '0.0' : '0.1822';
-        }
-    });
+    if(document.getElementById('editRowIndex').value === "") { 
+        this.value === 'ซื้อ' ? document.getElementById('feeRate').value = '0.0' : document.getElementById('feeRate').value = '0.1822';
+    }
+});
+    const masterSectorMap = {
+        "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
+        "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
+        "EA": "Energy", "HMPRO": "Commerce", "LH": "Property", "MC": "Fashion", "MINT": "Tourism",
+        "SABINA": "Fashion", "SAT": "Automotive", "SPALI": "Property", "TIPH": "Insurance",
+        "TISCO": "Banking", "TLI": "Insurance", "TU": "Food & Bev", "WHA": "Property (Indus)","TRUE": "Telecommunications"
+    };
 
-    function cancelEditMode() {
-        document.getElementById('editRowIndex').value = "";
-        document.getElementById('tradeForm').reset();
-        document.getElementById('date').valueAsDate = new Date();
-        document.getElementById('feeRate').value = "0.1822";
-        document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
-        document.getElementById('editAlert').style.display = "none";
-        document.getElementById('submitBtn').innerText = "💾 บันทึกส่งไปยัง Google Sheets";
-        document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
-        displayCount = 50;
-    }
+    let dynamicSectorMap = {}; 
 
-    // --- 5. ฟังก์ชันหลัก (CRUD: Create, Read, Update, Delete) ---
-    document.getElementById('tradeForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        if(!WEB_APP_URL) { alert("กรุณาเชื่อมต่อก่อน!"); return; }
-        
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ กำลังบันทึก...";
-
-        const type = document.getElementById('type').value;
-        const price = parseFloat(document.getElementById('price').value) || 0;
-        const units = parseInt(document.getElementById('units').value) || 0;
-        const feeRate = parseFloat(document.getElementById('feeRate').value) / 100;
-        const grossAmount = price * units;
-        const feeTax = grossAmount * feeRate;
-
-        let netAmount = (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? (parseFloat(document.getElementById('amount').value) || 0) : (type === 'ซื้อ' ? (grossAmount + feeTax) : (grossAmount - feeTax));
-
-        const tradeData = {
-            action: document.getElementById('editRowIndex').value !== "" ? "edit" : "insert",
-            rowIndex: document.getElementById('editRowIndex').value,
-            date: document.getElementById('date').value,
-            type: type,
-            symbol: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? '-' : document.getElementById('symbol').value.trim().toUpperCase(),
-            sector: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 'Cash Management' : document.getElementById('sector').value,
-            price: price, units: units,
-            grossAmount: grossAmount.toFixed(2),
-            feeTax: feeTax.toFixed(2),
-            netAmount: netAmount.toFixed(2)
-        };
-
-        fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(tradeData) })
-        .then(() => { 
-            alert("บันทึกสำเร็จ!"); 
-            cancelEditMode(); 
-            fetchAndRenderData(); 
-            submitBtn.disabled = false;
-        }).catch(() => { alert("เกิดข้อผิดพลาด"); submitBtn.disabled = false; });
-    });
-
-    function deleteRecord(rowIndex, symbol, units) {
-        if (!confirm(`ยืนยันการลบ ${symbol}?`)) return;
-        fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete", rowIndex: rowIndex }) })
-        .then(() => { fetchAndRenderData(); });
-    }
-
-    // --- 6. ฟังก์ชันแสดงผลและคำนวณ ---
-    function fetchAndRenderData() {
-        if(!WEB_APP_URL) return;
-        fetch(WEB_APP_URL).then(res => res.json()).then(trades => {
-            globalTradesData = trades;
-            renderPortfolioAndRecords(trades);
+    document.getElementById('date').valueAsDate = new Date();
+    
+// --- 7. ฟังก์ชันเสริม ---
+function buildStockDropdown() {
+    const datalist = document.getElementById('stockOptions');
+    if(datalist) {
+        datalist.innerHTML = '';
+        Object.keys(masterSectorMap).forEach(stock => {
+            const option = document.createElement('option');
+            option.value = stock;
+            datalist.appendChild(option);
         });
     }
+}
+function updateMonitor(view) {
+    currentMonitorView = view;
+    // เพิ่มการวาดตารางใหม่หลังจากเปลี่ยนค่า View
+    renderPortfolioAndRecords(); 
+}
 
- function renderPortfolioAndRecords(trades) {
+function sortMonitorBy(type) {
+    // 1. ดึงข้อมูลออกมาจากตารางหรือจากตัวแปร portfolio
+    // เราจะสร้าง Array ของหุ้นเพื่อนำมา Sort
+    const keys = Object.keys(portfolio).filter(k => portfolio[k].totalUnits > 0);
+    
+    keys.sort((a, b) => {
+        const valA = realizedPnL[a]; // หรือใช้ค่า ROI ถ้าอยากเรียงตาม %
+        const valB = realizedPnL[b];
+        return (valA - valB) * sortDirection;
+    });
+
+    // สลับทิศทางการเรียงในครั้งถัดไป
+    sortDirection *= -1;
+
+    // 2. สั่ง Render ใหม่โดยใช้ลำดับที่เรียงแล้ว
+    renderSortedMonitor(keys);
+}
+
+function renderSortedMonitor(sortedKeys) {
+    const mBody = document.getElementById('monitorTableBody');
+    mBody.innerHTML = '';
+    
+    // คำนวณ total เพื่อหา % ใหม่
+    let totalMonitorValue = 0;
+    sortedKeys.forEach(k => totalMonitorValue += portfolio[k].totalCost);
+
+    sortedKeys.forEach(k => {
+        const roi = portfolio[k].totalCost > 0 ? (realizedPnL[k] / portfolio[k].totalCost) * 100 : 0;
+        const weight = totalMonitorValue > 0 ? (portfolio[k].totalCost / totalMonitorValue) * 100 : 0;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="fw-bold">${k}</td>
+            <td>${portfolio[k].totalUnits.toLocaleString()}</td>
+            <td>${portfolio[k].avgPrice.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
+            <td>${portfolio[k].totalCost.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+            <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td>
+            <td class="${realizedPnL[k] >= 0 ? 'text-success' : 'text-danger'}">
+${realizedPnL[k].toLocaleString(undefined,{maximumFractionDigits:0})}
+<br><small>(${roi.toFixed(1)}%)</small>
+            </td>`;
+        mBody.appendChild(row);
+    });
+}
+function toggleDetails(type) {
+    const container = document.getElementById('detailsContainer');
+    
+    if (container.style.display === "block") {
+        container.style.display = "none";
+        return;
+    } 
+    
+    container.style.display = "block";
+    
+    // เลือกใช้ตัวแปรที่คำนวณไว้แล้วใน renderPortfolioAndRecords
+    // หมายเหตุ: ต้องมั่นใจว่าตัวแปร portfolio และ sectorPortfolio เป็น global 
+    // หรือถ้าไม่ใช่ ให้คำนวณจากผลลัพธ์ของฟังก์ชันหลักครับ
+    const dataMap = (type === 'byStock') ? portfolio : sectorPortfolio;
+    
+    let totalVal = 0;
+    Object.keys(dataMap).forEach(k => {
+        if (dataMap[k].totalUnits > 0) totalVal += dataMap[k].totalCost;
+    });
+
+    document.getElementById('detailTitle').innerText = (type === 'byStock' ? 'สัดส่วนหุ้น (%)' : 'สัดส่วนกลุ่ม (%)');
+    
+    document.getElementById('detailBody').innerHTML = Object.keys(dataMap)
+        .filter(k => dataMap[k].totalUnits > 0) // กรองเอาเฉพาะตัวที่มีหุ้นเหลือ
+        .map(k => {
+            const pct = (dataMap[k].totalCost / totalVal) * 100;
+            return `
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <small class="fw-bold">${k}</small>
+                        <small>${pct.toFixed(1)}%</small>
+                    </div>
+                    <div class="progress" style="height:8px;">
+                        <div class="progress-bar" style="width:${pct}%; background-color:#e88d67;"></div>
+                    </div>
+                </div>`;
+        }).join('');
+}
+
+
+
+    function autoFillSector(symbolValue) {
+        if (!symbolValue) return;
+       const sym = String(symbolValue).trim().toUpperCase();
+        document.getElementById('symbol').value = sym; 
+        if (masterSectorMap[sym]) {
+            document.getElementById('sector').value = masterSectorMap[sym];
+        } else if (dynamicSectorMap[sym]) {
+            document.getElementById('sector').value = dynamicSectorMap[sym];
+        }
+    }
+
+    function fetchAndRenderData() {
+        if(!WEB_APP_URL) return;
+
+        document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" style="color:var(--pastel-orange-dark)">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
+        document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12" style="color:var(--pastel-orange-dark)">กำลังโหลดประวัติ...</td></tr>`;
+
+        fetch(WEB_APP_URL)
+            .then(response => response.json())
+            .then(trades => {
+                globalTradesData = trades; // บันทึกข้อมูลลงตัวแปร Global
+                dynamicSectorMap = {};
+                trades.forEach(t => {
+                    if(t.symbol && t.sector) {
+                        dynamicSectorMap[t.symbol.trim().toUpperCase()] = t.sector;
+                    }
+                });
+                renderPortfolioAndRecords(trades);
+            })
+            .catch(error => {
+                document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-danger">ดึงข้อมูลล้มเหลว ตรวจสอบลิงก์ความถูกต้องอีกครั้ง</td></tr>`;
+            });
+    }
+
+    // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
+    function startEditMode(rowIndex) {
+        const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
+        if(!trade) return;
+
+        // ดึงข้อมูลเก่าลงฟอร์มคีย์
+        let dateVal = trade.date;
+        if(dateVal.includes("T")) dateVal = dateVal.split("T")[0];
+        
+        document.getElementById('editRowIndex').value = trade.rowIndex;
+        document.getElementById('date').value = dateVal;
+        document.getElementById('type').value = trade.type;
+        document.getElementById('symbol').value = trade.symbol;
+        document.getElementById('sector').value = trade.sector || '';
+        document.getElementById('broker').value = trade.broker || '';
+        document.getElementById('price').value = trade.price;
+        document.getElementById('units').value = trade.units;
+        
+        // คำนวณหา % ค่าธรรมเนียมเดิมกลับมาโชว์
+        const gross = trade.price * trade.units;
+        const feePercent = ((trade.feeTax / gross) * 100).toFixed(4);
+        document.getElementById('feeRate').value = feePercent;
+
+        // เปลี่ยนดีไซน์หน้าตาฟอร์มให้รู้ว่ากำลังแก้ไข
+        document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
+        document.getElementById('editAlert').style.display = "block";
+        document.getElementById('submitBtn').innerText = "🆙 อัปเดตข้อมูลไปยัง Google Sheets";
+        document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-edit)";
+        
+        // เลื่อนหน้าจอขึ้นไปที่ฟอร์มคีย์อัตโนมัติ
+        document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ฟังก์ชันยกเลิกโหมดแก้ไข
+    function cancelEditMode() {
+        document.getElementById('editRowIndex').value = "";
+        document.getElementById('tradeForm').reset();
+        document.getElementById('date').valueAsDate = new Date();
+        document.getElementById('feeRate').value = "0.0822";
+        
+        document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
+        document.getElementById('editAlert').style.display = "none";
+        document.getElementById('submitBtn').innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+        document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-orange-dark)";
+    }
+function renderMonitorTable(dataMap, pnLMap) {
+    const mBody = document.getElementById('monitorTableBody');
+    mBody.innerHTML = '';
+    
+    Object.keys(dataMap).forEach(key => {
+        const data = dataMap[key];
+        if (data.totalUnits > 0) {
+            const roi = data.totalCost > 0 ? (pnLMap[key] / data.totalCost) * 100 : 0;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="fw-bold">${key}</td>
+                <td>${data.totalUnits.toLocaleString()}</td>
+                <td>${data.avgPrice.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
+                <td>${data.totalCost.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
+                <td class="${pnLMap[key] >= 0 ? 'text-success' : 'text-danger'}">
+                    ${pnLMap[key].toLocaleString(undefined, {maximumFractionDigits: 2})} 
+                    <small>(${roi.toFixed(2)}%)</small>
+                </td>
+            `;
+            mBody.appendChild(row);
+        }
+    });
+}
+function renderPortfolioAndRecords(trades) {
     document.getElementById('searchInput').value = "";
     if (trades) globalTradesData = trades;
     
     // 1. เตรียมตัวแปรสำหรับเก็บข้อมูลทั้งแบบรายหุ้นและราย Sector
-    const portfolio = {}, sectorPortfolio = {};
-    const realizedPnL = {}, sectorPnL = {};
+portfolio = {};
+sectorPortfolio = {};
+realizedPnL = {};
+sectorPnL = {};
     const tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
 
@@ -580,27 +732,152 @@
     renderPortfolioAndRecords();
 }
 
-    function startEditMode(rowIndex) {
-        const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
-        if(!trade) return;
-        document.getElementById('editRowIndex').value = trade.rowIndex;
-        document.getElementById('symbol').value = trade.symbol;
-        document.getElementById('price').value = trade.price;
-        document.getElementById('units').value = trade.units;
-        document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูล";
-        document.getElementById('editAlert').style.display = "block";
-        document.getElementById('submitBtn').innerText = "🆙 อัปเดตข้อมูล";
-    }
 
-    function buildStockDropdown() {
-        const datalist = document.getElementById('stockOptions');
-        datalist.innerHTML = '';
-        Object.keys(masterSectorMap).forEach(stock => {
-            const option = document.createElement('option');
-            option.value = stock;
-            datalist.appendChild(option);
-        });
-    }
-</script>
+function searchTrades() {
+    const input = document.getElementById("searchInput").value.toUpperCase();
+    
+    // ถ้าช่องค้นหาว่าง ให้แสดงรายการปกติ (ตามจำนวน displayCount)
+    if (input === "") {
+        renderPortfolioAndRecords();
+        return;
+    }
+
+    // ถ้ามีการพิมพ์ค้นหา ให้กรองข้อมูลทั้งหมด
+    const filteredData = globalTradesData.filter(trade => {
+        const dateStr = trade.date.split("T")[0]; // วันที่
+        const sym = String(trade.symbol || "").toUpperCase(); // ชื่อหุ้น
+        
+        return sym.includes(input) || dateStr.includes(input);
+    });
+
+    // วาดตารางใหม่ด้วยผลลัพธ์ที่กรองแล้ว (แสดงทั้งหมดที่หาเจอ)
+    renderTableOnly(filteredData);
+}
+
+// ฟังก์ชันพิเศษ: วาดแค่ตาราง โดยไม่คำนวณ Dashboard ซ้ำ
+function renderTableOnly(data) {
+    const tbodyRecord = document.getElementById('tradeTableBody');
+    tbodyRecord.innerHTML = '';
+    
+    data.slice().reverse().forEach(trade => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${trade.date.split("T")[0]}</td>
+            <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
+            <td class="fw-bold">${trade.symbol}</td>
+            <td>${trade.sector || '-'}</td>
+            <td>${trade.broker || '-'}</td>
+            <td>${parseFloat(trade.price).toLocaleString()}</td>
+            <td>${parseInt(trade.units).toLocaleString()}</td>
+            <td>${parseFloat(trade.grossAmount).toLocaleString()}</td>
+            <td>${parseFloat(trade.feeTax).toLocaleString()}</td>
+            <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td>
+            <td>-</td>
+            <td>
+                <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
+                <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
+            </td>`;
+        tbodyRecord.appendChild(row);
+    });
+}
+    
+    function deleteRecord(rowIndex, symbol, units) {
+        if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol} จำนวน ${units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
+            return;
+        }
+
+        document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12" style="color:var(--pastel-sell); font-weight:bold;">⏳ กำลังลบข้อมูล...</td></tr>`;
+
+        fetch(WEB_APP_URL, {
+            method: "POST",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "delete", rowIndex: rowIndex })
+        }).then(() => {
+            alert("ลบข้อมูลสำเร็จ!");
+            cancelEditMode();
+            setTimeout(fetchAndRenderData, 1500);
+        }).catch(error => {
+            alert("การลบล้มเหลว");
+            fetchAndRenderData();
+        });
+    }
+
+   document.getElementById('tradeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if(!WEB_APP_URL) return;
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const editRowIndex = document.getElementById('editRowIndex').value;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
+
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const units = parseInt(document.getElementById('units').value) || 0;
+    const feeRate = parseFloat(document.getElementById('feeRate').value) / 100;
+    const type = document.getElementById('type').value;
+
+    const grossAmount = price * units;
+    const feeTax = grossAmount * feeRate;
+
+    // แก้ไขตรงนี้: คำนวณ netAmount ให้จบในที่เดียว
+    let netAmount = 0;
+    if (type === 'ฝากเงิน') {
+        netAmount = parseFloat(document.getElementById('amount').value) || 0;
+    } else if (type === 'ถอนเงิน') {
+        netAmount = parseFloat(document.getElementById('amount').value) || 0;
+    } else {
+        netAmount = type === 'ซื้อ' ? (grossAmount + feeTax) : (grossAmount - feeTax);
+    }
+
+    const tradeData = {
+        action: editRowIndex !== "" ? "edit" : "insert",
+        rowIndex: editRowIndex,
+        date: document.getElementById('date').value,
+        type: type,
+        symbol: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? '-' : document.getElementById('symbol').value.trim().toUpperCase(),
+        sector: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 'Cash Management' : document.getElementById('sector').value,
+        price: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : price,
+        units: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : units,
+        grossAmount: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : grossAmount.toFixed(2),
+        feeTax: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : feeTax.toFixed(2),
+        netAmount: netAmount.toFixed(2)
+    };
+
+fetch(WEB_APP_URL, {
+    method: "POST",
+    cache: "no-cache",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(tradeData)
+})
+.then(() => {
+    alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
+
+    cancelEditMode();
+
+    submitBtn.disabled = false;
+    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+
+    fetchAndRenderData();   // โหลดข้อมูลใหม่
+})
+.catch(err => {
+    console.error(err);
+    submitBtn.disabled = false;
+    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+    alert("บันทึกข้อมูลไม่สำเร็จ");
+});
+        
+// --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
+window.onload = function() {
+    const dateInput = document.getElementById('date');
+    if(dateInput) dateInput.valueAsDate = new Date();
+    
+    initConnection();
+};
+</script> 
 </body>
 </html>
+
