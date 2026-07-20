@@ -10,6 +10,9 @@ let sectorPortfolio = {};
 let realizedPnL = {};
 let sectorPnL = {};
 let currentPrices = {};
+let sectorPnL = {};
+let sectorUnrealizedPnL = {};
+
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
 
@@ -406,8 +409,13 @@ function renderPortfolioAndRecords(trades) {
     // 1. เตรียมตัวแปรสำหรับเก็บข้อมูลทั้งแบบรายหุ้นและราย Sector
 portfolio = {};
 sectorPortfolio = {};
+
 realizedPnL = {};
+unrealizedPnL = {};
+
 sectorPnL = {};
+sectorUnrealizedPnL = {};
+ 
     const tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
 
@@ -453,6 +461,30 @@ sectorPnL = {};
             sectorPortfolio[sector].totalCost -= sectorCostOfSold;
         }
     });
+
+ // ===============================
+// คำนวณ Unrealized P/L
+// ===============================
+
+Object.keys(portfolio).forEach(sym => {
+
+    if(portfolio[sym].totalUnits > 0){
+
+let currentPrice =
+    (window.currentPrices && window.currentPrices[sym])
+    || portfolio[sym].avgPrice;
+
+
+        let marketValue =
+            portfolio[sym].totalUnits * currentPrice;
+
+
+        unrealizedPnL[sym] =
+            marketValue - portfolio[sym].totalCost;
+
+    }
+
+});
     let netDeposited = 0;
     globalTradesData.forEach(t => {
         if (t.type === 'ฝากเงิน') netDeposited += parseFloat(t.netAmount);
@@ -474,7 +506,7 @@ sectorPnL = {};
 
     }
 
-    totalPnL += realizedPnL[sym];
+  totalPnL += realizedPnL[sym] + (unrealizedPnL[sym] || 0);
 
 });
 
