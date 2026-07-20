@@ -186,6 +186,7 @@ function updateMonitor(view) {
     const pnLMap = (view === 'stock') ? realizedPnL : sectorPnL;
 
     renderMonitorTable(dataMap, pnLMap);
+ drawAllocationChart(view);
 
 }
 
@@ -485,6 +486,7 @@ const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
 const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
 
 renderMonitorTable(dataMap, pnLMap);
+ drawAllocationChart(currentMonitorView);
 }
     function loadMore() {
     displayCount += 50;
@@ -672,7 +674,72 @@ fetch(WEB_APP_URL,{
 
 }
 
+function drawAllocationChart(view = "stock") {
 
+    const dataMap =
+        view === "stock"
+            ? portfolio
+            : sectorPortfolio;
+
+    const labels = [];
+    const values = [];
+
+    Object.keys(dataMap).forEach(key => {
+
+        if (dataMap[key].totalUnits > 0) {
+
+            labels.push(key);
+
+            values.push(dataMap[key].totalCost);
+
+        }
+
+    });
+
+    const ctx =
+        document.getElementById("allocationChart");
+
+    if (allocationChart) {
+
+        allocationChart.destroy();
+
+    }
+
+    allocationChart = new Chart(ctx, {
+
+        type: "doughnut",
+
+        data: {
+
+            labels,
+
+            datasets: [{
+
+                data: values
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+
+                    position: "bottom"
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
 
