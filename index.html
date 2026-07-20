@@ -1056,28 +1056,32 @@ tradeForm.addEventListener('submit', function(e){
 .then(response=>response.json())
 .then(result=>{
 
- if(result.status==="success"){
+    if(result.status==="success"){
 
- alert(editRowIndex!==""?
- "อัปเดตข้อมูลสำเร็จ!"
- :
- "บันทึกข้อมูลสำเร็จ!"
- );
+        alert(editRowIndex!=="" ?
+            "อัปเดตข้อมูลสำเร็จ!"
+            :
+            "บันทึกข้อมูลสำเร็จ!");
 
- cancelEditMode();
- fetchAndRenderData();
+        cancelEditMode();
+        fetchAndRenderData();
 
- }
+    }else{
+
+        submitBtn.disabled = false;
+        submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+
+    }
 
 })
 .catch(err=>{
 
-console.error(err);
+    console.error(err);
 
-alert("บันทึกข้อมูลไม่สำเร็จ");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
 
-});
-
+    alert("บันทึกข้อมูลไม่สำเร็จ");
 
 });
 
