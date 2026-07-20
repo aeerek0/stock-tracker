@@ -1,5 +1,6 @@
  // --- ตัวแปร Global ---
-    let WEB_APP_URL = "";
+let allocationChart = null;    
+let WEB_APP_URL = "";
     let globalTradesData = [];
     let displayCount = 50;
     let currentMonitorView = 'stock';
