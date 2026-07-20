@@ -111,6 +111,7 @@
         </table>
     </div>
 </div>
+    
     <div class="card mt-3">
 
 <h5 class="card-title">
@@ -118,13 +119,55 @@
 </h5>
 
 
+<div class="row mb-3">
+
+<div class="col-6">
+
+<label>
+เลือกเดือน
+</label>
+
+
+<input 
+type="month"
+id="dividendMonth"
+class="form-control"
+onchange="renderDividendTable()">
+
+</div>
+
+
+<div class="col-6">
+
+<label>
+ปี
+</label>
+
+<div id="dividendYearTotal"
+class="form-control bg-light">
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
 <table class="table">
 
 <thead>
 <tr>
+
 <th>หุ้น</th>
-<th>จำนวนครั้ง</th>
-<th>เงินปันผลรวม</th>
+
+<th>ครั้ง</th>
+
+<th>ปันผล</th>
+
+<th>Yield %</th>
+
 </tr>
 </thead>
 
