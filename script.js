@@ -1,4 +1,5 @@
  // --- ตัวแปร Global ---
+let dividendData = {};
 let allocationChart = null;
 let WEB_APP_URL = "";
 let globalTradesData = [];
@@ -12,7 +13,6 @@ let unrealizedPnL = {};
 let sectorPnL = {};
 let sectorUnrealizedPnL = {};
 let currentPrices = {};
-let dividendData = {};
 let totalDividend = 0;
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
@@ -531,6 +531,7 @@ if(currentMonitorView === "stock"){
 function renderPortfolioAndRecords(trades) {
     document.getElementById('searchInput').value = "";
     if (trades) globalTradesData = trades;
+ buildDividendYear();
     
     // 1. เตรียมตัวแปรสำหรับเก็บข้อมูลทั้งแบบรายหุ้นและราย Sector
 portfolio = {};
@@ -1095,6 +1096,55 @@ return ctx.label+
 }
 
 });
+
+
+}
+function buildDividendYear(){
+
+    const yearSelect =
+    document.getElementById("dividendYear");
+
+
+    if(!yearSelect) return;
+
+
+    yearSelect.innerHTML="";
+
+
+    let years=[];
+
+
+    globalTradesData.forEach(t=>{
+
+        if(t.type==="ปันผล"){
+
+            let y =
+            new Date(t.date).getFullYear();
+
+
+            if(!years.includes(y)){
+                years.push(y);
+            }
+
+        }
+
+    });
+
+
+    years.sort();
+
+
+    years.forEach(y=>{
+
+        let op =
+        document.createElement("option");
+
+        op.value=y;
+        op.text=y;
+
+        yearSelect.appendChild(op);
+
+    });
 
 
 }
