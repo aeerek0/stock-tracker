@@ -234,40 +234,78 @@ function sortMonitorBy() {
         }
     }
 
-    function fetchAndRenderData() {
-        if(!WEB_APP_URL) return;
+function fetchAndRenderData() {
 
-        document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" style="color:var(--pastel-orange-dark)">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
-        document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12" style="color:var(--pastel-orange-dark)">กำลังโหลดประวัติ...</td></tr>`;
+    if(!WEB_APP_URL) return;
 
-        fetch(WEB_APP_URL)
-.then(response => response.json())
-.then(data => {
 
-    console.log("Refresh Data:", data);
+    document.getElementById('monitorTableBody').innerHTML =
+    `<tr><td colspan="5">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
 
-    globalTradesData = data.trades || [];
 
-    window.currentPrices = data.prices || {};
+    document.getElementById('tradeTableBody').innerHTML =
+    `<tr><td colspan="12">กำลังโหลดประวัติ...</td></tr>`;
 
-    dynamicSectorMap = {};
 
-    globalTradesData.forEach(t => {
+    fetch(WEB_APP_URL)
 
-        if(t.symbol && t.sector){
+    .then(response => response.json())
 
-            dynamicSectorMap[
-                t.symbol.trim().toUpperCase()
-            ] = t.sector;
+    .then(data => {
 
-        }
+
+        console.log("Refresh Data:", data);
+
+
+        globalTradesData = data.trades || [];
+
+        window.currentPrices = data.prices || {};
+
+
+        dynamicSectorMap = {};
+
+
+        globalTradesData.forEach(t=>{
+
+            if(t.symbol && t.sector){
+
+                dynamicSectorMap[
+                    t.symbol.trim().toUpperCase()
+                ] = t.sector;
+
+            }
+
+        });
+
+
+        renderPortfolioAndRecords(globalTradesData);
+
+
+    })
+
+    .catch(error=>{
+
+        console.error("Refresh Error:",error);
+
+
+        document.getElementById('monitorTableBody').innerHTML =
+        `<tr>
+        <td colspan="5" class="text-danger">
+        โหลดข้อมูลล้มเหลว
+        </td>
+        </tr>`;
+
+
+        document.getElementById('tradeTableBody').innerHTML =
+        `<tr>
+        <td colspan="12" class="text-danger">
+        โหลดข้อมูลล้มเหลว
+        </td>
+        </tr>`;
 
     });
 
-
-    renderPortfolioAndRecords(globalTradesData);
-
-})
+}
 
     // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
     function startEditMode(rowIndex) {
