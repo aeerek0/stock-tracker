@@ -20,6 +20,7 @@ window.onload = function () {
             // ===== Analytics =====
 
             drawMonthlyPnL();
+            drawBuySellMonthly();
 
             renderTopProfit();
 
@@ -28,6 +29,7 @@ window.onload = function () {
             renderMostTrade();
 
             renderSummary();
+
 
 
         })
@@ -388,5 +390,108 @@ totalTrade ?
 document.getElementById("winRate")
 .innerHTML =
 rate.toFixed(2)+"%";
+
+}
+//==========================
+// Buy / Sell Volume Monthly
+//==========================
+
+function drawBuySellMonthly(){
+
+    let monthly = {};
+
+
+    trades.forEach(t=>{
+
+
+        if(
+            t.type !== "ซื้อ" &&
+            t.type !== "ขาย"
+        ) return;
+
+
+
+        let month =
+        t.date.substring(0,7);
+
+
+
+        if(!monthly[month]){
+
+            monthly[month]={
+                buy:0,
+                sell:0
+            };
+
+        }
+
+
+        let amount =
+        Number(t.netAmount);
+
+
+
+        if(t.type==="ซื้อ"){
+
+            monthly[month].buy += amount;
+
+        }
+
+
+        if(t.type==="ขาย"){
+
+            monthly[month].sell += amount;
+
+        }
+
+
+    });
+
+
+
+    let labels =
+    Object.keys(monthly);
+
+
+
+    new Chart(
+        document.getElementById("buySellChart"),
+        {
+
+        type:"bar",
+
+        data:{
+
+            labels:labels,
+
+            datasets:[
+
+            {
+                label:"ซื้อ",
+                data:
+                labels.map(
+                x=>monthly[x].buy
+                )
+            },
+
+
+            {
+                label:"ขาย",
+                data:
+                labels.map(
+                x=>monthly[x].sell
+                )
+            }
+
+            ]
+
+        },
+
+        options:{
+            responsive:true
+        }
+
+    });
+
 
 }
