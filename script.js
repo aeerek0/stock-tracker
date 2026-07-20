@@ -864,53 +864,54 @@ else{
 
 const isCash =
 type === 'ฝากเงิน' ||
-type === 'ถอนเงิน' ||
-type === 'ปันผล';
+type === 'ถอนเงิน';
 
+const isDividend =
+type === 'ปันผล';
 
 const tradeData = {
 
-action: editRowIndex !== "" ? "edit" : "insert",
+    action: editRowIndex !== "" ? "edit" : "insert",
 
-rowIndex: editRowIndex,
+    rowIndex: editRowIndex,
 
-date: document.getElementById('date').value,
+    date: document.getElementById('date').value,
 
-type:type,
+    type: type,
 
-const isCash =
-type === 'ฝากเงิน' ||
-type === 'ถอนเงิน' ||
-type === 'ปันผล';
-: document.getElementById('symbol').value.trim().toUpperCase(),
+    symbol:
+    document.getElementById('symbol')
+    .value
+    .trim()
+    .toUpperCase(),
 
-sector:
-(type === 'ฝากเงิน' || type === 'ถอนเงิน')
-? 'Cash Management'
-: document.getElementById('sector').value,
+    sector:
+    isCash
+    ? 'Cash Management'
+    : document.getElementById('sector').value,
 
-price:
-type === 'ซื้อ' || type === 'ขาย'
-? price
-: 0,
+    price:
+    (type === 'ซื้อ' || type === 'ขาย')
+    ? price
+    : 0,
 
-units:
-type === 'ซื้อ' || type === 'ขาย'
-? units
-: 0,
+    units:
+    (type === 'ซื้อ' || type === 'ขาย')
+    ? units
+    : 0,
 
-grossAmount:
-(type === 'ฝากเงิน' || type === 'ถอนเงิน')
-? 0
-: grossAmount.toFixed(2),
+    grossAmount:
+    (type === 'ซื้อ' || type === 'ขาย')
+    ? grossAmount.toFixed(2)
+    : 0,
 
-feeTax:
-(type === 'ฝากเงิน' || type === 'ถอนเงิน')
-? 0
-: feeTax.toFixed(2),
+    feeTax:
+    (type === 'ซื้อ' || type === 'ขาย')
+    ? feeTax.toFixed(2)
+    : 0,
 
-netAmount:
-netAmount.toFixed(2)
+    netAmount:
+    netAmount.toFixed(2)
 
 };
 
