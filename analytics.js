@@ -31,6 +31,7 @@ window.onload = function () {
             renderSummary();
             renderHoldingPeriod();
             renderSectorPerformance();
+            renderCurrentSectorAllocation();
 
 
 
