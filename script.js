@@ -1227,7 +1227,16 @@ function renderDividendTable(){
 
         }
 
+let cost = 0;
 
+if(portfolio[sym]){
+    cost = portfolio[sym].totalCost;
+}
+
+
+let yieldPercent = cost > 0
+    ? (result[sym].amount / cost) * 100
+    : 0;
         result[sym].count++;
 
         result[sym].amount +=
@@ -1272,9 +1281,9 @@ function renderDividendTable(){
         ${result[sym].amount.toLocaleString()}
         </td>
 
-        <td>
-        -
-        </td>
+       <td>
+${yieldPercent.toFixed(2)}%
+</td>
 
         `;
 
