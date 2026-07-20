@@ -139,25 +139,49 @@ const typeElement = document.getElementById('type');
 
 if(typeElement){
 
-typeElement.addEventListener('change', function() {
+typeElement.addEventListener('change', function () {
+
+    const type = this.value;
 
     const amountContainer = document.getElementById('amountContainer');
-    const isCash =
-this.value === 'ฝากเงิน' ||
-this.value === 'ถอนเงิน' ||
-this.value === 'ปันผล';
 
-    if(amountContainer){
-        amountContainer.style.display = isCash ? 'block' : 'none';
+    const symbolGroup = document.getElementById('symbol').parentElement;
+    const sectorGroup = document.getElementById('sector').parentElement;
+    const brokerGroup = document.getElementById('broker').parentElement;
+    const priceGroup = document.getElementById('price').parentElement;
+    const unitsGroup = document.getElementById('units').parentElement;
+    const feeGroup = document.getElementById('feeRate').parentElement;
+
+    // แสดงทุกอย่างก่อน
+    symbolGroup.style.display = "";
+    sectorGroup.style.display = "";
+    brokerGroup.style.display = "";
+    priceGroup.style.display = "";
+    unitsGroup.style.display = "";
+    feeGroup.style.display = "";
+    amountContainer.style.display = "none";
+
+    if(type === "ฝากเงิน" || type === "ถอนเงิน"){
+
+        amountContainer.style.display = "block";
+
+        symbolGroup.style.display = "none";
+        sectorGroup.style.display = "none";
+        brokerGroup.style.display = "none";
+        priceGroup.style.display = "none";
+        unitsGroup.style.display = "none";
+        feeGroup.style.display = "none";
+
     }
 
-    document.getElementById('symbol').required = !isCash;
-    document.getElementById('price').required = !isCash;
-    document.getElementById('units').required = !isCash;
+    if(type === "ปันผล"){
 
-    if(document.getElementById('editRowIndex').value === "") { 
-        document.getElementById('feeRate').value =
-        this.value === 'ซื้อ' ? '0.0' : '0.0';
+        amountContainer.style.display = "block";
+
+        priceGroup.style.display = "none";
+        unitsGroup.style.display = "none";
+        feeGroup.style.display = "none";
+
     }
 
 });
