@@ -24,11 +24,62 @@ onclick="location.href='index.html'">
 ← กลับหน้าหลัก
 </button>
 
-<div class="card p-3">
+<div class="card p-3 mb-3">
 
-<h5>กำไร / ขาดทุน รายเดือน</h5>
+    <h5>📈 กำไร / ขาดทุน รายเดือน</h5>
 
-<canvas id="monthChart"></canvas>
+    <canvas id="monthChart"></canvas>
+
+</div>
+
+<!-- Top Profit -->
+<div class="card p-3 mb-3">
+
+    <h5>🏆 หุ้นที่กำไรมากที่สุด</h5>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th class="text-end">กำไร</th>
+            </tr>
+        </thead>
+        <tbody id="topProfitTable"></tbody>
+    </table>
+
+</div>
+
+<!-- Top Loss -->
+<div class="card p-3 mb-3">
+
+    <h5>📉 หุ้นที่ขาดทุนมากที่สุด</h5>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th class="text-end">ขาดทุน</th>
+            </tr>
+        </thead>
+        <tbody id="topLossTable"></tbody>
+    </table>
+
+</div>
+
+<!-- Most Trade -->
+<div class="card p-3 mb-3">
+
+    <h5>🔥 หุ้นที่ซื้อขายบ่อยที่สุด</h5>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th class="text-end">จำนวนครั้ง</th>
+            </tr>
+        </thead>
+        <tbody id="mostTradeTable"></tbody>
+    </table>
 
 </div>
 
