@@ -373,19 +373,28 @@ function renderMonitorTable(dataMap,pnLMap,sortedKeys=null){
     const mBody = document.getElementById('monitorTableBody');
     mBody.innerHTML = '';
 
-    let totalValue = 0;
+let totalValue = 0;
 
 const keys = sortedKeys || Object.keys(dataMap);
 
-keys.forEach(key=>{
+keys.forEach(key => {
 
     if(dataMap[key].totalUnits > 0){
 
-        let marketPrice =
-            window.currentPrices[key] || dataMap[key].avgPrice;
+        if(currentMonitorView === "stock"){
 
-        totalValue +=
-            dataMap[key].totalUnits * marketPrice;
+            const marketPrice =
+                window.currentPrices[key] || dataMap[key].avgPrice;
+
+            totalValue +=
+                dataMap[key].totalUnits * marketPrice;
+
+        }else{
+
+            // ถ้าเป็น Sector ยังใช้ต้นทุนรวมไปก่อน
+            totalValue += dataMap[key].totalCost;
+
+        }
 
     }
 
@@ -398,18 +407,26 @@ keys.forEach(key=>{
 
         if(data.totalUnits > 0){
 
-            const roi = data.totalCost > 0 
-                ? (pnLMap[key] / data.totalCost) * 100 
-                : 0;
+let marketValue;
 
+if(currentMonitorView === "stock"){
 
-      let marketPrice =
-    window.currentPrices[key] || data.avgPrice;
+    const marketPrice =
+        window.currentPrices[key] || data.avgPrice;
 
+    marketValue =
+        data.totalUnits * marketPrice;
 
-let marketValue =
-    data.totalUnits * marketPrice;
+}else{
 
+    // หน้า Sector ใช้ต้นทุนรวมไปก่อน
+    marketValue = data.totalCost;
+
+}
+
+const roi = data.totalCost > 0
+    ? (pnLMap[key] / data.totalCost) * 100
+    : 0;
 
 const weight = totalValue > 0
     ? (marketValue / totalValue) * 100
@@ -431,6 +448,12 @@ row.innerHTML = `
         maximumFractionDigits:2
     })}
 </td>
+<td>
+    ${marketValue.toLocaleString(undefined,{
+        maximumFractionDigits:2
+    })}
+</td>
+
 
 <td>
     ${
