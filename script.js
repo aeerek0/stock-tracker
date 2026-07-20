@@ -12,6 +12,8 @@ let unrealizedPnL = {};
 let sectorPnL = {};
 let sectorUnrealizedPnL = {};
 let currentPrices = {};
+let dividendData = {};
+let totalDividend = 0;
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
@@ -546,7 +548,34 @@ sectorUnrealizedPnL = {};
     // 2. ลูปคำนวณข้อมูลทั้งหมด
     let totalPortfolioValue = 0, totalPnL = 0, activeStocksCount = 0;
     globalTradesData.forEach(trade => {
-        if (trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน') return;
+         if(trade.type === 'ปันผล'){
+
+        const sym = String(trade.symbol || "")
+            .trim()
+            .toUpperCase();
+
+
+        if(!dividendData[sym]){
+            dividendData[sym] = {
+                count:0,
+                amount:0
+            };
+        }
+
+
+        dividendData[sym].count++;
+
+        dividendData[sym].amount +=
+            parseFloat(trade.netAmount) || 0;
+
+
+        return;
+
+    }
+if (
+    trade.type === 'ฝากเงิน' ||
+    trade.type === 'ถอนเงิน'
+) return;
         const sym = String(trade.symbol || "").trim().toUpperCase();
         const sector = String(trade.sector || "อื่นๆ").trim();
         const units = parseInt(trade.units);
