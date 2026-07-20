@@ -1101,7 +1101,9 @@ return ctx.label+
 function renderDividendTable(){
 
 const tbody =
-document.getElementById("dividendTableBody");
+document.getElementById(
+"dividendTableBody"
+);
 
 
 if(!tbody) return;
@@ -1110,11 +1112,67 @@ if(!tbody) return;
 tbody.innerHTML="";
 
 
-Object.keys(dividendData).forEach(sym=>{
+const month =
+document.getElementById(
+"dividendMonth"
+)?.value;
 
 
-const data =
-dividendData[sym];
+let yearTotal = 0;
+
+
+Object.keys(dividendData)
+.forEach(sym=>{
+
+
+let amount = 0;
+
+let count = 0;
+
+
+dividendData[sym].items.forEach(item=>{
+
+
+let d = new Date(item.date);
+
+
+let itemMonth =
+d.toISOString()
+.substring(0,7);
+
+
+
+if(!month || itemMonth===month){
+
+    amount += item.amount;
+
+    count++;
+
+}
+
+
+});
+
+
+if(amount > 0){
+
+
+yearTotal += amount;
+
+
+// หาต้นทุนหุ้น
+let cost =
+portfolio[sym]?.totalCost || 0;
+
+
+
+let yieldPercent =
+cost > 0
+?
+(amount / cost)*100
+:
+0;
+
 
 
 const row =
@@ -1129,18 +1187,28 @@ ${sym}
 
 
 <td>
-${data.count}
+${count}
 </td>
 
 
 <td class="text-success fw-bold">
-${data.amount.toLocaleString(
+
+${amount.toLocaleString(
 undefined,
 {
 maximumFractionDigits:2
 }
 )}
+
 </td>
+
+
+<td>
+
+${yieldPercent.toFixed(2)}%
+
+</td>
+
 
 `;
 
@@ -1148,7 +1216,22 @@ maximumFractionDigits:2
 tbody.appendChild(row);
 
 
+}
+
+
 });
+
+
+
+document.getElementById(
+"dividendYearTotal"
+).innerHTML =
+yearTotal.toLocaleString(
+undefined,
+{
+maximumFractionDigits:2
+}
+)+" บาท";
 
 
 }
