@@ -380,21 +380,22 @@ const keys = sortedKeys || Object.keys(dataMap);
 keys.forEach(key => {
 
     if(dataMap[key].totalUnits > 0){
+let marketPrice = data.avgPrice;
+let marketValue;
 
-        if(currentMonitorView === "stock"){
+if(currentMonitorView === "stock"){
 
-            const marketPrice =
-                window.currentPrices[key] || dataMap[key].avgPrice;
+    marketPrice =
+        window.currentPrices[key] || data.avgPrice;
 
-            totalValue +=
-                dataMap[key].totalUnits * marketPrice;
+    marketValue =
+        data.totalUnits * marketPrice;
 
-        }else{
+}else{
 
-            // ถ้าเป็น Sector ยังใช้ต้นทุนรวมไปก่อน
-            totalValue += dataMap[key].totalCost;
+    marketValue = data.totalCost;
 
-        }
+}
 
     }
 
@@ -424,8 +425,13 @@ if(currentMonitorView === "stock"){
 
 }
 
-const roi = data.totalCost > 0
-    ? (pnLMap[key] / data.totalCost) * 100
+const totalPnL =
+    (pnLMap[key] || 0) +
+    (unrealizedPnL[key] || 0);
+
+const roi =
+    data.totalCost > 0
+    ? (totalPnL / data.totalCost) * 100
     : 0;
 
 const weight = totalValue > 0
@@ -474,13 +480,21 @@ row.innerHTML = `
     ${weight.toFixed(1)}%
 </td>
 
-<td class="${pnLMap[key]>=0
+<td class="${totalPnL>=0
     ? 'text-success'
     : 'text-danger'}">
 
-    ${pnLMap[key].toLocaleString(undefined,{
-        maximumFractionDigits:2
-    })}
+${totalPnL.toLocaleString(undefined,{
+maximumFractionDigits:2
+})}
+
+</td>
+
+<td class="${roi>=0
+? 'text-success'
+: 'text-danger'}">
+
+${roi.toFixed(2)}%
 
 </td>
 
