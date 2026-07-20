@@ -30,6 +30,7 @@ window.onload = function () {
 
             renderSummary();
             renderHoldingPeriod();
+            renderSectorPerformance();
 
 
 
@@ -687,6 +688,159 @@ function renderHoldingPeriod(){
 
     document.getElementById(
         "holdingPeriodTable"
+    ).innerHTML = html;
+
+
+}
+//==========================
+// Sector Performance
+//==========================
+
+function renderSectorPerformance(){
+
+    let portfolio = {};
+
+    let sectorPnL = {};
+
+
+    trades.forEach(t=>{
+
+
+        if(
+            t.type !== "ซื้อ" &&
+            t.type !== "ขาย"
+        ) return;
+
+
+
+        let sym = t.symbol;
+
+
+
+        if(!portfolio[sym]){
+
+            portfolio[sym]={
+                units:0,
+                cost:0
+            };
+
+        }
+
+
+
+        let units = Number(t.units);
+
+        let net = Number(t.netAmount);
+
+
+
+        if(t.type==="ซื้อ"){
+
+
+            portfolio[sym].units += units;
+
+            portfolio[sym].cost += net;
+
+
+        }
+
+
+
+        if(t.type==="ขาย"){
+
+
+            let avg =
+            portfolio[sym].cost /
+            portfolio[sym].units;
+
+
+
+            let pnl =
+            net - (avg * units);
+
+
+
+            let sector =
+            sectorMap[sym] || "Other";
+
+
+
+            if(!sectorPnL[sector]){
+
+                sectorPnL[sector]=0;
+
+            }
+
+
+
+            sectorPnL[sector]+=pnl;
+
+
+
+            portfolio[sym].units -= units;
+
+            portfolio[sym].cost -= avg*units;
+
+
+        }
+
+
+    });
+
+
+
+    let result =
+    Object.entries(sectorPnL);
+
+
+
+    result.sort(
+        (a,b)=>b[1]-a[1]
+    );
+
+
+
+    let html="";
+
+
+
+    result.forEach(r=>{
+
+
+        let cls =
+        r[1]>=0
+        ?
+        "text-success"
+        :
+        "text-danger";
+
+
+
+        html += `
+
+        <tr>
+
+            <td>${r[0]}</td>
+
+            <td class="text-end fw-bold ${cls}">
+
+            ${r[1].toLocaleString(undefined,{
+                maximumFractionDigits:2
+            })}
+
+            </td>
+
+        </tr>
+
+        `;
+
+
+    });
+
+
+
+    document.getElementById(
+        "sectorPerformanceTable"
     ).innerHTML = html;
 
 
