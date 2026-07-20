@@ -984,358 +984,178 @@ fetch(WEB_APP_URL,{
 });
 
 }
+function drawAllocationChart(view = "stock") {
+    const dataMap = view === "stock" ? portfolio : sectorPortfolio;
 
-function drawAllocationChart(view="stock") {
+    const labels = [];
+    const values = [];
 
+    Object.keys(dataMap).forEach(key => {
+        if (dataMap[key].totalUnits > 0) {
+            let value = 0;
 
-const dataMap =
-view==="stock"
-? portfolio
-: sectorPortfolio;
+            // รายหุ้น
+            if (view === "stock") {
+                let price = window.currentPrices[key] || 0;
+                value = dataMap[key].totalUnits * price;
+            } else {
+                // sector ใช้ต้นทุนก่อน
+                value = dataMap[key].totalCost;
+            }
 
+            labels.push(key);
+            values.push(value);
+        }
+    });
 
-const labels=[];
-const values=[];
+    const canvas = document.getElementById("allocationChart");
+    if (!canvas) return;
 
+    if (window.allocationChart) {
+        window.allocationChart.destroy();
+    }
 
-Object.keys(dataMap).forEach(key=>{
-
-
-if(dataMap[key].totalUnits>0){
-
-
-let value = 0;
-
-
-// รายหุ้น
-if(view==="stock"){
-
-let price =
-window.currentPrices[key] || 0;
-
-
-value =
-dataMap[key].totalUnits * price;
-
-
-}else{
-
-
-// sector ใช้ต้นทุนก่อน
-value =
-dataMap[key].totalCost;
-
-
+    window.allocationChart = new Chart(canvas, {
+        type: "doughnut",
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: "bottom"
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (ctx) {
+                            let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            let percent = total > 0 ? (ctx.raw / total * 100).toFixed(2) : 0;
+                            return ctx.label + " " + percent + "%";
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
+function buildDividendYear() {
+    const yearSelect = document.getElementById("dividendYear");
 
-
-labels.push(key);
-
-values.push(value);
-
-
-}
-
-
-});
-
-
-const canvas=document.getElementById("allocationChart");
-
-
-if(allocationChart){
-allocationChart.destroy();
-}
-
-
-allocationChart=new Chart(canvas,{
-
-type:"doughnut",
-
-data:{
-
-labels:labels,
-
-datasets:[{
-
-data:values
-
-}]
-
-},
-
-options:{
-
-plugins:{
-
-legend:{
-position:"bottom"
-},
-
-tooltip:{
-
-callbacks:{
-
-label:function(ctx){
-
-let total =
-ctx.dataset.data.reduce(
-(a,b)=>a+b,0
-);
-
-
-let percent =
-(ctx.raw/total*100).toFixed(2);
-
-
-return ctx.label+
-" "+percent+"%";
-
-}
-
-}
-
-}
-
-}
-
-}
-
-});
-
-
-}
-function buildDividendYear(){
-
-    const yearSelect =
-    document.getElementById("dividendYear");
-
-
-    if(!yearSelect) return;
-
+    if (!yearSelect) return;
 
     yearSelect.innerHTML = `
-<option value="0">
-ทุกปี
-</option>
-`;
-
+        <option value="0">ทุกปี</option>
+    `;
 
     let years = [];
 
-
-    globalTradesData.forEach(t=>{
-
-
-        if(String(t.type).trim() === "ปันผล"){
-
-
+    globalTradesData.forEach(t => {
+        if (String(t.type).trim() === "ปันผล") {
             let date = new Date(t.date);
+            let year = date.getFullYear();
 
-
-            let year =
-            date.getFullYear();
-
-
-            if(!isNaN(year) && !years.includes(year)){
-
+            if (!isNaN(year) && !years.includes(year)) {
                 years.push(year);
-
             }
-
         }
-
-
     });
 
+    // เรียงปีจากมากไปน้อย (ปีล่าสุดขึ้นก่อน)
+    years.sort((a, b) => b - a);
 
-    years.sort((a,b)=>b-a);
-
-
-    years.forEach(year=>{
-
-
-        let option =
-        document.createElement("option");
-
-
+    years.forEach(year => {
+        let option = document.createElement("option");
         option.value = year;
-
-        option.text =
-        year;
-
+        option.text = year;
 
         yearSelect.appendChild(option);
-
-
     });
 
-
     console.log("Dividend Years:", years);
-
 }
-function renderDividendTable(){
+function renderDividendTable() {
+    const tbody = document.getElementById("dividendTableBody");
+    if (!tbody) return;
+    
+    tbody.innerHTML = "";
 
-    const tbody =
-    document.getElementById("dividendTableBody");
+    const year = Number(document.getElementById("dividendYear").value);
+    const month = Number(document.getElementById("dividendMonth").value);
 
+    let result = {};
+    let total = 0;
+    let allTotal = 0;
+    let allCount = 0;
+    let allStock = {};
 
-    if(!tbody) return;
+    globalTradesData.forEach(t => {
+        if (t.type !== "ปันผล") return;
 
-
-    tbody.innerHTML="";
-
-
-    const year =
-    Number(document.getElementById("dividendYear").value);
-
-
-    const month =
-    Number(document.getElementById("dividendMonth").value);
-
-
-
-let result = {};
-
-let total = 0;
-
-let allTotal = 0;
-
-let allCount = 0;
-
-let allStock = {};
-
-
-    globalTradesData.forEach(t=>{
-
-
-        if(t.type !== "ปันผล") return;
-     allTotal += Number(t.netAmount)||0;
-
-allCount++;
-
-allStock[t.symbol.toUpperCase()] = true;
-
+        allTotal += Number(t.netAmount) || 0;
+        allCount++;
+        allStock[t.symbol.toUpperCase()] = true;
 
         let d = new Date(t.date);
 
+        if (year > 0 && d.getFullYear() !== year) return;
+        if (month > 0 && d.getMonth() + 1 !== month) return;
 
-       if(year > 0 && d.getFullYear() !== year)
-    return;
+        let sym = t.symbol.toUpperCase();
 
-
-        if(month > 0 && d.getMonth()+1 !== month)
-            return;
-
-
-
-        let sym =
-        t.symbol.toUpperCase();
-
-
-        if(!result[sym]){
-
-            result[sym]={
-                count:0,
-                amount:0
+        if (!result[sym]) {
+            result[sym] = {
+                count: 0,
+                amount: 0
             };
-
         }
 
         result[sym].count++;
+        result[sym].amount += Number(t.netAmount) || 0;
+        total += Number(t.netAmount) || 0;
+    });
 
-        result[sym].amount +=
-        Number(t.netAmount)||0;
+    // แสดงผลรวมเฉพาะปี/เดือนที่เลือก
+    document.getElementById("dividendYearTotal").innerText = total.toLocaleString(undefined, {
+        minimumFractionDigits: 2
+    });
 
+    Object.keys(result).forEach(sym => {
+        let cost = 0;
 
-        total +=
-        Number(t.netAmount)||0;
-
-
-
-
-    document.getElementById("dividendYearTotal")
-    .innerText =
-    total.toLocaleString(
-        undefined,
-        {
-            minimumFractionDigits:2
+        if (portfolio[sym]) {
+            cost = portfolio[sym].totalCost;
         }
-    );
 
-Object.keys(result).forEach(sym=>{
+        let yieldPercent = cost > 0 ? (result[sym].amount / cost) * 100 : 0;
 
+        let row = document.createElement("tr");
 
-    let cost = 0;
-
-
-    if(portfolio[sym]){
-
-        cost = portfolio[sym].totalCost;
-
-    }
-
-
-    let yieldPercent = cost > 0
-        ? (result[sym].amount / cost) * 100
-        : 0;
-
-
-
-    let row =
-    document.createElement("tr");
-
-
-        row.innerHTML=`
-
-        <td>${sym}</td>
-
-        <td>
-        ${result[sym].count}
-        </td>
-
-        <td>
-        ${result[sym].amount.toLocaleString()}
-        </td>
-
-       <td>
-${yieldPercent.toFixed(2)}%
-</td>
-
+        row.innerHTML = `
+            <td>${sym}</td>
+            <td>${result[sym].count}</td>
+            <td>${result[sym].amount.toLocaleString()}</td>
+            <td>${yieldPercent.toFixed(2)}%</td>
         `;
 
-
         tbody.appendChild(row);
-
-
     });
 
+    // อัปเดตข้อมูลสรุปภาพรวมทั้งหมด
+    document.getElementById("dividendSelectedTotal").innerText = total.toLocaleString(undefined, {
+        minimumFractionDigits: 2
+    });
 
+    document.getElementById("dividendAllTotal").innerText = allTotal.toLocaleString(undefined, {
+        minimumFractionDigits: 2
+    });
+
+    document.getElementById("dividendStockCount").innerText = Object.keys(allStock).length;
+
+    document.getElementById("dividendCount").innerText = allCount;
 }
-                             
-document.getElementById("dividendSelectedTotal")
-.innerText =
-total.toLocaleString(undefined,{
-minimumFractionDigits:2
-});
-
-
-document.getElementById("dividendAllTotal")
-.innerText =
-allTotal.toLocaleString(undefined,{
-minimumFractionDigits:2
-});
-
-
-document.getElementById("dividendStockCount")
-.innerText =
-Object.keys(allStock).length;
-
-
-document.getElementById("dividendCount")
-.innerText =
-allCount;
-    });
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
 
