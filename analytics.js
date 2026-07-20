@@ -496,3 +496,198 @@ function drawBuySellMonthly(){
 
 
 }
+//==========================
+// Holding Period
+//==========================
+
+function renderHoldingPeriod(){
+
+    let holdings = {};
+
+
+
+    trades.forEach(t=>{
+
+
+        if(t.type !== "ซื้อ" &&
+           t.type !== "ขาย")
+           return;
+
+
+
+        let sym = t.symbol;
+
+
+
+        if(!holdings[sym]){
+
+            holdings[sym]=[];
+
+        }
+
+
+
+        if(t.type==="ซื้อ"){
+
+            holdings[sym].push({
+
+                buyDate:new Date(t.date),
+
+                units:Number(t.units)
+
+            });
+
+        }
+
+
+
+        if(t.type==="ขาย"){
+
+
+            let sellDate =
+            new Date(t.date);
+
+
+            let remain =
+            Number(t.units);
+
+
+
+            while(remain > 0 &&
+                  holdings[sym].length > 0){
+
+
+                let buy =
+                holdings[sym][0];
+
+
+                let used =
+                Math.min(
+                    remain,
+                    buy.units
+                );
+
+
+
+                let days =
+                Math.floor(
+                (sellDate - buy.buyDate)
+                /
+                (1000*60*60*24)
+                );
+
+
+
+                if(!holdings[sym].periods){
+
+                    holdings[sym].periods=[];
+
+                }
+
+
+
+                holdings[sym].periods.push(days);
+
+
+
+                buy.units -= used;
+
+                remain -= used;
+
+
+
+                if(buy.units<=0){
+
+                    holdings[sym].shift();
+
+                }
+
+
+            }
+
+
+        }
+
+
+    });
+
+
+
+    let result=[];
+
+
+
+    Object.keys(holdings)
+    .forEach(sym=>{
+
+
+        let periods =
+        holdings[sym].periods || [];
+
+
+
+        if(periods.length){
+
+
+            let avg =
+            periods.reduce(
+                (a,b)=>a+b,
+                0
+            )
+            /
+            periods.length;
+
+
+
+            result.push([
+                sym,
+                avg
+            ]);
+
+        }
+
+
+    });
+
+
+
+    result.sort(
+        (a,b)=>b[1]-a[1]
+    );
+
+
+
+    let html="";
+
+
+
+    result.forEach(r=>{
+
+
+        html += `
+
+        <tr>
+
+            <td>${r[0]}</td>
+
+            <td class="text-end fw-bold">
+
+            ${r[1].toFixed(0)}
+
+            </td>
+
+        </tr>
+
+        `;
+
+
+    });
+
+
+
+    document.getElementById(
+        "holdingPeriodTable"
+    ).innerHTML = html;
+
+
+}
