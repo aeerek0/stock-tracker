@@ -142,7 +142,10 @@ if(typeElement){
 typeElement.addEventListener('change', function() {
 
     const amountContainer = document.getElementById('amountContainer');
-    const isCash = (this.value === 'ฝากเงิน' || this.value === 'ถอนเงิน');
+    const isCash =
+this.value === 'ฝากเงิน' ||
+this.value === 'ถอนเงิน' ||
+this.value === 'ปันผล';
 
     if(amountContainer){
         amountContainer.style.display = isCash ? 'block' : 'none';
