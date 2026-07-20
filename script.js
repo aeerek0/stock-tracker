@@ -847,7 +847,8 @@ if(type === 'ฝากเงิน' || type === 'ถอนเงิน'){
 }
 else if(type === 'ปันผล'){
 
-    netAmount = price * units;
+    netAmount =
+    parseFloat(document.getElementById('amount').value) || 0;
 
 }
 else{
@@ -877,9 +878,10 @@ date: document.getElementById('date').value,
 
 type:type,
 
-symbol:
-(type === 'ฝากเงิน' || type === 'ถอนเงิน')
-? '-'
+const isCash =
+type === 'ฝากเงิน' ||
+type === 'ถอนเงิน' ||
+type === 'ปันผล';
 : document.getElementById('symbol').value.trim().toUpperCase(),
 
 sector:
@@ -888,10 +890,14 @@ sector:
 : document.getElementById('sector').value,
 
 price:
-isCash ? price : price,
+type === 'ซื้อ' || type === 'ขาย'
+? price
+: 0,
 
 units:
-isCash ? units : units,
+type === 'ซื้อ' || type === 'ขาย'
+? units
+: 0,
 
 grossAmount:
 (type === 'ฝากเงิน' || type === 'ถอนเงิน')
