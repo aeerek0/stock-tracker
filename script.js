@@ -529,9 +529,15 @@ if(currentMonitorView === "stock"){
 
 }
 function renderPortfolioAndRecords(trades) {
-    document.getElementById('searchInput').value = "";
-    if (trades) globalTradesData = trades;
- buildDividendYear();
+
+    document.getElementById('searchInput').value = "";
+
+    if (trades) {
+        globalTradesData = trades;
+    }
+
+
+    buildDividendYear();
     
     // 1. เตรียมตัวแปรสำหรับเก็บข้อมูลทั้งแบบรายหุ้นและราย Sector
 portfolio = {};
@@ -1111,177 +1117,172 @@ function buildDividendYear(){
     yearSelect.innerHTML="";
 
 
-    let years=[];
+    let years = [];
 
 
     globalTradesData.forEach(t=>{
 
-        if(t.type==="ปันผล"){
 
-            let y =
-            new Date(t.date).getFullYear();
+        if(String(t.type).trim() === "ปันผล"){
 
 
-            if(!years.includes(y)){
-                years.push(y);
+            let date = new Date(t.date);
+
+
+            let year =
+            date.getFullYear();
+
+
+            if(!isNaN(year) && !years.includes(year)){
+
+                years.push(year);
+
             }
 
         }
 
+
     });
 
 
-    years.sort();
+    years.sort((a,b)=>b-a);
 
 
-    years.forEach(y=>{
+    years.forEach(year=>{
 
-        let op =
+
+        let option =
         document.createElement("option");
 
-        op.value=y;
-        op.text=y;
 
-        yearSelect.appendChild(op);
+        option.value = year;
+
+        option.text =
+        year;
+
+
+        yearSelect.appendChild(option);
+
 
     });
 
+
+    console.log("Dividend Years:", years);
 
 }
 function renderDividendTable(){
 
-const tbody =
-document.getElementById(
-"dividendTableBody"
-);
+    const tbody =
+    document.getElementById("dividendTableBody");
 
 
-if(!tbody) return;
+    if(!tbody) return;
 
 
-tbody.innerHTML="";
+    tbody.innerHTML="";
 
 
-const month =
-document.getElementById(
-"dividendMonth"
-)?.value;
+    const year =
+    Number(document.getElementById("dividendYear").value);
 
 
-let yearTotal = 0;
-
-
-Object.keys(dividendData)
-.forEach(sym=>{
-
-
-let amount = 0;
-
-let count = 0;
-
-
-dividendData[sym].items.forEach(item=>{
-
-
-let d = new Date(item.date);
-
-
-let itemMonth =
-d.toISOString()
-.substring(0,7);
+    const month =
+    Number(document.getElementById("dividendMonth").value);
 
 
 
-if(!month || itemMonth===month){
+    let result = {};
 
-    amount += item.amount;
-
-    count++;
-
-}
+    let total = 0;
 
 
-});
+    globalTradesData.forEach(t=>{
 
 
-if(amount > 0){
+        if(t.type !== "ปันผล") return;
 
 
-yearTotal += amount;
+        let d = new Date(t.date);
 
 
-// หาต้นทุนหุ้น
-let cost =
-portfolio[sym]?.totalCost || 0;
+        if(d.getFullYear() !== year)
+            return;
 
 
-
-let yieldPercent =
-cost > 0
-?
-(amount / cost)*100
-:
-0;
+        if(month > 0 && d.getMonth()+1 !== month)
+            return;
 
 
 
-const row =
-document.createElement("tr");
+        let sym =
+        t.symbol.toUpperCase();
 
 
-row.innerHTML=`
+        if(!result[sym]){
 
-<td class="fw-bold">
-${sym}
-</td>
+            result[sym]={
+                count:0,
+                amount:0
+            };
 
-
-<td>
-${count}
-</td>
+        }
 
 
-<td class="text-success fw-bold">
+        result[sym].count++;
 
-${amount.toLocaleString(
-undefined,
-{
-maximumFractionDigits:2
-}
-)}
-
-</td>
+        result[sym].amount +=
+        Number(t.netAmount)||0;
 
 
-<td>
-
-${yieldPercent.toFixed(2)}%
-
-</td>
+        total +=
+        Number(t.netAmount)||0;
 
 
-`;
-
-
-tbody.appendChild(row);
-
-
-}
-
-
-});
+    });
 
 
 
-document.getElementById(
-"dividendYearTotal"
-).innerHTML =
-yearTotal.toLocaleString(
-undefined,
-{
-maximumFractionDigits:2
-}
-)+" บาท";
+    document.getElementById("dividendYearTotal")
+    .innerText =
+    total.toLocaleString(
+        undefined,
+        {
+            minimumFractionDigits:2
+        }
+    );
+
+
+
+    Object.keys(result).forEach(sym=>{
+
+
+        let row =
+        document.createElement("tr");
+
+
+        row.innerHTML=`
+
+        <td>${sym}</td>
+
+        <td>
+        ${result[sym].count}
+        </td>
+
+        <td>
+        ${result[sym].amount.toLocaleString()}
+        </td>
+
+        <td>
+        -
+        </td>
+
+        `;
+
+
+        tbody.appendChild(row);
+
+
+    });
 
 
 }
