@@ -849,14 +849,12 @@ date: document.getElementById('date').value,
 type:type,
 
 symbol:
-isCash
+(type === 'ฝากเงิน' || type === 'ถอนเงิน')
 ? '-'
 : document.getElementById('symbol').value.trim().toUpperCase(),
 
 sector:
-type === 'ปันผล'
-? 'Dividend'
-: isCash
+(type === 'ฝากเงิน' || type === 'ถอนเงิน')
 ? 'Cash Management'
 : document.getElementById('sector').value,
 
@@ -867,10 +865,14 @@ units:
 isCash ? units : units,
 
 grossAmount:
-isCash ? 0 : grossAmount.toFixed(2),
+(type === 'ฝากเงิน' || type === 'ถอนเงิน')
+? 0
+: grossAmount.toFixed(2),
 
 feeTax:
-isCash ? 0 : feeTax.toFixed(2),
+(type === 'ฝากเงิน' || type === 'ถอนเงิน')
+? 0
+: feeTax.toFixed(2),
 
 netAmount:
 netAmount.toFixed(2)
