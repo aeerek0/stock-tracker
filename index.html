@@ -268,11 +268,20 @@
             </div>
         </div>
     </div>
-    <div class="d-grid mb-3">
-    <button class="btn btn-primary"
-        onclick="window.location.href='analytics.html'">
-        📈 Analytics Dashboard
-    </button>
+ <div class="row mb-3">
+    <div class="col-6">
+        <button class="btn btn-primary w-100"
+            onclick="fetchAndRenderData()">
+            🔄 รีเฟรช
+        </button>
+    </div>
+
+    <div class="col-6">
+        <button class="btn btn-success w-100"
+            onclick="location.href='analytics.html'">
+            📈 Analytics
+        </button>
+    </div>
 </div>
 <!-- SECTION 1: MONITOR & CONTROLS -->
 <div class="card mb-3">
