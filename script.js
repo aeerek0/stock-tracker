@@ -1155,7 +1155,7 @@ function renderDividendTable() {
     document.getElementById("dividendStockCount").innerText = Object.keys(allStock).length;
 
     document.getElementById("dividendCount").innerText = allCount;
-}
+});
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
 
