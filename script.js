@@ -430,9 +430,21 @@ function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
 
         }
 
-        const totalPnL =
-            (pnLMap[key] || 0) +
-            (unrealizedPnL[key] || 0);
+let totalPnL;
+
+if(currentMonitorView === "stock"){
+
+    totalPnL =
+        (pnLMap[key] || 0) +
+        (unrealizedPnL[key] || 0);
+
+}else{
+
+    totalPnL =
+        (pnLMap[key] || 0) +
+        (sectorUnrealizedPnL[key] || 0);
+
+}
 
         const roi =
             data.totalCost > 0
@@ -553,21 +565,54 @@ sectorUnrealizedPnL = {};
 
 Object.keys(portfolio).forEach(sym => {
 
-    if(portfolio[sym].totalUnits > 0){
+    if (portfolio[sym].totalUnits > 0) {
 
-let currentPrice =
-    (window.currentPrices && window.currentPrices[sym])
-    || portfolio[sym].avgPrice;
+        const currentPrice =
+            Number(window.currentPrices?.[sym]) ||
+            portfolio[sym].avgPrice;
 
-
-        let marketValue =
+        const marketValue =
             portfolio[sym].totalUnits * currentPrice;
-
 
         unrealizedPnL[sym] =
             marketValue - portfolio[sym].totalCost;
 
     }
+
+});
+
+// ----------------------------
+// คำนวณ Unrealized ราย Sector
+// ----------------------------
+
+sectorUnrealizedPnL = {};
+
+globalTradesData.forEach(trade => {
+
+    if (trade.type !== "ซื้อ") return;
+
+    const sym = String(trade.symbol).trim().toUpperCase();
+    const sector = trade.sector || "อื่นๆ";
+
+    if (!sectorUnrealizedPnL[sector]) {
+        sectorUnrealizedPnL[sector] = 0;
+    }
+
+});
+
+Object.keys(portfolio).forEach(sym => {
+
+    const trade = globalTradesData.find(t =>
+        String(t.symbol).trim().toUpperCase() === sym
+    );
+
+    if (!trade) return;
+
+    const sector = trade.sector || "อื่นๆ";
+
+    sectorUnrealizedPnL[sector] =
+        (sectorUnrealizedPnL[sector] || 0) +
+        (unrealizedPnL[sym] || 0);
 
 });
     let netDeposited = 0;
