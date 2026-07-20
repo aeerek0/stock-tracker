@@ -1,1 +1,219 @@
+ <style>
+        :root {
+            --pastel-bg: #fffbf7;
+            --pastel-orange-dark: #e88d67;
+            --pastel-orange-light: #fff0e6;
+            --pastel-orange-accent: #fcd5c1;
+            --pastel-card-bg: #ffffff;
+            --pastel-buy: #4faba2;
+            --pastel-sell: #e56b6f;
+            --pastel-edit: #f4a261;
+        }
 
+        body { 
+            background-color: var(--pastel-bg); 
+            padding: 12px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            color: #4a3f38;
+        }
+
+        .card { 
+            border-radius: 16px; 
+            box-shadow: 0 4px 12px rgba(232, 141, 103, 0.06); 
+            border: 1px solid rgba(252, 213, 193, 0.4); 
+            background-color: var(--pastel-card-bg);
+            padding: 16px !important;
+            margin-bottom: 16px !important;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            color: #6e3b23;
+            font-weight: bold;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: #61534b;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #ebd2c5;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            background-color: #fffdfb;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--pastel-orange-dark);
+            box-shadow: 0 0 0 0.25rem rgba(232, 141, 103, 0.2);
+        }
+
+        .table-header-custom { 
+            background-color: var(--pastel-orange-accent); 
+            color: #542713;
+            font-size: 0.85rem;
+        }
+
+        .table-header-custom th {
+            font-weight: 600;
+            padding: 12px 8px;
+            white-space: nowrap;
+        }
+
+        .table { font-size: 0.85rem; }
+       .table td { 
+    padding: 8px 6px;
+    white-space: nowrap;
+}
+
+        .type-buy { color: var(--pastel-buy); font-weight: bold; }
+        .type-sell { color: var(--pastel-sell); font-weight: bold; }
+        .profit { color: var(--pastel-buy); font-weight: bold; }
+        .loss { color: var(--pastel-sell); font-weight: bold; }
+
+        .btn-primary {
+            background-color: var(--pastel-orange-dark);
+            border-color: var(--pastel-orange-dark);
+            border-radius: 10px;
+            padding: 12px;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #cf7956 !important;
+            color: white !important;
+        }
+        
+        .btn-secondary-custom {
+            background-color: #ebd2c5;
+            color: #6e3b23;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .btn-action-edit {
+            background-color: transparent;
+            color: var(--pastel-edit);
+            border: 1px solid rgba(244, 162, 97, 0.5);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+        .btn-action-edit:hover {
+            background-color: var(--pastel-edit);
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: var(--pastel-sell);
+            border: 1px solid rgba(229, 107, 111, 0.4);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .btn-delete:hover {
+            background-color: var(--pastel-sell);
+            color: white;
+        }
+
+        .monitor-header {
+            background-color: var(--pastel-orange-light) !important;
+            color: #6e3b23;
+        }
+
+        .config-box {
+            background-color: #fff5ee;
+            border: 1px dashed var(--pastel-orange-dark);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .edit-mode-alert {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            display: none;
+        }
+.monitor-table {
+    width:100%;
+    min-width:650px;
+    table-layout:auto;
+    border-collapse:collapse;
+}
+
+.monitor-table th,
+.monitor-table td {
+    text-align:center !important;
+    vertical-align:middle;
+    white-space:nowrap;
+    padding:6px 8px;
+    font-size:0.8rem;
+}
+
+
+/* กำหนดความกว้างแต่ละ Column */
+.monitor-table th:nth-child(1),
+.monitor-table td:nth-child(1){
+    width:90px;
+}
+
+.monitor-table th:nth-child(2),
+.monitor-table td:nth-child(2){
+    width:90px;
+}
+
+.monitor-table th:nth-child(3),
+.monitor-table td:nth-child(3){
+    width:120px;
+}
+
+.monitor-table th:nth-child(4),
+.monitor-table td:nth-child(4){
+    width:120px;
+}
+
+.monitor-table th:nth-child(5),
+.monitor-table td:nth-child(5){
+    width:80px;
+}
+
+.monitor-table th:nth-child(6),
+.monitor-table td:nth-child(6){
+    width:140px;
+}
+
+
+.monitor-scroll{
+    border-radius:10px;
+    border:1px solid #f7dfd3;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+}
+@media (max-width:576px){
+
+    .monitor-table {
+        min-width:600px;
+    }
+
+    .monitor-table th,
+    .monitor-table td {
+        padding:5px 4px;
+        font-size:0.75rem;
+    }
+
+}
+    </style>
