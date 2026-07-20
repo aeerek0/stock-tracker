@@ -241,21 +241,33 @@ function sortMonitorBy() {
         document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12" style="color:var(--pastel-orange-dark)">กำลังโหลดประวัติ...</td></tr>`;
 
         fetch(WEB_APP_URL)
-            .then(response => response.json())
-            .then(trades => {
-                globalTradesData = trades; // บันทึกข้อมูลลงตัวแปร Global
-                dynamicSectorMap = {};
-                trades.forEach(t => {
-                    if(t.symbol && t.sector) {
-                        dynamicSectorMap[t.symbol.trim().toUpperCase()] = t.sector;
-                    }
-                });
-                renderPortfolioAndRecords(trades);
-            })
-            .catch(error => {
-                document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-danger">ดึงข้อมูลล้มเหลว ตรวจสอบลิงก์ความถูกต้องอีกครั้ง</td></tr>`;
-            });
-    }
+.then(response => response.json())
+.then(data => {
+
+    console.log("Refresh Data:", data);
+
+    globalTradesData = data.trades || [];
+
+    window.currentPrices = data.prices || {};
+
+    dynamicSectorMap = {};
+
+    globalTradesData.forEach(t => {
+
+        if(t.symbol && t.sector){
+
+            dynamicSectorMap[
+                t.symbol.trim().toUpperCase()
+            ] = t.sector;
+
+        }
+
+    });
+
+
+    renderPortfolioAndRecords(globalTradesData);
+
+})
 
     // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
     function startEditMode(rowIndex) {
