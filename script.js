@@ -549,30 +549,45 @@ sectorUnrealizedPnL = {};
     // 2. ลูปคำนวณข้อมูลทั้งหมด
     let totalPortfolioValue = 0, totalPnL = 0, activeStocksCount = 0;
     globalTradesData.forEach(trade => {
-         if(trade.type === 'ปันผล'){
+if(trade.type === 'ปันผล'){
 
-        const sym = String(trade.symbol || "")
-            .trim()
-            .toUpperCase();
-
-
-        if(!dividendData[sym]){
-            dividendData[sym] = {
-                count:0,
-                amount:0
-            };
-        }
+    const sym = String(trade.symbol || "")
+        .trim()
+        .toUpperCase();
 
 
-        dividendData[sym].count++;
+    if(!dividendData[sym]){
 
-        dividendData[sym].amount +=
-            parseFloat(trade.netAmount) || 0;
-
-
-        return;
+        dividendData[sym]={
+            count:0,
+            amount:0,
+            items:[]
+        };
 
     }
+
+
+    const amount =
+        Number(trade.netAmount) || 0;
+
+
+    dividendData[sym].count++;
+
+    dividendData[sym].amount += amount;
+
+
+    dividendData[sym].items.push({
+
+        date: trade.date,
+
+        amount: amount
+
+    });
+
+
+    return;
+
+}
 if (
     trade.type === 'ฝากเงิน' ||
     trade.type === 'ถอนเงิน'
