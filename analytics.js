@@ -846,3 +846,133 @@ function renderSectorPerformance(){
 
 
 }
+
+//==========================
+// Current Sector Allocation
+//==========================
+
+function renderCurrentSectorAllocation(){
+
+    let portfolio = {};
+
+    let sector = {};
+
+
+
+    // หาจำนวนหุ้นคงเหลือ
+    trades.forEach(t=>{
+
+
+        if(
+            t.type !== "ซื้อ" &&
+            t.type !== "ขาย"
+        ) return;
+
+
+
+        let sym = t.symbol;
+
+
+        if(!portfolio[sym]){
+
+            portfolio[sym]={
+                units:0,
+                cost:0
+            };
+
+        }
+
+
+        let units = Number(t.units);
+
+        let net = Number(t.netAmount);
+
+
+
+        if(t.type==="ซื้อ"){
+
+            portfolio[sym].units += units;
+
+            portfolio[sym].cost += net;
+
+        }
+
+
+
+        if(t.type==="ขาย"){
+
+            let avg =
+            portfolio[sym].cost /
+            portfolio[sym].units;
+
+
+            portfolio[sym].units -= units;
+
+            portfolio[sym].cost -= avg * units;
+
+        }
+
+
+    });
+
+
+
+    // รวมตาม Sector เฉพาะหุ้นที่ยังถือ
+
+    Object.keys(portfolio)
+    .forEach(sym=>{
+
+
+        let item =
+        portfolio[sym];
+
+
+        if(item.units <= 0)
+            return;
+
+
+
+        let group =
+        sectorMap[sym] || "Other";
+
+
+        if(!sector[group])
+            sector[group]=0;
+
+
+
+        sector[group] += item.cost;
+
+
+    });
+
+
+
+    new Chart(
+        document.getElementById(
+            "sectorAllocationChart"
+        ),
+        {
+
+        type:"doughnut",
+
+        data:{
+
+            labels:Object.keys(sector),
+
+            datasets:[{
+
+                data:Object.values(sector)
+
+            }]
+
+        },
+
+        options:{
+            responsive:true
+        }
+
+    });
+
+
+}
