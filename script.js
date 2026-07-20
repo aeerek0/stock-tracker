@@ -157,7 +157,7 @@ this.value === 'ปันผล';
 
     if(document.getElementById('editRowIndex').value === "") { 
         document.getElementById('feeRate').value =
-        this.value === 'ซื้อ' ? '0.0' : '0.1822';
+        this.value === 'ซื้อ' ? '0.0' : '0.0';
     }
 
 });
