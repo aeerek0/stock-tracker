@@ -29,6 +29,7 @@ window.onload = function () {
             renderMostTrade();
 
             renderSummary();
+            renderHoldingPeriod();
 
 
 
