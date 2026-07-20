@@ -810,27 +810,64 @@ tradeForm.addEventListener('submit', function(e){
 
     // แก้ไขตรงนี้: คำนวณ netAmount ให้จบในที่เดียว
     let netAmount = 0;
-    if (type === 'ฝากเงิน') {
-        netAmount = parseFloat(document.getElementById('amount').value) || 0;
-    } else if (type === 'ถอนเงิน') {
-        netAmount = parseFloat(document.getElementById('amount').value) || 0;
-    } else {
-        netAmount = type === 'ซื้อ' ? (grossAmount + feeTax) : (grossAmount - feeTax);
-    }
+if(type === 'ฝากเงิน' || type === 'ถอนเงิน'){
 
-    const tradeData = {
-        action: editRowIndex !== "" ? "edit" : "insert",
-        rowIndex: editRowIndex,
-        date: document.getElementById('date').value,
-        type: type,
-        symbol: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? '-' : document.getElementById('symbol').value.trim().toUpperCase(),
-        sector: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 'Cash Management' : document.getElementById('sector').value,
-        price: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : price,
-        units: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : units,
-        grossAmount: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : grossAmount.toFixed(2),
-        feeTax: (type === 'ฝากเงิน' || type === 'ถอนเงิน') ? 0 : feeTax.toFixed(2),
-        netAmount: netAmount.toFixed(2)
-    };
+    netAmount =
+    parseFloat(document.getElementById('amount').value) || 0;
+
+}
+else if(type === 'ปันผล'){
+
+    netAmount = price * units;
+
+}
+else{
+
+    netAmount =
+    type === 'ซื้อ'
+    ? grossAmount + feeTax
+    : grossAmount - feeTax;
+
+}
+
+const isCash =
+type === 'ฝากเงิน' ||
+type === 'ถอนเงิน';
+
+const isDividend =
+type === 'ปันผล';
+
+
+const tradeData = {
+
+action: editRowIndex !== "" ? "edit" : "insert",
+
+rowIndex: editRowIndex,
+
+date: document.getElementById('date').value,
+
+type:type,
+
+symbol: isCash ? '-' :
+document.getElementById('symbol').value.trim().toUpperCase(),
+
+sector: isCash ? 'Cash Management' :
+document.getElementById('sector').value,
+
+price: isCash ? 0 : price,
+
+units: isCash ? 0 : units,
+
+grossAmount:
+isCash ? 0 : grossAmount.toFixed(2),
+
+feeTax:
+isCash ? 0 : feeTax.toFixed(2),
+
+netAmount:
+netAmount.toFixed(2)
+
+};
 
 fetch(WEB_APP_URL,{
     method:"POST",
