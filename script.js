@@ -832,10 +832,10 @@ else{
 
 const isCash =
 type === 'ฝากเงิน' ||
-type === 'ถอนเงิน';
-
-const isDividend =
+type === 'ถอนเงิน' ||
 type === 'ปันผล';
+
+
 
 
 const tradeData = {
@@ -848,15 +848,23 @@ date: document.getElementById('date').value,
 
 type:type,
 
-symbol: isCash ? '-' :
-document.getElementById('symbol').value.trim().toUpperCase(),
+symbol:
+isCash
+? '-'
+: document.getElementById('symbol').value.trim().toUpperCase(),
 
-sector: isCash ? 'Cash Management' :
-document.getElementById('sector').value,
+sector:
+type === 'ปันผล'
+? 'Dividend'
+: isCash
+? 'Cash Management'
+: document.getElementById('sector').value,
 
-price: isCash ? 0 : price,
+price:
+isCash ? price : price,
 
-units: isCash ? 0 : units,
+units:
+isCash ? units : units,
 
 grossAmount:
 isCash ? 0 : grossAmount.toFixed(2),
