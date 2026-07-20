@@ -1251,29 +1251,6 @@ allStock[t.symbol.toUpperCase()] = true;
         total +=
         Number(t.netAmount)||0;
 
-document.getElementById("dividendSelectedTotal")
-.innerText =
-total.toLocaleString(undefined,{
-minimumFractionDigits:2
-});
-
-
-document.getElementById("dividendAllTotal")
-.innerText =
-allTotal.toLocaleString(undefined,{
-minimumFractionDigits:2
-});
-
-
-document.getElementById("dividendStockCount")
-.innerText =
-Object.keys(allStock).length;
-
-
-document.getElementById("dividendCount")
-.innerText =
-allCount;
-    });
 
 
 
@@ -1335,6 +1312,30 @@ ${yieldPercent.toFixed(2)}%
 
 
 }
+                             
+document.getElementById("dividendSelectedTotal")
+.innerText =
+total.toLocaleString(undefined,{
+minimumFractionDigits:2
+});
+
+
+document.getElementById("dividendAllTotal")
+.innerText =
+allTotal.toLocaleString(undefined,{
+minimumFractionDigits:2
+});
+
+
+document.getElementById("dividendStockCount")
+.innerText =
+Object.keys(allStock).length;
+
+
+document.getElementById("dividendCount")
+.innerText =
+allCount;
+    });
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
 
