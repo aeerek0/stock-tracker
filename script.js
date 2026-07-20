@@ -723,6 +723,7 @@ const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
 
 renderMonitorTable(dataMap, pnLMap);
  drawAllocationChart(currentMonitorView);
+ renderDividendTable();
 }
     function loadMore() {
     displayCount += 50;
@@ -1077,6 +1078,60 @@ return ctx.label+
 }
 
 }
+
+});
+
+
+}
+function renderDividendTable(){
+
+const tbody =
+document.getElementById("dividendTableBody");
+
+
+if(!tbody) return;
+
+
+tbody.innerHTML="";
+
+
+Object.keys(dividendData).forEach(sym=>{
+
+
+const data =
+dividendData[sym];
+
+
+const row =
+document.createElement("tr");
+
+
+row.innerHTML=`
+
+<td class="fw-bold">
+${sym}
+</td>
+
+
+<td>
+${data.count}
+</td>
+
+
+<td class="text-success fw-bold">
+${data.amount.toLocaleString(
+undefined,
+{
+maximumFractionDigits:2
+}
+)}
+</td>
+
+`;
+
+
+tbody.appendChild(row);
+
 
 });
 
