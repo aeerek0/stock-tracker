@@ -82,23 +82,24 @@
     <!-- ตารางหลัก -->
 <div class="table-responsive monitor-scroll">
         <table class="table table-striped table-hover align-middle m-0 text-center monitor-table">
-            <thead class="monitor-header">
-                <tr>
-                    <th>Symbol</th>
-                    <th>คงเหลือ</th>
-                    <th>ต้นทุน/หน่วย</th>
-                    <th>มูลค่ารวม</th>
-                    <th>% พอร์ต</th>
-                    <th>
-                     กำไร/ขาดทุน
-   <button onclick="sortMonitorBy('roi')" 
-class="btn btn-sm p-0"
-style="border:0;background:none;color:#6e3b23;">
-⇅
-</button>
-</th>
-                </tr>
-            </thead>
+<thead class="monitor-header">
+<tr>
+    <th>Symbol</th>
+    <th>คงเหลือ</th>
+    <th>ต้นทุน/หน่วย</th>
+    <th>ราคาตลาด</th>
+    <th>มูลค่าปัจจุบัน</th>
+    <th>% พอร์ต</th>
+    <th>
+        กำไร/ขาดทุน
+        <button onclick="sortMonitorBy('roi')" 
+        class="btn btn-sm p-0"
+        style="border:0;background:none;color:#6e3b23;">
+        ⇅
+        </button>
+    </th>
+</tr>
+</thead>
             <tbody id="monitorTableBody">
                 <tr><td colspan="6" class="text-muted">กรุณาเชื่อมต่อเพื่อดึงข้อมูล</td></tr>
             </tbody>
