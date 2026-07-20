@@ -448,43 +448,34 @@ row.innerHTML = `
         maximumFractionDigits:2
     })}
 </td>
+
+<td>
+    ${data.totalCost.toLocaleString(undefined,{
+        maximumFractionDigits:2
+    })}
+</td>
+
+<td>
+    ${
+    (window.currentPrices[key] || data.avgPrice)
+    .toLocaleString(undefined,{
+        maximumFractionDigits:2
+    })
+    }
+</td>
+
 <td>
     ${marketValue.toLocaleString(undefined,{
         maximumFractionDigits:2
     })}
 </td>
 
-
-<td>
-    ${
-    (window.currentPrices[key] || data.avgPrice)
-    .toLocaleString(undefined,{
-        maximumFractionDigits:2
-    })
-    }
-</td>
-
-
-<td>
-    ${
-    (
-    data.totalUnits *
-    (window.currentPrices[key] || data.avgPrice)
-    )
-    .toLocaleString(undefined,{
-        maximumFractionDigits:2
-    })
-    }
-</td>
-
-
 <td class="text-secondary fw-bold">
     ${weight.toFixed(1)}%
 </td>
 
-
-<td class="${pnLMap[key]>=0 
-    ? 'text-success' 
+<td class="${pnLMap[key]>=0
+    ? 'text-success'
     : 'text-danger'}">
 
     ${pnLMap[key].toLocaleString(undefined,{
