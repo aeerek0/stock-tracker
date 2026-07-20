@@ -1053,17 +1053,40 @@ fetch(WEB_APP_URL,{
     },
     body:JSON.stringify(tradeData)
 })
-.then(async response => {
+.then(response => response.json())
+.then(result => {
 
-    console.log("Status:", response.status);
-    console.log("OK:", response.ok);
+    console.log(result);
 
-    const text = await response.text();
-    console.log("Response:", text);
+    if(result.status === "success"){
+
+        alert(editRowIndex !== ""
+            ? "อัปเดตข้อมูลสำเร็จ!"
+            : "บันทึกข้อมูลสำเร็จ!");
+
+        cancelEditMode();
+
+        fetchAndRenderData();
+
+    }else{
+
+        submitBtn.disabled = false;
+        submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+
+        alert("เกิดข้อผิดพลาด");
+
+    }
 
 })
 .catch(err=>{
+
     console.error(err);
+
+    submitBtn.disabled = false;
+    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+
+    alert("บันทึกข้อมูลไม่สำเร็จ");
+
 });
 });
 
