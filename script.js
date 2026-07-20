@@ -368,141 +368,121 @@ function cancelEditMode() {
     btn.style.backgroundColor =
         "var(--pastel-orange-dark)";
 }
-function renderMonitorTable(dataMap,pnLMap,sortedKeys=null){
+function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
 
     const mBody = document.getElementById('monitorTableBody');
     mBody.innerHTML = '';
 
-let totalValue = 0;
+    let totalValue = 0;
 
-const keys = sortedKeys || Object.keys(dataMap);
+    const keys = sortedKeys || Object.keys(dataMap);
 
-keys.forEach(key => {
-
-    if(dataMap[key].totalUnits > 0){
-let marketPrice = data.avgPrice;
-let marketValue;
-
-if(currentMonitorView === "stock"){
-
-    marketPrice =
-        window.currentPrices[key] || data.avgPrice;
-
-    marketValue =
-        data.totalUnits * marketPrice;
-
-}else{
-
-    marketValue = data.totalCost;
-
-}
-
-    }
-
-});
-
-
-    Object.keys(dataMap).forEach(key => {
+    // คำนวณมูลค่าพอร์ตรวม
+    keys.forEach(key => {
 
         const data = dataMap[key];
 
-        if(data.totalUnits > 0){
+        if (!data || data.totalUnits <= 0) return;
 
-let marketValue;
+        let marketPrice = data.avgPrice;
+        let marketValue;
 
-if(currentMonitorView === "stock"){
+        if (currentMonitorView === "stock") {
 
-    const marketPrice =
-        window.currentPrices[key] || data.avgPrice;
+            marketPrice =
+                Number(window.currentPrices?.[key]) || data.avgPrice;
 
-    marketValue =
-        data.totalUnits * marketPrice;
+            marketValue =
+                data.totalUnits * marketPrice;
 
-}else{
+        } else {
 
-    // หน้า Sector ใช้ต้นทุนรวมไปก่อน
-    marketValue = data.totalCost;
-
-}
-
-const totalPnL =
-    (pnLMap[key] || 0) +
-    (unrealizedPnL[key] || 0);
-
-const roi =
-    data.totalCost > 0
-    ? (totalPnL / data.totalCost) * 100
-    : 0;
-
-const weight = totalValue > 0
-    ? (marketValue / totalValue) * 100
-    : 0;
-
-
-            const row = document.createElement('tr');
-
-row.innerHTML = `
-
-<td class="fw-bold">${key}</td>
-
-<td>
-    ${data.totalUnits.toLocaleString()}
-</td>
-
-<td>
-    ${data.avgPrice.toLocaleString(undefined,{
-        maximumFractionDigits:2
-    })}
-</td>
-
-<td>
-    ${data.totalCost.toLocaleString(undefined,{
-        maximumFractionDigits:2
-    })}
-</td>
-
-<td>
-    ${
-    (window.currentPrices[key] || data.avgPrice)
-    .toLocaleString(undefined,{
-        maximumFractionDigits:2
-    })
-    }
-</td>
-
-<td>
-    ${marketValue.toLocaleString(undefined,{
-        maximumFractionDigits:2
-    })}
-</td>
-
-<td class="text-secondary fw-bold">
-    ${weight.toFixed(1)}%
-</td>
-
-<td class="${totalPnL>=0
-    ? 'text-success'
-    : 'text-danger'}">
-
-${totalPnL.toLocaleString(undefined,{
-maximumFractionDigits:2
-})}
-
-</td>
-
-<td class="${roi>=0
-? 'text-success'
-: 'text-danger'}">
-
-${roi.toFixed(2)}%
-
-</td>
-
-`;
-
-            mBody.appendChild(row);
+            marketValue = data.totalCost;
 
         }
+
+        totalValue += marketValue;
+
+    });
+
+    // วาดตาราง
+    keys.forEach(key => {
+
+        const data = dataMap[key];
+
+        if (!data || data.totalUnits <= 0) return;
+
+        let marketPrice = data.avgPrice;
+        let marketValue;
+
+        if (currentMonitorView === "stock") {
+
+            marketPrice =
+                Number(window.currentPrices?.[key]) || data.avgPrice;
+
+            marketValue =
+                data.totalUnits * marketPrice;
+
+        } else {
+
+            marketPrice = data.avgPrice;
+            marketValue = data.totalCost;
+
+        }
+
+        const totalPnL =
+            (pnLMap[key] || 0) +
+            (unrealizedPnL[key] || 0);
+
+        const roi =
+            data.totalCost > 0
+            ? (totalPnL / data.totalCost) * 100
+            : 0;
+
+        const weight =
+            totalValue > 0
+            ? (marketValue / totalValue) * 100
+            : 0;
+
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td class="fw-bold">${key}</td>
+
+            <td>${data.totalUnits.toLocaleString()}</td>
+
+            <td>${data.avgPrice.toLocaleString(undefined,{
+                maximumFractionDigits:2
+            })}</td>
+
+            <td>${data.totalCost.toLocaleString(undefined,{
+                maximumFractionDigits:2
+            })}</td>
+
+            <td>${marketPrice.toLocaleString(undefined,{
+                maximumFractionDigits:2
+            })}</td>
+
+            <td>${marketValue.toLocaleString(undefined,{
+                maximumFractionDigits:2
+            })}</td>
+
+            <td class="text-secondary fw-bold">
+                ${weight.toFixed(1)}%
+            </td>
+
+            <td class="${totalPnL >= 0 ? 'text-success' : 'text-danger'}">
+                ${totalPnL.toLocaleString(undefined,{
+                    maximumFractionDigits:2
+                })}
+            </td>
+
+            <td class="${roi >= 0 ? 'text-success' : 'text-danger'}">
+                ${roi.toFixed(2)}%
+            </td>
+        `;
+
+        mBody.appendChild(row);
 
     });
 
