@@ -51,14 +51,16 @@ function initConnection() {
         })
         .then(data => {
 
-            globalTradesData = data;
+            globalTradesData = data.trades;
+
+window.currentPrices = data.prices;
 
 
             if(statusEl){
 
                 statusEl.innerHTML = 
                 "🟢 สถานะ: เชื่อมต่อ Google Sheet สำเร็จ (" 
-                + data.length + " รายการ)";
+                + data.trades.length + " รายการ)"
 
                 statusEl.className =
                 "d-block mt-2 fw-bold text-success";
@@ -66,7 +68,7 @@ function initConnection() {
             }
 
 
-            renderPortfolioAndRecords(data);
+            renderPortfolioAndRecords(globalTradesData);
 
 
         })
@@ -674,52 +676,124 @@ fetch(WEB_APP_URL,{
 
 }
 
-function drawAllocationChart(view = "stock") {
+function drawAllocationChart(view="stock") {
 
-    const dataMap =
-        view === "stock"
-            ? portfolio
-            : sectorPortfolio;
 
-    const labels = [];
-    const values = [];
+const dataMap =
+view==="stock"
+? portfolio
+: sectorPortfolio;
 
-    Object.keys(dataMap).forEach(key => {
 
-        if (dataMap[key].totalUnits > 0) {
+const labels=[];
+const values=[];
 
-            labels.push(key);
-            values.push(dataMap[key].totalCost);
 
-        }
+Object.keys(dataMap).forEach(key=>{
 
-    });
 
-    const canvas = document.getElementById("allocationChart");
+if(dataMap[key].totalUnits>0){
 
-    if (!canvas) return;
 
-    if (allocationChart) {
-        allocationChart.destroy();
-    }
+let value = 0;
 
-    allocationChart = new Chart(canvas, {
-        type: "doughnut",
-        data: {
-            labels: labels,
-            datasets: [{
-                data: values
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: "bottom"
-                }
-            }
-        }
-    });
+
+// รายหุ้น
+if(view==="stock"){
+
+let price =
+window.currentPrices[key] || 0;
+
+
+value =
+dataMap[key].totalUnits * price;
+
+
+}else{
+
+
+// sector ใช้ต้นทุนก่อน
+value =
+dataMap[key].totalCost;
+
+
+}
+
+
+labels.push(key);
+
+values.push(value);
+
+
+}
+
+
+});
+
+
+const canvas=document.getElementById("allocationChart");
+
+
+if(allocationChart){
+allocationChart.destroy();
+}
+
+
+allocationChart=new Chart(canvas,{
+
+type:"doughnut",
+
+data:{
+
+labels:labels,
+
+datasets:[{
+
+data:values
+
+}]
+
+},
+
+options:{
+
+plugins:{
+
+legend:{
+position:"bottom"
+},
+
+tooltip:{
+
+callbacks:{
+
+label:function(ctx){
+
+let total =
+ctx.dataset.data.reduce(
+(a,b)=>a+b,0
+);
+
+
+let percent =
+(ctx.raw/total*100).toFixed(2);
+
+
+return ctx.label+
+" "+percent+"%";
+
+}
+
+}
+
+}
+
+}
+
+}
+
+});
+
 
 }
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
