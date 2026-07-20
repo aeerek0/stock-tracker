@@ -9,6 +9,7 @@ let portfolio = {};
 let sectorPortfolio = {};
 let realizedPnL = {};
 let sectorPnL = {};
+let currentPrices = {};
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
 
@@ -53,7 +54,7 @@ function initConnection() {
 
             globalTradesData = data.trades;
 
-window.currentPrices = data.prices;
+           window.currentPrices = data.prices;
 
 
             if(statusEl){
@@ -459,10 +460,23 @@ sectorPnL = {};
     });
 
     // สรุป Dashboard
-    Object.keys(portfolio).forEach(sym => {
-        if (portfolio[sym].totalUnits > 0) { activeStocksCount++; totalPortfolioValue += portfolio[sym].totalCost; }
-        totalPnL += realizedPnL[sym];
-    });
+  Object.keys(portfolio).forEach(sym => {
+
+    if (portfolio[sym].totalUnits > 0) {
+
+        activeStocksCount++;
+
+        let marketPrice = window.currentPrices[sym] || portfolio[sym].avgPrice;
+
+        let marketValue = portfolio[sym].totalUnits * marketPrice;
+
+        totalPortfolioValue += marketValue;
+
+    }
+
+    totalPnL += realizedPnL[sym];
+
+});
 
     document.getElementById('dashTotalValue').innerText = totalPortfolioValue.toLocaleString(undefined, {maximumFractionDigits: 0});
     document.getElementById('dashTotalPnL').innerText = (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, {minimumFractionDigits: 2});
