@@ -16,10 +16,19 @@ window.onload = function () {
 
             trades = data;
 
+
+            // ===== Analytics =====
+
             drawMonthlyPnL();
+
             renderTopProfit();
+
             renderTopLoss();
+
             renderMostTrade();
+
+            renderSummary();
+
 
         })
         .catch(err => {
@@ -252,5 +261,132 @@ function renderMostTrade() {
         });
 
     document.getElementById("mostTradeTable").innerHTML = html;
+
+}
+function renderSummary(){
+
+let portfolio={};
+
+let cost=0;
+
+let realized=0;
+
+let win=0;
+
+let loss=0;
+
+
+
+trades.forEach(t=>{
+
+
+if(
+t.type==="ฝากเงิน" ||
+t.type==="ถอนเงิน"
+) return;
+
+
+
+let sym=t.symbol;
+
+
+if(!portfolio[sym]){
+
+portfolio[sym]={
+units:0,
+cost:0
+};
+
+}
+
+
+
+let units=Number(t.units);
+
+let net=Number(t.netAmount);
+
+
+
+if(t.type==="ซื้อ"){
+
+
+portfolio[sym].units += units;
+
+portfolio[sym].cost += net;
+
+cost += net;
+
+
+}
+
+
+
+if(t.type==="ขาย"){
+
+
+let avg =
+portfolio[sym].cost /
+portfolio[sym].units;
+
+
+let pnl =
+net - (avg*units);
+
+
+
+realized += pnl;
+
+
+if(pnl>0)
+win++;
+
+else
+loss++;
+
+
+
+portfolio[sym].units -= units;
+
+portfolio[sym].cost -= avg*units;
+
+
+}
+
+
+
+});
+
+
+
+let totalTrade = win + loss;
+
+
+document.getElementById("totalCost")
+.innerHTML =
+cost.toLocaleString();
+
+
+
+document.getElementById("realizedPnL")
+.innerHTML =
+realized.toLocaleString(
+undefined,
+{
+maximumFractionDigits:2
+}
+);
+
+
+
+let rate =
+totalTrade ?
+(win / totalTrade * 100)
+:0;
+
+
+
+document.getElementById("winRate")
+.innerHTML =
+rate.toFixed(2)+"%";
 
 }
