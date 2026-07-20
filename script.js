@@ -375,15 +375,21 @@ function renderMonitorTable(dataMap,pnLMap,sortedKeys=null){
 
     let totalValue = 0;
 
-    const keys = sortedKeys || Object.keys(dataMap);
+const keys = sortedKeys || Object.keys(dataMap);
 
 keys.forEach(key=>{
 
-        if(dataMap[key].totalUnits > 0){
-            totalValue += dataMap[key].totalCost;
-        }
+    if(dataMap[key].totalUnits > 0){
 
-    });
+        let marketPrice =
+            window.currentPrices[key] || dataMap[key].avgPrice;
+
+        totalValue +=
+            dataMap[key].totalUnits * marketPrice;
+
+    }
+
+});
 
 
     Object.keys(dataMap).forEach(key => {
@@ -397,9 +403,17 @@ keys.forEach(key=>{
                 : 0;
 
 
-            const weight = totalValue > 0
-                ? (data.totalCost / totalValue) * 100
-                : 0;
+      let marketPrice =
+    window.currentPrices[key] || data.avgPrice;
+
+
+let marketValue =
+    data.totalUnits * marketPrice;
+
+
+const weight = totalValue > 0
+    ? (marketValue / totalValue) * 100
+    : 0;
 
 
             const row = document.createElement('tr');
