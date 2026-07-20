@@ -112,72 +112,154 @@
     </div>
 </div>
     
-    <div class="card mt-3">
+<div class="card mt-3">
 
-<h5 class="card-title">
-💰 Dividend Monitor
-</h5>
-
-
-<div class="row mb-3">
-
-<div class="col-6">
-
-<label>
-เลือกเดือน
-</label>
+    <h5 class="card-title">
+        💰 Dividend Monitor
+    </h5>
 
 
-<input 
-type="month"
-id="dividendMonth"
-class="form-control"
-onchange="renderDividendTable()">
+    <div class="row mb-3">
 
-</div>
+        <!-- เลือกปี -->
+        <div class="col-6">
 
+            <label class="form-label">
+                เลือกปี
+            </label>
 
-<div class="col-6">
+            <select 
+                id="dividendYear"
+                class="form-select"
+                onchange="renderDividendTable()">
 
-<label>
-ปี
-</label>
+            </select>
 
-<div id="dividendYearTotal"
-class="form-control bg-light">
-
-</div>
+        </div>
 
 
-</div>
+        <!-- เลือกเดือน -->
+        <div class="col-6">
+
+            <label class="form-label">
+                เลือกเดือน
+            </label>
+
+            <select 
+                id="dividendMonth"
+                class="form-select"
+                onchange="renderDividendTable()">
+
+                <option value="0">
+                    ทั้งปี
+                </option>
+
+                <option value="1">
+                    มกราคม
+                </option>
+
+                <option value="2">
+                    กุมภาพันธ์
+                </option>
+
+                <option value="3">
+                    มีนาคม
+                </option>
+
+                <option value="4">
+                    เมษายน
+                </option>
+
+                <option value="5">
+                    พฤษภาคม
+                </option>
+
+                <option value="6">
+                    มิถุนายน
+                </option>
+
+                <option value="7">
+                    กรกฎาคม
+                </option>
+
+                <option value="8">
+                    สิงหาคม
+                </option>
+
+                <option value="9">
+                    กันยายน
+                </option>
+
+                <option value="10">
+                    ตุลาคม
+                </option>
+
+                <option value="11">
+                    พฤศจิกายน
+                </option>
+
+                <option value="12">
+                    ธันวาคม
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
 
 
-</div>
+    <!-- สรุปยอด -->
+    <div class="alert alert-success">
+
+        💰 Dividend รวม :
+        
+        <b>
+            <span id="dividendYearTotal">
+                0.00
+            </span>
+        </b>
+
+        บาท
+
+    </div>
 
 
-<table class="table">
 
-<thead>
-<tr>
+    <table class="table table-sm">
 
-<th>หุ้น</th>
+        <thead class="monitor-header">
 
-<th>ครั้ง</th>
+            <tr>
 
-<th>ปันผล</th>
+                <th>
+                    หุ้น
+                </th>
 
-<th>Yield %</th>
+                <th>
+                    จำนวนครั้ง
+                </th>
 
-</tr>
-</thead>
+                <th>
+                    เงินปันผล
+                </th>
+
+                <th>
+                    Yield %
+                </th>
+
+            </tr>
+
+        </thead>
 
 
-<tbody id="dividendTableBody">
+        <tbody id="dividendTableBody">
 
-</tbody>
+        </tbody>
 
 
-</table>
+    </table>
+
 
 </div>
     <div class="card mb-3">
