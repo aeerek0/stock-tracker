@@ -541,6 +541,7 @@ unrealizedPnL = {};
 
 sectorPnL = {};
 sectorUnrealizedPnL = {};
+ dividendData = {};
  
     const tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
@@ -623,9 +624,10 @@ Object.keys(portfolio).forEach(sym => {
 
     if (portfolio[sym].totalUnits > 0) {
 
-        const currentPrice =
-            Number(window.currentPrices?.[sym]) ||
-            portfolio[sym].avgPrice;
+const currentPrice =
+    (window.currentPrices && window.currentPrices[sym])
+    ? Number(window.currentPrices[sym])
+    : portfolio[sym].avgPrice;
 
         const marketValue =
             portfolio[sym].totalUnits * currentPrice;
@@ -864,8 +866,6 @@ const isCash =
 type === 'ฝากเงิน' ||
 type === 'ถอนเงิน' ||
 type === 'ปันผล';
-
-
 
 
 const tradeData = {
