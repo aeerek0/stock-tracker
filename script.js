@@ -1,9 +1,8 @@
  // --- ตัวแปร Global ---
-let allocationChart = null;    
-let WEB_APP_URL = "";
-    let globalTradesData = [];
 let allocationChart = null;
-    let displayCount = 50;
+let WEB_APP_URL = "";
+let globalTradesData = [];
+let displayCount = 50;
     let currentMonitorView = 'stock';
     let sortDirection = 1;
 let portfolio = {};
@@ -675,72 +674,6 @@ fetch(WEB_APP_URL,{
 
 }
 
-function drawAllocationChart(view = "stock") {
-
-    const dataMap =
-        view === "stock"
-            ? portfolio
-            : sectorPortfolio;
-
-    const labels = [];
-    const values = [];
-
-    Object.keys(dataMap).forEach(key => {
-
-        if (dataMap[key].totalUnits > 0) {
-
-            labels.push(key);
-
-            values.push(dataMap[key].totalCost);
-
-        }
-
-    });
-
-    const ctx =
-        document.getElementById("allocationChart");
-
-    if (allocationChart) {
-
-        allocationChart.destroy();
-
-    }
-
-    allocationChart = new Chart(ctx, {
-
-        type: "doughnut",
-
-        data: {
-
-            labels,
-
-            datasets: [{
-
-                data: values
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            plugins: {
-
-                legend: {
-
-                    position: "bottom"
-
-                }
-
-            }
-
-        }
-
-    });
-
-}
 function drawAllocationChart(view = "stock") {
 
     const dataMap =
