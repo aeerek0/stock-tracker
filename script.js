@@ -1114,7 +1114,11 @@ function buildDividendYear(){
     if(!yearSelect) return;
 
 
-    yearSelect.innerHTML="";
+    yearSelect.innerHTML = `
+<option value="0">
+ทุกปี
+</option>
+`;
 
 
     let years = [];
@@ -1205,8 +1209,8 @@ function renderDividendTable(){
         let d = new Date(t.date);
 
 
-        if(d.getFullYear() !== year)
-            return;
+       if(year > 0 && d.getFullYear() !== year)
+    return;
 
 
         if(month > 0 && d.getMonth()+1 !== month)
