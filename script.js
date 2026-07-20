@@ -1195,15 +1195,26 @@ function renderDividendTable(){
 
 
 
-    let result = {};
+let result = {};
 
-    let total = 0;
+let total = 0;
+
+let allTotal = 0;
+
+let allCount = 0;
+
+let allStock = {};
 
 
     globalTradesData.forEach(t=>{
 
 
         if(t.type !== "ปันผล") return;
+     allTotal += Number(t.netAmount)||0;
+
+allCount++;
+
+allStock[t.symbol.toUpperCase()] = true;
 
 
         let d = new Date(t.date);
@@ -1240,7 +1251,28 @@ function renderDividendTable(){
         total +=
         Number(t.netAmount)||0;
 
+document.getElementById("dividendSelectedTotal")
+.innerText =
+total.toLocaleString(undefined,{
+minimumFractionDigits:2
+});
 
+
+document.getElementById("dividendAllTotal")
+.innerText =
+allTotal.toLocaleString(undefined,{
+minimumFractionDigits:2
+});
+
+
+document.getElementById("dividendStockCount")
+.innerText =
+Object.keys(allStock).length;
+
+
+document.getElementById("dividendCount")
+.innerText =
+allCount;
     });
 
 
