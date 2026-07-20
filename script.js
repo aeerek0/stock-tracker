@@ -240,7 +240,7 @@ function fetchAndRenderData() {
 
 
     document.getElementById('monitorTableBody').innerHTML =
-    `<tr><td colspan="5">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
+    `<tr><td colspan="7">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
 
 
     document.getElementById('tradeTableBody').innerHTML =
@@ -418,46 +418,59 @@ const weight = totalValue > 0
 
             const row = document.createElement('tr');
 
-            row.innerHTML = `
+row.innerHTML = `
 
-                <td class="fw-bold">${key}</td>
+<td class="fw-bold">${key}</td>
 
-                <td>
-                    ${data.totalUnits.toLocaleString()}
-                </td>
+<td>
+    ${data.totalUnits.toLocaleString()}
+</td>
 
-                <td>
-                    ${data.avgPrice.toLocaleString(undefined,{
-                        maximumFractionDigits:2
-                    })}
-                </td>
+<td>
+    ${data.avgPrice.toLocaleString(undefined,{
+        maximumFractionDigits:2
+    })}
+</td>
 
-                <td>
-                    ${data.totalCost.toLocaleString(undefined,{
-                        maximumFractionDigits:2
-                    })}
-                </td>
+<td>
+    ${
+    (window.currentPrices[key] || data.avgPrice)
+    .toLocaleString(undefined,{
+        maximumFractionDigits:2
+    })
+    }
+</td>
 
-                <td class="text-secondary fw-bold">
-                    ${weight.toFixed(1)}%
-                </td>
 
-                <td class="${pnLMap[key]>=0 
-                    ? 'text-success' 
-                    : 'text-danger'}">
+<td>
+    ${
+    (
+    data.totalUnits *
+    (window.currentPrices[key] || data.avgPrice)
+    )
+    .toLocaleString(undefined,{
+        maximumFractionDigits:2
+    })
+    }
+</td>
 
-                    ${pnLMap[key].toLocaleString(undefined,{
-                        maximumFractionDigits:2
-                    })}
 
-                    <br>
-                    <small>
-                        (${roi.toFixed(2)}%)
-                    </small>
+<td class="text-secondary fw-bold">
+    ${weight.toFixed(1)}%
+</td>
 
-                </td>
 
-            `;
+<td class="${pnLMap[key]>=0 
+    ? 'text-success' 
+    : 'text-danger'}">
+
+    ${pnLMap[key].toLocaleString(undefined,{
+        maximumFractionDigits:2
+    })}
+
+</td>
+
+`;
 
             mBody.appendChild(row);
 
