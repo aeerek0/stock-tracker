@@ -5,16 +5,12 @@ let globalTradesData = [];
 let displayCount = 50;
 let currentMonitorView = 'stock';
 let sortDirection = 1;
-
 let portfolio = {};
 let sectorPortfolio = {};
-
 let realizedPnL = {};
 let unrealizedPnL = {};
-
 let sectorPnL = {};
 let sectorUnrealizedPnL = {};
-
 let currentPrices = {};
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
