@@ -1055,7 +1055,7 @@ tradeForm.addEventListener('submit', function(e){
 })
 .then(response=>response.json())
 .then(result=>{
-
+console.log(result); 
     if(result.status==="success"){
 
         alert(editRowIndex!=="" ?
