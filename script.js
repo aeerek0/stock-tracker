@@ -376,10 +376,16 @@ function renderPortfolioAndRecords(trades) {
     globalTradesData.forEach(trade => {
         if (trade.type === 'ปันผล') {
             const sym = String(trade.symbol || "").trim().toUpperCase();
-            if (!dividendData[sym]) {
-                dividendData[sym] = { count: 0, amount: 0, items: [] };
-            }
+if (!dividendData[sym]) {
+    dividendData[sym] = {
+        count: 0,
+        amount: 0,
+        dpu: 0,
+        items: []
+    };
+}
             const amount = Number(trade.netAmount) || 0;
+            dividendData[sym].dpu += Number(trade.price) || 0;
             dividendData[sym].count++;
             dividendData[sym].amount += amount;
             dividendData[sym].items.push({ date: trade.date, amount: amount });
@@ -865,9 +871,9 @@ row.innerHTML = `
 <td>${result[sym].count}</td>
 
 <td>
-${dividendData[sym] 
- ? dividendData[sym].dpu.toFixed(2)
- : "0.00"}
+${dividendData[sym] && dividendData[sym].dpu
+    ? dividendData[sym].dpu.toFixed(2)
+    : "0.00"}
 </td>
 
 <td>
