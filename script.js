@@ -914,9 +914,9 @@ function drawAllocationChart(view = "stock") {
 
     const canvas = document.getElementById("allocationChart");
 
-    if (window.allocationChart) {
-        window.allocationChart.destroy();
-    }
+   if(window.allocationChart && typeof window.allocationChart.destroy === "function"){
+    window.allocationChart.destroy();
+}
 
     window.allocationChart = new Chart(canvas, {
         type: "doughnut",
