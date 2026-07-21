@@ -1108,9 +1108,14 @@ if(tab==="analytics"){
 }
 function renderDividendHistory(){
 
+    console.log("Start History");
+
     const historyTbody = document.getElementById("dividendHistoryBody");
 
-    if(!historyTbody) return;
+    if(!historyTbody) {
+        console.log("ไม่เจอ dividendHistoryBody");
+        return;
+    }
 
     historyTbody.innerHTML="";
 
@@ -1118,7 +1123,12 @@ function renderDividendHistory(){
         String(t.type).trim() === "ปันผล"
     );
 
+    console.log("History Data =", historyData);
+    console.log("History Count =", historyData.length);
+
     historyData.forEach(t=>{
+
+        console.log("Row =", t);
 
         historyTbody.innerHTML += `
         <tr>
