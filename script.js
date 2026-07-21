@@ -1055,8 +1055,15 @@ function renderDividendCalendar() {
 if(data.items.length>3){
 
     html += `
-    <div class="calendar-more">
-        👁 ดูทั้งหมด ${data.items.length} รายการ
+    <div class="calendar-more"
+    onclick='showDividendDetail(
+    "${months[i-1]}",
+    ${JSON.stringify(data.items)},
+    ${data.total}
+    )'>
+
+    👁 ดูทั้งหมด ${data.items.length} รายการ
+
     </div>
     `;
 
@@ -1136,10 +1143,5 @@ window.onload = function() {
     initConnection();
 };
 
-function testDividendClick(){
-
-    alert("กดปุ่มแล้ว");
-
-}
 
 
