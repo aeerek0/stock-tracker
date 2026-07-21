@@ -267,6 +267,8 @@ function fetchAndRenderData() {
 
             buildDividendYear();
             renderDividendTable();
+          renderDividendHistory();
+         
         })
         .catch(error => {
             console.error("Refresh Error:", error);
@@ -1105,29 +1107,49 @@ if(tab==="analytics"){
 }
 }
 
-function renderDividendHistory(trades){
+function renderDividendHistory(){
 
-    const tbody = document.getElementById("dividendHistoryBody");
+    const tbody =
+    document.getElementById("dividendHistoryBody");
 
     if(!tbody) return;
 
-    tbody.innerHTML="";
+
+    tbody.innerHTML = "";
 
 
-    trades
-    .filter(t=>t.type==="ปันผล")
-    .sort((a,b)=> new Date(b.date)-new Date(a.date))
+    globalTradesData
+    .filter(t => t.type === "ปันผล")
+    .sort((a,b)=> 
+        new Date(b.date)-new Date(a.date)
+    )
     .forEach(t=>{
 
+
         tbody.innerHTML += `
+
         <tr>
+
             <td>${t.date}</td>
+
             <td>${t.symbol}</td>
+
+            <td>${t.sector}</td>
+
             <td class="text-end">
-                ${Number(t.amount).toLocaleString()}
+                ${Number(t.netAmount)
+                .toLocaleString(
+                    undefined,
+                    {
+                     minimumFractionDigits:2
+                    }
+                )}
             </td>
+
         </tr>
+
         `;
+
 
     });
 
