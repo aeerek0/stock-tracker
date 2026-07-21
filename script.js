@@ -17,6 +17,7 @@ let totalDividend = 0;
 let dividendHistoryLimit = 10;
 let showAllDividend = false;
 
+
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
     const savedUrl = localStorage.getItem('user_google_sheet_url');
@@ -1062,13 +1063,17 @@ const year = yearSelect
 
 if(data.items.length>3){
 
+    const index = i;
+
+    window["dividendMonth_" + index] = {
+        month: months[i-1],
+        items: data.items,
+        total: data.total
+    };
+
     html += `
     <div class="calendar-more"
-        onclick='showDividendDetail(
-            "${months[i-1]}",
-            ${JSON.stringify(data.items)},
-            ${data.total}
-        )'>
+         onclick="openDividendMonth(${index})">
 
         👁 ดูทั้งหมด ${data.items.length} รายการ
 
@@ -1088,6 +1093,19 @@ if(data.items.length>3){
         container.innerHTML+=html;
 
     }
+
+}
+function openDividendMonth(index){
+
+    const data = window["dividendMonth_" + index];
+
+    if(!data) return;
+
+    showDividendDetail(
+        data.month,
+        data.items,
+        data.total
+    );
 
 }
 
