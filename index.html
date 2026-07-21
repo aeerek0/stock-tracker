@@ -6,30 +6,13 @@
     <title>Stock Portfolio Tracker with Edit Mode</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="container-fluid">
     <h3 class="mt-2 mb-3 text-center fw-bold" style="color: #6e3b23;">💰⬆ Stock Sheets Tracker📈 </h3>
 
-    <!-- SECTION 0: CONFIG (ไว้บนสุด) -->
-<div id="settingsTab" style="display:none;">
-
-    <div class="card">
-
-        <h5 class="card-title mb-2">
-            ⚙️ ตั้งค่า Google Sheet
-        </h5>
-        <div class="config-box">
-            <div class="d-flex gap-2">
-                <input type="password" id="sheetUrlInput" class="form-control" placeholder="ใส่ Web App URL ที่นี่...">
-                <button onclick="saveSheetUrl()" class="btn-secondary-custom px-3">เชื่อมต่อ</button>
-            </div>
-            <small id="connectionStatus" class="d-block mt-2 fw-bold text-muted">🔴 สถานะ: ยังไม่ได้เชื่อมต่อ</small>
-        </div>
-    </div>
-
-    <!-- DASHBOARD SECTION -->
+    <!-- DASHBOARD SECTION (แสดงผลตลอดทุกหน้า หรือตามการออกแบบ) -->
     <div class="row g-2 mb-3">
         <div class="col-6 col-md-3">
             <div class="card p-2 text-center" style="background: #fff5ee;">
@@ -56,384 +39,180 @@
             </div>
         </div>
     </div>
- <div class="row mb-3">
-    <div class="col-6">
-        <button class="btn btn-primary w-100"
-            onclick="fetchAndRenderData()">
-            🔄 รีเฟรช
-        </button>
-    </div>
-<!-- TAB MENU -->
-<div class="card mb-3">
 
-    <ul class="nav nav-tabs">
-
-        <li class="nav-item">
-            <button
-                class="nav-link active"
-                id="tabPortfolioBtn"
-                onclick="switchTab('portfolio')">
-
-                📊 Portfolio
-
-            </button>
-        </li>
-
-        <li class="nav-item">
-            <button
-                class="nav-link"
-                id="tabDividendBtn"
-                onclick="switchTab('dividend')">
-
-                💰 Dividend
-
-            </button>
-        </li>
-
-        <li class="nav-item">
-            <button
-                class="nav-link"
-                id="tabSettingsBtn"
-                onclick="switchTab('settings')">
-
-                ⚙️ Settings
-
-            </button>
-        </li>
-
-    </ul>
-
-</div>
-    <div class="col-6">
-        <button class="btn btn-success w-100"
-            onclick="location.href='analytics.html'">
-            📈 Analytics
-        </button>
-    </div>
-</div>
-    <div id="portfolioTab">
-<!-- SECTION 1: MONITOR & CONTROLS -->
-<div class="card mb-3">
-    <!-- ส่วนหัวและปุ่มควบคุม -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <h5 class="card-title mb-0">📊 Portfolio Monitor</h5>
-        <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
-            <button class="btn btn-outline-success" onclick="updateMonitor('sector')">รายกลุ่ม</button>
-        </div>
-    </div>
-
-
-
-    <!-- ตารางหลัก -->
-<div class="table-responsive monitor-scroll">
-        <table class="table table-striped table-hover align-middle m-0 text-center monitor-table">
-<thead class="monitor-header">
-<tr>
-    <th>Symbol</th>
-    <th>คงเหลือ</th>
-    <th>ต้นทุน/หน่วย</th>
-    <th>ต้นทุนรวม</th>
-    <th>ราคาตลาด</th>
-    <th>มูลค่าตลาด</th>
-    <th>% พอร์ต</th>
-
-    <th>
-        P/L
-        <button onclick="sortMonitorBy()"
-            class="btn btn-sm p-0"
-            style="border:0;background:none;color:#6e3b23;">
-            ⇅
-        </button>
-    </th>
-
-    <th>ROI</th>
-
-</tr>
-</thead>
-            <tbody id="monitorTableBody">
-                <tr><td colspan="6" class="text-muted">กรุณาเชื่อมต่อเพื่อดึงข้อมูล</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-        <div id="dividendTab" style="display:none;">
-    <div class="card mt-3">
-
-<h5 class="card-title">
-📊 Dividend Summary
-</h5>
-
-
-<div class="row text-center">
-
-
-<div class="col-6 col-md-3">
-
-<div class="p-3 bg-light rounded">
-
-<div>
-ปันผลปีที่เลือก
-</div>
-
-<h5 id="dividendSelectedTotal">
-0.00
-</h5>
-
-</div>
-
-</div>
-
-
-
-<div class="col-6 col-md-3">
-
-<div class="p-3 bg-light rounded">
-
-<div>
-ปันผลสะสมทั้งหมด
-</div>
-
-<h5 id="dividendAllTotal">
-0.00
-</h5>
-
-</div>
-
-</div>
-
-
-
-<div class="col-6 col-md-3">
-
-<div class="p-3 bg-light rounded">
-
-<div>
-หุ้นที่จ่าย
-</div>
-
-<h5 id="dividendStockCount">
-0
-</h5>
-
-</div>
-
-</div>
-
-
-
-<div class="col-6 col-md-3">
-
-<div class="p-3 bg-light rounded">
-
-<div>
-จำนวนครั้ง
-</div>
-
-<h5 id="dividendCount">
-0
-</h5>
-
-</div>
-
-</div>
-
-
-</div>
-
-</div>
-<div class="card mt-3">
-
-    <h5 class="card-title">
-        💰 Dividend Monitor
-    </h5>
-
-
+    <!-- ACTION BUTTONS (Refresh & Analytics) -->
     <div class="row mb-3">
-
-        <!-- เลือกปี -->
         <div class="col-6">
-
-            <label class="form-label">
-                เลือกปี
-            </label>
-
-            <select 
-                id="dividendYear"
-                class="form-select"
-                onchange="renderDividendTable()">
-
-            </select>
-
+            <button class="btn btn-primary w-100" onclick="fetchAndRenderData()">🔄 รีเฟรช</button>
         </div>
-
-
-        <!-- เลือกเดือน -->
         <div class="col-6">
-
-            <label class="form-label">
-                เลือกเดือน
-            </label>
-
-            <select 
-                id="dividendMonth"
-                class="form-select"
-                onchange="renderDividendTable()">
-
-                <option value="0">
-                    ทั้งปี
-                </option>
-
-                <option value="1">
-                    มกราคม
-                </option>
-
-                <option value="2">
-                    กุมภาพันธ์
-                </option>
-
-                <option value="3">
-                    มีนาคม
-                </option>
-
-                <option value="4">
-                    เมษายน
-                </option>
-
-                <option value="5">
-                    พฤษภาคม
-                </option>
-
-                <option value="6">
-                    มิถุนายน
-                </option>
-
-                <option value="7">
-                    กรกฎาคม
-                </option>
-
-                <option value="8">
-                    สิงหาคม
-                </option>
-
-                <option value="9">
-                    กันยายน
-                </option>
-
-                <option value="10">
-                    ตุลาคม
-                </option>
-
-                <option value="11">
-                    พฤศจิกายน
-                </option>
-
-                <option value="12">
-                    ธันวาคม
-                </option>
-
-            </select>
-
+            <button class="btn btn-success w-100" onclick="location.href='analytics.html'">📈 Analytics</button>
         </div>
-
     </div>
 
-
-    <!-- สรุปยอด -->
-    <div class="alert alert-success">
-
-        💰 Dividend รวม :
-        
-        <b>
-            <span id="dividendYearTotal">
-                0.00
-            </span>
-        </b>
-
-        บาท
-
-    </div>
-
-
-
-    <table class="table table-sm">
-
-        <thead class="monitor-header">
-
-            <tr>
-
-                <th>
-                    หุ้น
-                </th>
-
-                <th>
-                    จำนวนครั้ง
-                </th>
-
-                <th>
-                    เงินปันผล
-                </th>
-
-                <th>
-                    Yield %
-                </th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody id="dividendTableBody">
-
-        </tbody>
-    </table>
-</div>           
-</div>
+    <!-- TAB MENU -->
     <div class="card mb-3">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <button class="nav-link active" id="tabPortfolioBtn" onclick="switchTab('portfolio')">📊 Portfolio</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="tabDividendBtn" onclick="switchTab('dividend')">💰 Dividend</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="tabSettingsBtn" onclick="switchTab('settings')">⚙️ Settings</button>
+            </li>
+        </ul>
+    </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-
-        <h5 class="card-title mb-0">
-            🥧 Current Portfolio Allocation
-        </h5>
-
-        <div class="btn-group btn-group-sm">
-
-            <button class="btn btn-outline-primary"
-                onclick="drawAllocationChart('stock')">
-                หุ้น
-            </button>
-
-            <button class="btn btn-outline-success"
-                onclick="drawAllocationChart('sector')">
-                Sector
-            </button>
-
+    <!-- PORTFOLIO TAB CONTENT -->
+    <div id="portfolioTab">
+        <!-- SECTION 1: MONITOR & CONTROLS -->
+        <div class="card mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">📊 Portfolio Monitor</h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="updateMonitor('stock')">รายหุ้น</button>
+                    <button class="btn btn-outline-success" onclick="updateMonitor('sector')">รายกลุ่ม</button>
+                </div>
+            </div>
+            <div class="table-responsive monitor-scroll">
+                <table class="table table-striped table-hover align-middle m-0 text-center monitor-table">
+                    <thead class="monitor-header">
+                        <tr>
+                            <th>Symbol</th>
+                            <th>คงเหลือ</th>
+                            <th>ต้นทุน/หน่วย</th>
+                            <th>ต้นทุนรวม</th>
+                            <th>ราคาตลาด</th>
+                            <th>มูลค่าตลาด</th>
+                            <th>% พอร์ต</th>
+                            <th>
+                                P/L
+                                <button onclick="sortMonitorBy()" class="btn btn-sm p-0" style="border:0;background:none;color:#6e3b23;">⇅</button>
+                            </th>
+                            <th>ROI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monitorTableBody">
+                        <tr><td colspan="9" class="text-muted">กรุณาเชื่อมต่อเพื่อดึงข้อมูล</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
+        <!-- ALLOCATION CHART -->
+        <div class="card mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">🥧 Current Portfolio Allocation</h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="drawAllocationChart('stock')">หุ้น</button>
+                    <button class="btn btn-outline-success" onclick="drawAllocationChart('sector')">Sector</button>
+                </div>
+            </div>
+            <div style="max-width:420px;margin:auto">
+                <canvas id="allocationChart"></canvas>
+            </div>
+        </div>
     </div>
 
-    <div style="max-width:420px;margin:auto">
+    <!-- DIVIDEND TAB CONTENT -->
+    <div id="dividendTab" style="display:none;">
+        <div class="card mt-3">
+            <h5 class="card-title">📊 Dividend Summary</h5>
+            <div class="row text-center">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div>ปันผลปีที่เลือก</div>
+                        <h5 id="dividendSelectedTotal">0.00</h5>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div>ปันผลสะสมทั้งหมด</div>
+                        <h5 id="dividendAllTotal">0.00</h5>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div>หุ้นที่จ่าย</div>
+                        <h5 id="dividendStockCount">0</h5>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div>จำนวนครั้ง</div>
+                        <h5 id="dividendCount">0</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <canvas id="allocationChart"></canvas>
-
+        <div class="card mt-3">
+            <h5 class="card-title">💰 Dividend Monitor</h5>
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label class="form-label">เลือกปี</label>
+                    <select id="dividendYear" class="form-select" onchange="renderDividendTable()"></select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label">เลือกเดือน</label>
+                    <select id="dividendMonth" class="form-select" onchange="renderDividendTable()">
+                        <option value="0">ทั้งปี</option>
+                        <option value="1">มกราคม</option>
+                        <option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option>
+                        <option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option>
+                        <option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option>
+                        <option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+                </div>
+            </div>
+            <div class="alert alert-success">
+                💰 Dividend รวม : <b><span id="dividendYearTotal">0.00</span></b> บาท
+            </div>
+            <table class="table table-sm">
+                <thead class="monitor-header">
+                    <tr>
+                        <th>หุ้น</th>
+                        <th>จำนวนครั้ง</th>
+                        <th>เงินปันผล</th>
+                        <th>Yield %</th>
+                    </tr>
+                </thead>
+                <tbody id="dividendTableBody"></tbody>
+            </table>
+        </div>
     </div>
 
-</div>
+    <!-- SETTINGS TAB CONTENT -->
+    <div id="settingsTab" style="display:none;">
+        <div class="card mb-3">
+            <h5 class="card-title mb-2">⚙️ ตั้งค่า Google Sheet</h5>
+            <div class="config-box">
+                <div class="d-flex gap-2">
+                    <input type="password" id="sheetUrlInput" class="form-control" placeholder="ใส่ Web App URL ที่นี่...">
+                    <button onclick="saveSheetUrl()" class="btn-secondary-custom px-3">เชื่อมต่อ</button>
+                </div>
+                <small id="connectionStatus" class="d-block mt-2 fw-bold text-muted">🔴 สถานะ: ยังไม่ได้เชื่อมต่อ</small>
+            </div>
+        </div>
+    </div>
 
     <!-- SECTION 2: RECORD FORM -->
-    <div class="card">
+    <div class="card mb-3">
         <h5 class="card-title mb-2" id="formTitle">➕ บันทึกรายการใหม่</h5>
-        
-        <!-- แจ้งเตือนเมื่ออยู่ในโหมดแก้ไข -->
-        <div id="editAlert" class="edit-mode-alert">
+        <div id="editAlert" class="edit-mode-alert" style="display:none;">
             ⚠️ คุณกำลังอยู่ใน <b>"โหมดแก้ไขข้อมูล"</b> <button type="button" class="btn btn-sm btn-secondary float-end" style="font-size: 0.7rem; padding: 2px 6px;" onclick="cancelEditMode()">ยกเลิก</button>
         </div>
-
         <form id="tradeForm" class="row g-3">
-            <!-- ซ่อน Row Index สำหรับส่งไปอัปเดตชีท -->
             <input type="hidden" id="editRowIndex" value="">
-
             <div class="col-6">
                 <label class="form-label">วันที่ซื้อ-ขาย</label>
                 <input type="date" id="date" class="form-control" required>
@@ -450,7 +229,7 @@
             </div>
             <div class="col-6">
                 <label class="form-label">Symbol ชื่อหุ้น</label>
-                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT"  autocomplete="off" list="stockOptions" onchange="autoFillSector(this.value)" onblur="autoFillSector(this.value)">
+                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" autocomplete="off" list="stockOptions" onchange="autoFillSector(this.value)" onblur="autoFillSector(this.value)">
                 <datalist id="stockOptions"></datalist>
             </div>
             <div class="col-6">
@@ -463,15 +242,15 @@
             </div>
             <div class="col-6">
                 <label class="form-label">Price / DPU</label>
-                <input type="number" step="any" id="price" class="form-control" placeholder="0.00" >
+                <input type="number" step="any" id="price" class="form-control" placeholder="0.00">
             </div>
             <div class="col-6">
                 <label class="form-label">Units</label>
-                <input type="number" id="units" class="form-control" placeholder="0" >
+                <input type="number" id="units" class="form-control" placeholder="0">
             </div>
             <div class="col-12" id="amountContainer" style="display: none;">
-             <label class="form-label">จำนวนเงิน (สำหรับฝาก/ถอน)</label>
-            <input type="number" step="any" id="amount" class="form-control" placeholder="0.00">
+                <label class="form-label">จำนวนเงิน (สำหรับฝาก/ถอน)</label>
+                <input type="number" step="any" id="amount" class="form-control" placeholder="0.00">
             </div>    
             <div class="col-12">
                 <label class="form-label">ค่าธรรมเนียม & ภาษี %</label>
@@ -482,58 +261,40 @@
             </div>
         </form>
     </div>
-</div>
-    <!-- SECTION 3: TRANSACTION RECORD -->
-  <div class="table-responsive" style="border-radius: 10px; overflow-x: auto !important; border: 1px solid #f7dfd3;">
-    <table class="table table-striped table-hover align-middle m-0 text-center" style="min-width: 900px;">
-        <thead class="table-header-custom">
-            <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Symbol</th>
-                <th>Sector</th>
-                <th>Broker</th>
-                <th>Price/ DPU</th>
-                <th>Units</th>
-                <th>Gross</th>
-                <th>Fee&Tax</th>
-                <th>Net</th>
-                <th>P&L</th>
-                <th>จัดการ</th>
-            </tr>
-        </thead>
 
+    <!-- SECTION 3: TRANSACTION RECORD -->
+    <div class="card mb-3">
+        <h5 class="card-title mb-2">📜 ประวัติการทำรายการ</h5>
         <div class="mb-3">
-    <input type="text" id="searchInput" class="form-control" 
-           placeholder="🔍 ค้นหาหุ้น (เช่น TRUE) หรือวันที่ (เช่น 2026-07-17)..." 
-           onkeyup="searchTrades()">
-</div>
-        <tbody id="tradeTableBody">
-            <!-- ข้อมูลของคุณ -->
-        </tbody>
-    </table>
-</div>
+            <input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหาหุ้น (เช่น TRUE) หรือวันที่ (เช่น 2026-07-17)..." onkeyup="searchTrades()">
+        </div>
+        <div class="table-responsive" style="border-radius: 10px; overflow-x: auto !important; border: 1px solid #f7dfd3;">
+            <table class="table table-striped table-hover align-middle m-0 text-center" style="min-width: 900px;">
+                <thead class="table-header-custom">
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Symbol</th>
+                        <th>Sector</th>
+                        <th>Broker</th>
+                        <th>Price/ DPU</th>
+                        <th>Units</th>
+                        <th>Gross</th>
+                        <th>Fee&Tax</th>
+                        <th>Net</th>
+                        <th>P&L</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeTableBody">
+                    <!-- ข้อมูลของคุณ -->
+                </tbody>
+            </table>
+        </div>
         <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">💡 ปัดตาราง ซ้าย-ขวา เพื่อดูคอลัมน์ทั้งหมดบนมือถือ</small>
     </div>
+
 </div>
 <script src="script.js"></script>
-<div id="settingsTab" style="display:none;">
-
-    <!-- ย้าย Google Sheet มาตรงนี้ภายหลัง -->
-
-    <div class="card">
-
-        <h5 class="card-title">
-            ⚙️ Settings
-        </h5>
-
-        <p class="text-muted">
-            หน้านี้ไว้สำหรับตั้งค่าระบบ
-        </p>
-
-    </div>
-
-</div>
 </body>
 </html>
-
