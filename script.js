@@ -855,6 +855,27 @@ function renderDividendHistory() {
     });
 
     historyTbody.innerHTML = html;
+    
+    const btn = document.getElementById("btnShowAllDividend");
+
+if(btn){
+
+    btn.style.display =
+        historyData.length > 20
+        ? "inline-block"
+        : "none";
+
+}
+}
+
+function showAllDividendHistory(){
+
+    dividendHistoryLimit = 999999;
+
+    renderDividendHistory();
+
+    document.getElementById("btnShowAllDividend").style.display = "none";
+
 }
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
