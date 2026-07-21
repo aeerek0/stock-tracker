@@ -859,12 +859,25 @@ function renderDividendTable() {
         const yieldPercent = cost > 0 ? (result[sym].amount / cost) * 100 : 0;
 
         const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${sym}</td>
-            <td>${result[sym].count}</td>
-            <td>${result[sym].amount.toLocaleString()}</td>
-            <td>${yieldPercent.toFixed(2)}%</td>
-        `;
+row.innerHTML = `
+<td>${sym}</td>
+
+<td>${result[sym].count}</td>
+
+<td>
+${dividendData[sym] 
+ ? dividendData[sym].dpu.toFixed(2)
+ : "0.00"}
+</td>
+
+<td>
+${result[sym].amount.toLocaleString()}
+</td>
+
+<td>
+${yieldPercent.toFixed(2)}%
+</td>
+`;
         tbody.appendChild(row);
     });
 }
