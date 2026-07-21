@@ -1461,7 +1461,7 @@ function switchTab(tab){
     document.getElementById("tabPortfolioBtn").classList.remove("active");
     document.getElementById("tabDividendBtn").classList.remove("active");
     document.getElementById("tabSettingsBtn").classList.remove("active");
-   document.getElementById("tabanalyticsBtn").classList.remove("active");
+   document.getElementById("tabAnalyticsBtn").classList.remove("active");
 
 
     // แสดงหน้าที่เลือก
@@ -1482,7 +1482,7 @@ function switchTab(tab){
 if(tab==="analytics"){
 
     document.getElementById("analyticsTab").style.display="block";
-    document.getElementById("tabanalyticsBtn").classList.add("active");
+    document.getElementById("tabAnalyticsBtn").classList.add("active");
 
 }
 }
