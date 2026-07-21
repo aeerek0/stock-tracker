@@ -1455,11 +1455,14 @@ function switchTab(tab){
     document.getElementById("portfolioTab").style.display = "none";
     document.getElementById("dividendTab").style.display = "none";
     document.getElementById("settingsTab").style.display = "none";
+    document.getElementById("analyticsTab").style.display="none";
 
     // รีเซ็ตสีปุ่ม
     document.getElementById("tabPortfolioBtn").classList.remove("active");
     document.getElementById("tabDividendBtn").classList.remove("active");
     document.getElementById("tabSettingsBtn").classList.remove("active");
+   document.getElementById("tabanalyticsBtn").classList.remove("active");
+
 
     // แสดงหน้าที่เลือก
     if(tab === "portfolio"){
@@ -1476,7 +1479,12 @@ function switchTab(tab){
         document.getElementById("settingsTab").style.display = "block";
         document.getElementById("tabSettingsBtn").classList.add("active");
     }
+if(tab==="analytics"){
 
+    document.getElementById("analyticsTab").style.display="block";
+    document.getElementById("tabanalyticsBtn").classList.add("active");
+
+}
 }
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
