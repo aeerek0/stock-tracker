@@ -1097,15 +1097,11 @@ if(data.items.length>3){
 }
 function openDividendMonth(index){
 
+    console.log("CLICK MONTH:", index);
+
     const data = window["dividendMonth_" + index];
 
-    if(!data) return;
-
-    showDividendDetail(
-        data.month,
-        data.items,
-        data.total
-    );
+    console.log(data);
 
 }
 
