@@ -1449,6 +1449,35 @@ function renderDividendTable(){
     });
 
 }
+function switchTab(tab){
+
+    // ซ่อนทุกหน้า
+    document.getElementById("portfolioTab").style.display = "none";
+    document.getElementById("dividendTab").style.display = "none";
+    document.getElementById("settingsTab").style.display = "none";
+
+    // รีเซ็ตสีปุ่ม
+    document.getElementById("tabPortfolioBtn").classList.remove("active");
+    document.getElementById("tabDividendBtn").classList.remove("active");
+    document.getElementById("tabSettingsBtn").classList.remove("active");
+
+    // แสดงหน้าที่เลือก
+    if(tab === "portfolio"){
+        document.getElementById("portfolioTab").style.display = "block";
+        document.getElementById("tabPortfolioBtn").classList.add("active");
+    }
+
+    if(tab === "dividend"){
+        document.getElementById("dividendTab").style.display = "block";
+        document.getElementById("tabDividendBtn").classList.add("active");
+    }
+
+    if(tab === "settings"){
+        document.getElementById("settingsTab").style.display = "block";
+        document.getElementById("tabSettingsBtn").classList.add("active");
+    }
+
+}
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
 
