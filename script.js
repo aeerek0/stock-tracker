@@ -16,6 +16,7 @@ let currentPrices = {};
 let totalDividend = 0;
 let dividendHistoryLimit = 10;
 let showAllDividend = false;
+let dividendCostBasis = {};
 
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
@@ -364,6 +365,7 @@ function renderPortfolioAndRecords(trades) {
     sectorPnL = {};
     sectorUnrealizedPnL = {};
     dividendData = {};
+    dividendCostBasis = {};
  
     const tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
@@ -406,6 +408,11 @@ function renderPortfolioAndRecords(trades) {
         if (trade.type === 'ซื้อ') {
             portfolio[sym].totalUnits += units;
             portfolio[sym].totalCost += netAmount;
+            if (!dividendCostBasis[sym]) {
+            dividendCostBasis[sym] = 0;
+                }
+
+dividendCostBasis[sym] += netAmount;
             portfolio[sym].avgPrice = portfolio[sym].totalUnits > 0 ? portfolio[sym].totalCost / portfolio[sym].totalUnits : 0;
             
             sectorPortfolio[sector].totalUnits += units;
@@ -848,7 +855,7 @@ function renderDividendTable() {
     document.getElementById("dividendYearTotal").innerText = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
     Object.keys(result).forEach(sym => {
-        const cost = portfolio[sym] ? portfolio[sym].totalCost : 0;
+        const cost = dividendCostBasis[sym] || 0;
         const yieldPercent = cost > 0 ? (result[sym].amount / cost) * 100 : 0;
 
         const row = document.createElement("tr");
