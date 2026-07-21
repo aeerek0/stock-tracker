@@ -1003,20 +1003,20 @@ function renderDividendKPI(){
 
 
     // Yield รวม
-    let cost = 0;
+let cost = 0;
 
-    Object.keys(portfolio)
-    .forEach(sym=>{
+Object.keys(dividendCostBasis)
+.forEach(sym=>{
 
-        cost += portfolio[sym].totalCost || 0;
+    cost += dividendCostBasis[sym] || 0;
 
-    });
+});
 
 
-    const yieldTotal =
-        cost>0
-        ? (totalDividend/cost)*100
-        : 0;
+const yieldTotal =
+    cost > 0
+    ? (totalDividend / cost) * 100
+    : 0;
 
 
     document.getElementById(
