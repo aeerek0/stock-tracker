@@ -860,15 +860,18 @@ function switchTab(tab) {
         document.getElementById("tabPortfolioBtn").classList.add("active");
     }
 
-    if (tab === "dividend") {
-        document.getElementById("dividendTab").style.display = "block";
-        document.getElementById("tabDividendBtn").classList.add("active");
+if (tab === "dividend") {
 
-buildDividendYear();
-buildCalendarYear();
+    document.getElementById("dividendTab").style.display = "block";
+    document.getElementById("tabDividendBtn").classList.add("active");
 
-renderDividendTable();
-();
+    buildDividendYear();
+    buildCalendarYear();
+
+    renderDividendTable();
+    renderDividendCalendar();
+
+}
     }
     if (tab === "settings") {
         document.getElementById("settingsTab").style.display = "block";
@@ -949,7 +952,11 @@ function renderDividendCalendar() {
 
     container.innerHTML = "";
 
-    const year = Number(document.getElementById("calendarYear").value);
+   const yearSelect = document.getElementById("calendarYear");
+
+const year = yearSelect 
+    ? Number(yearSelect.value)
+    : 0;
 
     const months = [
         "🌸 มกราคม",
