@@ -1108,38 +1108,22 @@ if(tab==="analytics"){
 }
 function renderDividendHistory(){
 
-    console.log("Start History");
-
     const historyTbody = document.getElementById("dividendHistoryBody");
 
-    if(!historyTbody) {
-        console.log("ไม่เจอ dividendHistoryBody");
-        return;
-    }
+    console.log("History tbody =", historyTbody);
 
-    historyTbody.innerHTML="";
+    if(!historyTbody) return;
 
-const historyData = globalTradesData.filter(t =>
-    String(t.type).trim() === "ปันผล"
-);
-
-console.log("History Data =", historyData);
-console.log("History Count =", historyData.length);
-
-    historyData.forEach(t=>{
-
-        console.log("Row =", t);
-
-        historyTbody.innerHTML += `
+    historyTbody.innerHTML = `
         <tr>
-            <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
-            <td>${t.symbol}</td>
-            <td>${t.sector}</td>
-            <td>${Number(t.netAmount || 0).toLocaleString()}</td>
+            <td>TEST DATE</td>
+            <td>TEST STOCK</td>
+            <td>TEST SECTOR</td>
+            <td>9999</td>
         </tr>
-        `;
+    `;
 
-    });
+    console.log("TEST INSERT COMPLETE");
 }
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
