@@ -215,7 +215,7 @@ function fetchAndRenderData() {
             
             renderDividendTable();
             renderDividendHistory();
-            renderDividendCalendar();
+            ();
         })
         .catch(error => {
             console.error("Refresh Error:", error);
@@ -492,7 +492,7 @@ function renderPortfolioAndRecords(trades) {
     drawAllocationChart(currentMonitorView);
     renderDividendTable();
     renderDividendHistory();
-    renderDividendCalendar();
+    ();
 }
 
 function loadMore() {
@@ -868,7 +868,7 @@ buildDividendYear();
 buildCalendarYear();
 
 renderDividendTable();
-renderDividendCalendar();
+();
     }
     if (tab === "settings") {
         document.getElementById("settingsTab").style.display = "block";
@@ -1052,21 +1052,16 @@ function renderDividendCalendar() {
                 `;
 
             });
+if(data.items.length>3){
 
-            if(data.items.length>3){
+    html += `
+    <div class="calendar-more"
+    onclick="testDividendClick()">
 
-html += `
-<div class="calendar-more"
-onclick='showDividendDetail(
-"${months[i-1]}",
-${JSON.stringify(data.items)},
-${data.total}
-)'>
+        👁 ดูทั้งหมด ${data.items.length} รายการ
 
-👁 ดูทั้งหมด ${data.items.length} รายการ
-
-</div>
-`;
+    </div>
+    `;
 
 }
 
@@ -1131,6 +1126,12 @@ function showDividendDetail(month, items, total){
     );
 
     modal.show();
+
+}
+
+function testDividendClick(){
+
+    alert("กดปุ่มแล้ว");
 
 }
 
