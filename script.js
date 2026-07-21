@@ -1120,7 +1120,11 @@ function renderDividendHistory() {
     const historyData = globalTradesData.filter(t =>
         String(t.type).trim() === "ปันผล"
     );
+const tbody = document.getElementById("dividendHistoryBody");
 
+console.log("tbody =", tbody);
+
+if (!tbody) return;
     console.log("Dividend:", historyData);
 
     historyData
