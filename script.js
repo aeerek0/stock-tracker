@@ -1107,45 +1107,36 @@ if(tab==="analytics"){
 }
 }
 
-function renderDividendHistory() {
+function renderDividendHistory(){
 
     console.log("renderDividendHistory called");
 
     const tbody = document.getElementById("dividendHistoryBody");
 
-    if (!tbody) return;
+    console.log("tbody =", tbody);
 
-    tbody.innerHTML = "";
+    if(!tbody) return;
+
+    tbody.innerHTML="";
 
     const historyData = globalTradesData.filter(t =>
         String(t.type).trim() === "ปันผล"
     );
-const tbody = document.getElementById("dividendHistoryBody");
 
-console.log("tbody =", tbody);
+    console.log("History count =", historyData.length);
 
-if (!tbody) return;
-    console.log("Dividend:", historyData);
+    historyData.forEach(t=>{
 
-    historyData
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .forEach(t => {
+        tbody.innerHTML += `
+        <tr>
+            <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
+            <td>${t.symbol}</td>
+            <td>${t.sector}</td>
+            <td>${Number(t.netAmount).toLocaleString()}</td>
+        </tr>
+        `;
 
-            tbody.innerHTML += `
-                <tr>
-                    <td>${t.date}</td>
-                    <td>${t.symbol}</td>
-                    <td>${t.sector}</td>
-                    <td class="text-end">
-                        ${Number(t.netAmount || 0).toLocaleString(undefined, {
-                            minimumFractionDigits: 2
-                        })}
-                    </td>
-                </tr>
-            `;
-
-        });
-
+    });
 }
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
