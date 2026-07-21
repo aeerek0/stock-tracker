@@ -1119,12 +1119,12 @@ function renderDividendHistory(){
 
     historyTbody.innerHTML="";
 
-    const historyData = globalTradesData.filter(t =>
-        String(t.type).trim() === "ปันผล"
-    );
+const historyData = globalTradesData.filter(t =>
+    String(t.type).trim() === "ปันผล"
+);
 
-    console.log("History Data =", historyData);
-    console.log("History Count =", historyData.length);
+console.log("History Data =", historyData);
+console.log("History Count =", historyData.length);
 
     historyData.forEach(t=>{
 
