@@ -623,19 +623,30 @@ if (tradeForm) {
         const isCash = type === 'ฝากเงิน' || type === 'ถอนเงิน';
         const isDividend = type === 'ปันผล';
 
-        const tradeData = {
-            action: editRowIndex !== "" ? "edit" : "insert",
-            rowIndex: editRowIndex,
-            date: document.getElementById('date').value,
-            type: type,
-            symbol: document.getElementById('symbol').value.trim().toUpperCase(),
-            sector: isCash ? 'Cash Management' : document.getElementById('sector').value,
-            price: (type === 'ซื้อ' || type === 'ขาย') ? price : 0,
-            units: (type === 'ซื้อ' || type === 'ขาย') ? units : 0,
-            grossAmount: (type === 'ซื้อ' || type === 'ขาย') ? grossAmount.toFixed(2) : 0,
-            feeTax: (type === 'ซื้อ' || type === 'ขาย') ? feeTax.toFixed(2) : 0,
-            netAmount: netAmount.toFixed(2)
-        };
+const tradeData = {
+    action: editRowIndex !== "" ? "edit" : "insert",
+    rowIndex: editRowIndex,
+    date: document.getElementById('date').value,
+    type: type,
+    symbol: document.getElementById('symbol').value.trim().toUpperCase(),
+    sector: isCash ? 'Cash Management' : document.getElementById('sector').value,
+
+    // ซื้อ / ขาย / ปันผล เก็บราคาและจำนวนหุ้น
+    price: (type === 'ซื้อ' || type === 'ขาย' || type === 'ปันผล') ? price : 0,
+
+    units: (type === 'ซื้อ' || type === 'ขาย' || type === 'ปันผล') ? units : 0,
+
+    // Gross ของปันผล = DPU x จำนวนหุ้น
+    grossAmount: (type === 'ซื้อ' || type === 'ขาย' || type === 'ปันผล')
+        ? grossAmount.toFixed(2)
+        : 0,
+
+    feeTax: (type === 'ซื้อ' || type === 'ขาย')
+        ? feeTax.toFixed(2)
+        : 0,
+
+    netAmount: netAmount.toFixed(2)
+};
 
         fetch(WEB_APP_URL, {
             method: "POST",
