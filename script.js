@@ -901,93 +901,105 @@ function renderDividendCalendar() {
 
     if (!container) return;
 
+    container.innerHTML = "";
+
     const year = Number(document.getElementById("dividendYear").value);
 
-    const monthNames = [
-        "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
-        "พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
-        "กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+    const months = [
+        "🌸 มกราคม",
+        "❤️ กุมภาพันธ์",
+        "🌿 มีนาคม",
+        "🌼 เมษายน",
+        "🌻 พฤษภาคม",
+        "☀️ มิถุนายน",
+        "🏖️ กรกฎาคม",
+        "🍂 สิงหาคม",
+        "🍁 กันยายน",
+        "🎃 ตุลาคม",
+        "❄️ พฤศจิกายน",
+        "🎄 ธันวาคม"
     ];
 
-    let months = {};
+    let monthData = {};
 
     // เตรียมข้อมูล 12 เดือน
-    for (let i = 1; i <= 12; i++) {
-        months[i] = {
-            total: 0,
-            items: []
+    for(let i=1;i<=12;i++){
+
+        monthData[i]={
+            total:0,
+            items:[]
         };
+
     }
 
-    // วนลูปเฉพาะรายการปันผล
-    globalTradesData.forEach(t => {
+    // รวมข้อมูล
+    globalTradesData.forEach(t=>{
 
-        if (String(t.type).trim() !== "ปันผล") return;
+        if(String(t.type).trim()!=="ปันผล") return;
 
-        const d = new Date(t.date);
+        const d=new Date(t.date);
 
-        if (year > 0 && d.getFullYear() !== year) return;
+        if(year>0 && d.getFullYear()!=year) return;
 
-        const month = d.getMonth() + 1;
+        const m=d.getMonth()+1;
 
-        months[month].items.push({
-            symbol: t.symbol,
-            amount: Number(t.netAmount) || 0
+        monthData[m].items.push({
+            symbol:t.symbol,
+            amount:Number(t.netAmount)||0
         });
 
-        months[month].total += Number(t.netAmount) || 0;
+        monthData[m].total+=Number(t.netAmount)||0;
 
     });
 
-    let html = "";
+    // สร้าง Card
+    for(let i=1;i<=12;i++){
 
-    for (let i = 1; i <= 12; i++) {
+        const data=monthData[i];
 
-        html += `
-        <div class="calendar-month">
+        let html=`
+        <div class="col-12 col-md-6 col-lg-4">
 
-            <div class="calendar-header">
+            <div class="calendar-card ${data.items.length>0?"has-dividend":"no-dividend"}">
 
-                <div class="calendar-title">
-                    📅 ${monthNames[i-1]}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                    <div class="calendar-title">
+                        ${months[i-1]}
+                    </div>
+
+                    <div class="calendar-total">
+                        ฿${data.total.toLocaleString()}
+                    </div>
+
                 </div>
-
-                <div class="calendar-total">
-                    ${months[i].total > 0
-                        ? "฿ " + months[i].total.toLocaleString()
-                        : ""}
-                </div>
-
-            </div>
         `;
 
-        if (months[i].items.length === 0) {
+        if(data.items.length===0){
 
-            html += `
+            html+=`
                 <div class="calendar-empty">
                     ไม่มีปันผล
                 </div>
             `;
 
-        } else {
+        }else{
 
-            html += `
-                <div class="calendar-company">
-                    🏢 ${months[i].items.length} บริษัท
+            html+=`
+                <div class="text-muted mb-2">
+                    🏢 ${data.items.length} บริษัท
                 </div>
             `;
 
-            months[i].items.forEach(item => {
+            data.items.slice(0,3).forEach(item=>{
 
-                html += `
+                html+=`
                 <div class="calendar-item">
 
-                    <span class="calendar-stock">
-                        ${item.symbol}
-                    </span>
+                    <span>${item.symbol}</span>
 
-                    <span class="calendar-amount">
-                        ฿ ${item.amount.toLocaleString()}
+                    <span>
+                        ${item.amount.toLocaleString()}
                     </span>
 
                 </div>
@@ -995,13 +1007,29 @@ function renderDividendCalendar() {
 
             });
 
+            if(data.items.length>3){
+
+                html+=`
+                <div class="calendar-more">
+
+                    + อีก ${data.items.length-3} รายการ
+
+                </div>
+                `;
+
+            }
+
         }
 
-        html += `</div>`;
+        html+=`
+            </div>
+
+        </div>
+        `;
+
+        container.innerHTML+=html;
 
     }
-
-    container.innerHTML = html;
 
 }
 
