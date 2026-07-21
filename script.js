@@ -1055,15 +1055,20 @@ function renderDividendCalendar() {
 
             if(data.items.length>3){
 
-                html+=`
-                <div class="calendar-more">
+html += `
+<div class="calendar-more"
+onclick='showDividendDetail(
+"${months[i-1]}",
+${JSON.stringify(data.items)},
+${data.total}
+)'>
 
-                    + อีก ${data.items.length-3} รายการ
+👁 ดูทั้งหมด ${data.items.length} รายการ
 
-                </div>
-                `;
+</div>
+`;
 
-            }
+}
 
         }
 
@@ -1076,6 +1081,55 @@ function renderDividendCalendar() {
         container.innerHTML+=html;
 
     }
+
+}
+
+function showDividendDetail(month, items, total){
+
+    document.getElementById("dividendModalTitle")
+    .innerText = month;
+
+
+    let html="";
+
+
+    items.forEach(item=>{
+
+        html += `
+        <div class="d-flex justify-content-between mb-2">
+
+            <span>
+                ${item.symbol}
+            </span>
+
+            <b>
+                ${item.amount.toLocaleString()} บาท
+            </b>
+
+        </div>
+        `;
+
+    });
+
+
+    html += `
+    <hr>
+    <div class="text-end fw-bold">
+        รวม ${total.toLocaleString()} บาท
+    </div>
+    `;
+
+
+    document.getElementById("dividendModalBody")
+    .innerHTML = html;
+
+
+    const modal =
+    new bootstrap.Modal(
+        document.getElementById("dividendDetailModal")
+    );
+
+    modal.show();
 
 }
 
