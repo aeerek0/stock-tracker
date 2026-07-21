@@ -1133,7 +1133,7 @@ if (!tbody) return;
 
             tbody.innerHTML += `
                 <tr>
-                    <td>${t.date}</td>
+                    <td>${new Date(t.date).toLocaleDateString('th-TH')}</td>
                     <td>${t.symbol}</td>
                     <td>${t.sector}</td>
                     <td class="text-end">
