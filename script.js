@@ -1104,6 +1104,34 @@ if(tab==="analytics"){
 
 }
 }
+
+function renderDividendHistory(trades){
+
+    const tbody = document.getElementById("dividendHistoryBody");
+
+    if(!tbody) return;
+
+    tbody.innerHTML="";
+
+
+    trades
+    .filter(t=>t.type==="ปันผล")
+    .sort((a,b)=> new Date(b.date)-new Date(a.date))
+    .forEach(t=>{
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${t.date}</td>
+            <td>${t.symbol}</td>
+            <td class="text-end">
+                ${Number(t.amount).toLocaleString()}
+            </td>
+        </tr>
+        `;
+
+    });
+
+}
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
 
