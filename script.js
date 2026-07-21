@@ -1108,11 +1108,7 @@ if(tab==="analytics"){
 }
 function renderDividendHistory(){
 
-    console.log("renderDividendHistory called");
-
     const historyTbody = document.getElementById("dividendHistoryBody");
-
-    console.log("tbody =", historyTbody);
 
     if(!historyTbody) return;
 
@@ -1122,8 +1118,6 @@ function renderDividendHistory(){
         String(t.type).trim() === "ปันผล"
     );
 
-    console.log("History count =", historyData.length);
-
     historyData.forEach(t=>{
 
         historyTbody.innerHTML += `
@@ -1131,7 +1125,7 @@ function renderDividendHistory(){
             <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
             <td>${t.symbol}</td>
             <td>${t.sector}</td>
-            <td>${Number(t.netAmount).toLocaleString()}</td>
+            <td>${Number(t.netAmount || 0).toLocaleString()}</td>
         </tr>
         `;
 
