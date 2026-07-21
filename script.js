@@ -493,6 +493,7 @@ function renderPortfolioAndRecords(trades) {
     drawAllocationChart(currentMonitorView);
     renderDividendTable();
     renderDividendHistory();
+    renderDividendKPI();
     
 }
 
@@ -842,6 +843,164 @@ function renderDividendTable() {
     });
 }
 
+function renderDividendKPI(){
+
+    let yearTotal = {};
+    let stockTotal = {};
+    let monthTotal = {};
+
+    let totalDividend = 0;
+
+
+    globalTradesData.forEach(t=>{
+
+        if(String(t.type).trim() !== "ปันผล") return;
+
+
+        const amount = Number(t.netAmount)||0;
+
+        const d = new Date(t.date);
+
+
+        // ปี
+        const year = d.getFullYear();
+
+        yearTotal[year] = 
+            (yearTotal[year] || 0) + amount;
+
+
+        // หุ้น
+        const sym = String(t.symbol)
+            .trim()
+            .toUpperCase();
+
+        stockTotal[sym] =
+            (stockTotal[sym] || 0) + amount;
+
+
+        // เดือน
+        const month = d.getMonth()+1;
+
+        monthTotal[month] =
+            (monthTotal[month] || 0) + amount;
+
+
+        totalDividend += amount;
+
+    });
+
+
+    // ปีล่าสุด
+    const years = Object.keys(yearTotal)
+        .sort((a,b)=>b-a);
+
+
+    const latestYear = years[0];
+
+
+    document.getElementById(
+        "dividendLatestYear"
+    ).innerText =
+        latestYear
+        ? yearTotal[latestYear]
+            .toLocaleString(undefined,{minimumFractionDigits:2})
+        : "0.00";
+
+
+
+    // หุ้นสูงสุด
+
+    let topStock="-";
+    let maxStock=0;
+
+    Object.keys(stockTotal)
+    .forEach(sym=>{
+
+        if(stockTotal[sym]>maxStock){
+
+            maxStock=stockTotal[sym];
+            topStock=sym;
+
+        }
+
+    });
+
+
+    document.getElementById(
+        "dividendTopStock"
+    ).innerText = topStock;
+
+
+
+    // เดือนสูงสุด
+
+    let topMonth="-";
+    let maxMonth=0;
+
+    Object.keys(monthTotal)
+    .forEach(m=>{
+
+        if(monthTotal[m]>maxMonth){
+
+            maxMonth=monthTotal[m];
+            topMonth=m;
+
+        }
+
+    });
+
+
+    const monthName=[
+        "",
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม"
+    ];
+
+
+    document.getElementById(
+        "dividendTopMonth"
+    ).innerText =
+        topMonth!="-" 
+        ? monthName[topMonth]
+        : "-";
+
+
+
+    // Yield รวม
+    let cost = 0;
+
+    Object.keys(portfolio)
+    .forEach(sym=>{
+
+        cost += portfolio[sym].totalCost || 0;
+
+    });
+
+
+    const yieldTotal =
+        cost>0
+        ? (totalDividend/cost)*100
+        : 0;
+
+
+    document.getElementById(
+        "dividendTotalYield"
+    ).innerText =
+        yieldTotal.toFixed(2)+"%";
+
+
+}
+
 function switchTab(tab) {
     // ซ่อนทุกหน้า
     document.getElementById("portfolioTab").style.display = "none";
@@ -871,6 +1030,7 @@ if (tab === "dividend") {
 
     renderDividendTable();
     renderDividendCalendar();
+    renderDividendKPI();
 
 }
     
