@@ -216,4 +216,61 @@
     }
 
 }
+.calendar-month{
+    border-left:5px solid #198754;
+    background:#f8fff9;
+    border-radius:10px;
+    padding:12px 15px;
+    margin-bottom:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+
+.calendar-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+.calendar-title{
+    font-size:18px;
+    font-weight:700;
+}
+
+.calendar-total{
+    color:#198754;
+    font-size:17px;
+    font-weight:bold;
+}
+
+.calendar-item{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    border-bottom:1px dashed #ddd;
+}
+
+.calendar-item:last-child{
+    border-bottom:none;
+}
+
+.calendar-empty{
+    color:#999;
+    font-style:italic;
+}
+
+.calendar-stock{
+    font-weight:600;
+}
+
+.calendar-amount{
+    color:#198754;
+    font-weight:bold;
+}
+
+.calendar-company{
+    font-size:13px;
+    color:#666;
+    margin-bottom:10px;
+}
     </style>
