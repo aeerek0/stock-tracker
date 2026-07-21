@@ -872,7 +872,7 @@ if (tab === "dividend") {
     renderDividendCalendar();
 
 }
-    }
+    
     if (tab === "settings") {
         document.getElementById("settingsTab").style.display = "block";
         document.getElementById("tabSettingsBtn").classList.add("active");
