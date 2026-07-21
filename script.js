@@ -988,7 +988,7 @@ function renderDividendTable(){
 
     if(!tbody) return;
 
-    tbody.innerHTML = "";
+    historyTbody.innerHTML = "";
 
     const year = Number(document.getElementById("dividendYear").value);
     const month = Number(document.getElementById("dividendMonth").value);
@@ -1106,18 +1106,17 @@ if(tab==="analytics"){
 
 }
 }
-
 function renderDividendHistory(){
 
     console.log("renderDividendHistory called");
 
-    const tbody = document.getElementById("dividendHistoryBody");
+    const historyTbody = document.getElementById("dividendHistoryBody");
 
-    console.log("tbody =", tbody);
+    console.log("tbody =", historyTbody);
 
-    if(!tbody) return;
+    if(!historyTbody) return;
 
-    tbody.innerHTML="";
+    historyTbody.innerHTML="";
 
     const historyData = globalTradesData.filter(t =>
         String(t.type).trim() === "ปันผล"
@@ -1127,7 +1126,7 @@ function renderDividendHistory(){
 
     historyData.forEach(t=>{
 
-        tbody.innerHTML += `
+        historyTbody.innerHTML += `
         <tr>
             <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
             <td>${t.symbol}</td>
