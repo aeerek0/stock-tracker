@@ -1108,6 +1108,7 @@ if(tab==="analytics"){
 }
 
 function renderDividendHistory(){
+ console.log("Trades:", globalTradesData);
 
     const tbody =
     document.getElementById("dividendHistoryBody");
