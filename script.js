@@ -887,7 +887,7 @@ function toggleDividendHistory() {
         : 10;
 
     document.getElementById("btnShowAllDividend").innerText =
-        showAllDividend ? "🔼 ย่อเหลือ 10 รายการ" : "📄 ดูทั้งหมด";
+        showAllDividend ? "🔼 ย่อ" : "📄 ดูทั้งหมด";
 
     renderDividendHistory();
 }
