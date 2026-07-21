@@ -1125,11 +1125,7 @@ function showDividendDetail(month, items, total){
     modal.show();
 
 }
-function testDividendClick(){
 
-    alert("กดปุ่มแล้ว");
-
-}
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
@@ -1139,5 +1135,11 @@ window.onload = function() {
     }
     initConnection();
 };
+
+function testDividendClick(){
+
+    alert("กดปุ่มแล้ว");
+
+}
 
 
