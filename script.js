@@ -3,7 +3,7 @@ let dividendData = {};
 let allocationChart = null;
 let WEB_APP_URL = "";
 let globalTradesData = [];
-let displayCount = 50;
+let displayCount = 20;
 let currentMonitorView = 'stock';
 let sortDirection = 1;
 let portfolio = {};
@@ -14,7 +14,7 @@ let sectorPnL = {};
 let sectorUnrealizedPnL = {};
 let currentPrices = {};
 let totalDividend = 0;
-let dividendHistoryLimit = 20;
+let dividendHistoryLimit = 10;
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
