@@ -491,7 +491,7 @@ function renderPortfolioAndRecords(trades) {
 }
 
 function loadMore() {
-    displayCount += 50;
+    displayCount += 20;
     renderPortfolioAndRecords();
 }
 
@@ -861,7 +861,7 @@ function renderDividendHistory() {
 if(btn){
 
     btn.style.display =
-        historyData.length > 20
+        historyData.length > 10
         ? "inline-block"
         : "none";
 
