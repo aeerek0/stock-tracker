@@ -15,6 +15,7 @@ let sectorUnrealizedPnL = {};
 let currentPrices = {};
 let totalDividend = 0;
 let dividendHistoryLimit = 10;
+let showAllDividend = false;
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
@@ -876,6 +877,19 @@ function showAllDividendHistory(){
 
     document.getElementById("btnShowAllDividend").style.display = "none";
 
+}
+function toggleDividendHistory() {
+
+    showAllDividend = !showAllDividend;
+
+    dividendHistoryLimit = showAllDividend
+        ? 999999
+        : 10;
+
+    document.getElementById("btnShowAllDividend").innerText =
+        showAllDividend ? "🔼 ย่อเหลือ 10 รายการ" : "📄 ดูทั้งหมด";
+
+    renderDividendHistory();
 }
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
