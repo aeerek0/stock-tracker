@@ -211,6 +211,8 @@ function fetchAndRenderData() {
 
             renderPortfolioAndRecords(globalTradesData);
             buildDividendYear();
+            buildCalendarYear();
+            
             renderDividendTable();
             renderDividendHistory();
             renderDividendCalendar();
@@ -734,6 +736,48 @@ function buildDividendYear() {
 
     console.log("Dividend Years:", years);
 }
+function buildCalendarYear(){
+
+    const select = document.getElementById("calendarYear");
+
+    if(!select) return;
+
+    select.innerHTML = `
+        <option value="0">
+            ทุกปี
+        </option>
+    `;
+
+    let years=[];
+
+    globalTradesData.forEach(t=>{
+
+        if(String(t.type).trim() !== "ปันผล") return;
+
+        const y = new Date(t.date).getFullYear();
+
+        if(!years.includes(y)){
+            years.push(y);
+        }
+
+    });
+
+
+    years.sort((a,b)=>b-a);
+
+
+    years.forEach(y=>{
+
+        const option=document.createElement("option");
+
+        option.value=y;
+        option.text=y;
+
+        select.appendChild(option);
+
+    });
+
+}
 
 function renderDividendTable() {
     const tbody = document.getElementById("dividendTableBody");
@@ -820,9 +864,11 @@ function switchTab(tab) {
         document.getElementById("dividendTab").style.display = "block";
         document.getElementById("tabDividendBtn").classList.add("active");
 
-        renderDividendTable();
-        renderDividendHistory();
-        renderDividendCalendar();
+buildDividendYear();
+buildCalendarYear();
+
+renderDividendTable();
+renderDividendCalendar();
     }
     if (tab === "settings") {
         document.getElementById("settingsTab").style.display = "block";
@@ -903,7 +949,7 @@ function renderDividendCalendar() {
 
     container.innerHTML = "";
 
-    const year = Number(document.getElementById("dividendYear").value);
+    const year = Number(document.getElementById("calendarYear").value);
 
     const months = [
         "🌸 มกราคม",
