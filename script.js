@@ -213,6 +213,7 @@ function fetchAndRenderData() {
             buildDividendYear();
             renderDividendTable();
             renderDividendHistory();
+            renderDividendCalendar();
         })
         .catch(error => {
             console.error("Refresh Error:", error);
@@ -489,6 +490,7 @@ function renderPortfolioAndRecords(trades) {
     drawAllocationChart(currentMonitorView);
     renderDividendTable();
     renderDividendHistory();
+    renderDividendCalendar();
 }
 
 function loadMore() {
@@ -820,6 +822,7 @@ function switchTab(tab) {
 
         renderDividendTable();
         renderDividendHistory();
+        renderDividendCalendar();
     }
     if (tab === "settings") {
         document.getElementById("settingsTab").style.display = "block";
@@ -890,6 +893,116 @@ function toggleDividendHistory() {
         showAllDividend ? "🔼 ย่อ" : "📄 ดูทั้งหมด";
 
     renderDividendHistory();
+}
+
+function renderDividendCalendar() {
+
+    const container = document.getElementById("dividendCalendar");
+
+    if (!container) return;
+
+    const year = Number(document.getElementById("dividendYear").value);
+
+    const monthNames = [
+        "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
+        "พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
+        "กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+    ];
+
+    let months = {};
+
+    // เตรียมข้อมูล 12 เดือน
+    for (let i = 1; i <= 12; i++) {
+        months[i] = {
+            total: 0,
+            items: []
+        };
+    }
+
+    // วนลูปเฉพาะรายการปันผล
+    globalTradesData.forEach(t => {
+
+        if (String(t.type).trim() !== "ปันผล") return;
+
+        const d = new Date(t.date);
+
+        if (year > 0 && d.getFullYear() !== year) return;
+
+        const month = d.getMonth() + 1;
+
+        months[month].items.push({
+            symbol: t.symbol,
+            amount: Number(t.netAmount) || 0
+        });
+
+        months[month].total += Number(t.netAmount) || 0;
+
+    });
+
+    let html = "";
+
+    for (let i = 1; i <= 12; i++) {
+
+        html += `
+        <div class="calendar-month">
+
+            <div class="calendar-header">
+
+                <div class="calendar-title">
+                    📅 ${monthNames[i-1]}
+                </div>
+
+                <div class="calendar-total">
+                    ${months[i].total > 0
+                        ? "฿ " + months[i].total.toLocaleString()
+                        : ""}
+                </div>
+
+            </div>
+        `;
+
+        if (months[i].items.length === 0) {
+
+            html += `
+                <div class="calendar-empty">
+                    ไม่มีปันผล
+                </div>
+            `;
+
+        } else {
+
+            html += `
+                <div class="calendar-company">
+                    🏢 ${months[i].items.length} บริษัท
+                </div>
+            `;
+
+            months[i].items.forEach(item => {
+
+                html += `
+                <div class="calendar-item">
+
+                    <span class="calendar-stock">
+                        ${item.symbol}
+                    </span>
+
+                    <span class="calendar-amount">
+                        ฿ ${item.amount.toLocaleString()}
+                    </span>
+
+                </div>
+                `;
+
+            });
+
+        }
+
+        html += `</div>`;
+
+    }
+
+    container.innerHTML = html;
+
 }
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
