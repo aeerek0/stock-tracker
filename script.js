@@ -988,7 +988,7 @@ function renderDividendTable(){
 
     if(!tbody) return;
 
-    historyTbody.innerHTML = "";
+    tbody.innerHTML = "";
 
     const year = Number(document.getElementById("dividendYear").value);
     const month = Number(document.getElementById("dividendMonth").value);
