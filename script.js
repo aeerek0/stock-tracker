@@ -263,12 +263,12 @@ function fetchAndRenderData() {
                 }
             });
 
-            renderPortfolioAndRecords(globalTradesData);
+   renderPortfolioAndRecords(globalTradesData);
 
             buildDividendYear();
             renderDividendTable();
-          ();
-         
+            renderDividendHistory();
+
         })
         .catch(error => {
             console.error("Refresh Error:", error);
