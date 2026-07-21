@@ -11,20 +11,33 @@ window.onload = function () {
 
     fetch(WEB_APP_URL)
         .then(r => r.json())
-        .then(data => {
-            trades = data;
+.then(data => {
 
-            // ===== Analytics =====
-            drawMonthlyPnL();
-            drawBuySellMonthly();
+    console.log("API DATA:", data);
 
-            renderTopProfit();
-            renderTopLoss();
-            renderMostTrade();
-            renderSummary();
-            renderHoldingPeriod();
-            renderSectorPerformance();
-        })
+    // รองรับทั้ง Array และ Object
+    if (Array.isArray(data)) {
+        trades = data;
+    } 
+    else if (data.trades && Array.isArray(data.trades)) {
+        trades = data.trades;
+    }
+    else {
+        console.error("รูปแบบข้อมูลไม่ถูกต้อง", data);
+        trades = [];
+    }
+
+    // ===== Analytics =====
+    drawMonthlyPnL();
+    drawBuySellMonthly();
+
+    renderTopProfit();
+    renderTopLoss();
+    renderMostTrade();
+    renderSummary();
+    renderHoldingPeriod();
+    renderSectorPerformance();
+})
         .catch(err => {
             console.error(err);
             alert("โหลดข้อมูลไม่สำเร็จ");
@@ -35,6 +48,12 @@ window.onload = function () {
 // กำไร/ขาดทุนรายเดือน
 //==========================
 function drawMonthlyPnL() {
+
+    if (!Array.isArray(trades)) {
+        console.warn("drawMonthlyPnL: trades ไม่ใช่ Array", trades);
+        return;
+    }
+
     let portfolio = {};
     let result = {};
 
@@ -58,12 +77,17 @@ function drawMonthlyPnL() {
         const net = Number(t.netAmount) || 0;
 
         if (t.type === "ซื้อ") {
+
             portfolio[sym].units += units;
             portfolio[sym].cost += net;
+
         } else if (t.type === "ขาย") {
+
             if (portfolio[sym].units > 0) {
+
                 const avg = portfolio[sym].cost / portfolio[sym].units;
                 const pnl = net - avg * units;
+
                 result[month] += pnl;
 
                 portfolio[sym].units -= units;
@@ -74,7 +98,6 @@ function drawMonthlyPnL() {
 
     createChart(result);
 }
-
 //==========================
 // วาดกราฟ PnL รายเดือน
 //==========================
