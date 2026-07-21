@@ -215,7 +215,7 @@ function fetchAndRenderData() {
             
             renderDividendTable();
             renderDividendHistory();
-            ();
+           
         })
         .catch(error => {
             console.error("Refresh Error:", error);
@@ -492,7 +492,7 @@ function renderPortfolioAndRecords(trades) {
     drawAllocationChart(currentMonitorView);
     renderDividendTable();
     renderDividendHistory();
-    ();
+    
 }
 
 function loadMore() {
