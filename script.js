@@ -1138,8 +1138,4 @@ window.onload = function() {
     initConnection();
 };
 
-function testDividendClick(){
 
-    alert("กดปุ่มแล้ว");
-
-}
