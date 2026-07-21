@@ -267,7 +267,7 @@ function fetchAndRenderData() {
 
             buildDividendYear();
             renderDividendTable();
-          renderDividendHistory();
+          ();
          
         })
         .catch(error => {
@@ -1110,20 +1110,32 @@ function renderDividendHistory(){
 
     const historyTbody = document.getElementById("dividendHistoryBody");
 
-    console.log("History tbody =", historyTbody);
-
     if(!historyTbody) return;
 
-    historyTbody.innerHTML = `
-        <tr>
-            <td>TEST DATE</td>
-            <td>TEST STOCK</td>
-            <td>TEST SECTOR</td>
-            <td>9999</td>
-        </tr>
-    `;
+    let html = "";
 
-    console.log("TEST INSERT COMPLETE");
+    const historyData = globalTradesData.filter(t =>
+        String(t.type).trim() === "ปันผล"
+    );
+
+    historyData.forEach(t => {
+
+        html += `
+        <tr>
+            <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
+            <td>${t.symbol}</td>
+            <td>${t.sector}</td>
+            <td class="text-end">
+                ${Number(t.netAmount || 0).toLocaleString(undefined,{
+                    minimumFractionDigits:2
+                })}
+            </td>
+        </tr>
+        `;
+
+    });
+
+    historyTbody.innerHTML = html;
 }
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload=function(){
