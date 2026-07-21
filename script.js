@@ -1108,6 +1108,15 @@ if(tab==="analytics"){
 }
 
 function renderDividendHistory(){
+     console.log("renderDividendHistory called");
+
+    console.log(globalTradesData);
+
+    const dividendData = globalTradesData.filter(t =>
+        String(t.type).trim() === "ปันผล"
+    );
+
+    console.log(dividendData);
 
     const tbody =
     document.getElementById("dividendHistoryBody");
