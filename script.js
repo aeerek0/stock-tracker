@@ -486,6 +486,7 @@ function renderPortfolioAndRecords(trades) {
     renderMonitorTable(dataMap, pnLMap);
     drawAllocationChart(currentMonitorView);
     renderDividendTable();
+    renderDividendHistory();
 }
 
 function loadMore() {
@@ -814,8 +815,10 @@ function switchTab(tab) {
     if (tab === "dividend") {
         document.getElementById("dividendTab").style.display = "block";
         document.getElementById("tabDividendBtn").classList.add("active");
-    }
 
+        renderDividendTable();
+        renderDividendHistory();
+    }
     if (tab === "settings") {
         document.getElementById("settingsTab").style.display = "block";
         document.getElementById("tabSettingsBtn").classList.add("active");
