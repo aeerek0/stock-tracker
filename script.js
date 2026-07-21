@@ -1085,6 +1085,7 @@ ${data.total}
 }
 
 function showDividendDetail(month, items, total){
+     alert("เดือน " + month);
 
     document.getElementById("dividendModalTitle")
     .innerText = month;
