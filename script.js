@@ -1,4 +1,4 @@
- // --- ตัวแปร Global ---
+// --- ตัวแปร Global ---
 let dividendData = {};
 let allocationChart = null;
 let WEB_APP_URL = "";
@@ -52,132 +52,95 @@ function initConnection() {
                 window.currentPrices = data.prices;
 
                 if (statusEl) {
-                    statusEl.innerHTML = 
-                        "🟢 สถานะ: เชื่อมต่อ Google Sheet สำเร็จ (" 
-                        + data.trades.length + " รายการ)";
-
-                    statusEl.className = 
-                        "d-block mt-2 fw-bold text-success";
+                    statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อ Google Sheet สำเร็จ (" + data.trades.length + " รายการ)";
+                    statusEl.className = "d-block mt-2 fw-bold text-success";
                 }
 
                 renderPortfolioAndRecords(globalTradesData);
             })
             .catch(error => {
                 console.error(error);
-
                 if (statusEl) {
-                    statusEl.innerHTML = 
-                        "🔴 สถานะ: เชื่อมต่อไม่สำเร็จ";
-
-                    statusEl.className = 
-                        "d-block mt-2 fw-bold text-danger";
+                    statusEl.innerHTML = "🔴 สถานะ: เชื่อมต่อไม่สำเร็จ";
+                    statusEl.className = "d-block mt-2 fw-bold text-danger";
                 }
             });
     } else {
         if (statusEl) {
-            statusEl.innerHTML = 
-                "🔴 สถานะ: ยังไม่ได้เชื่อมต่อ";
-
-            statusEl.className = 
-                "d-block mt-2 fw-bold text-muted";
+            statusEl.innerHTML = "🔴 สถานะ: ยังไม่ได้เชื่อมต่อ";
+            statusEl.className = "d-block mt-2 fw-bold text-muted";
         }
     }
 }
 
-window.saveSheetUrl = function(){
-
+window.saveSheetUrl = function() {
     const urlInput = document.getElementById('sheetUrlInput');
-
     const url = urlInput.value.trim();
 
-
-    if(url === ""){
+    if(url === "") {
         alert("กรุณาใส่ Web App URL");
         return;
     }
 
-
-    localStorage.setItem(
-        'user_google_sheet_url',
-        url
-    );
-
-
+    localStorage.setItem('user_google_sheet_url', url);
     WEB_APP_URL = url;
-
-
     initConnection();
-
 };
 
 const typeElement = document.getElementById('type');
+if (typeElement) {
+    typeElement.addEventListener('change', function () {
+        const type = this.value;
+        const amountContainer = document.getElementById('amountContainer');
+        const symbolGroup = document.getElementById('symbol').parentElement;
+        const sectorGroup = document.getElementById('sector').parentElement;
+        const brokerGroup = document.getElementById('broker').parentElement;
+        const priceGroup = document.getElementById('price').parentElement;
+        const unitsGroup = document.getElementById('units').parentElement;
+        const feeGroup = document.getElementById('feeRate').parentElement;
 
-if(typeElement){
+        // แสดงทุกอย่างก่อน
+        symbolGroup.style.display = "";
+        sectorGroup.style.display = "";
+        brokerGroup.style.display = "";
+        priceGroup.style.display = "";
+        unitsGroup.style.display = "";
+        feeGroup.style.display = "";
+        amountContainer.style.display = "none";
 
-typeElement.addEventListener('change', function () {
+        if (type === "ฝากเงิน" || type === "ถอนเงิน") {
+            amountContainer.style.display = "block";
+            symbolGroup.style.display = "none";
+            sectorGroup.style.display = "none";
+            brokerGroup.style.display = "none";
+            priceGroup.style.display = "none";
+            unitsGroup.style.display = "none";
+            feeGroup.style.display = "none";
+        }
 
-    const type = this.value;
-
-    const amountContainer = document.getElementById('amountContainer');
-
-    const symbolGroup = document.getElementById('symbol').parentElement;
-    const sectorGroup = document.getElementById('sector').parentElement;
-    const brokerGroup = document.getElementById('broker').parentElement;
-    const priceGroup = document.getElementById('price').parentElement;
-    const unitsGroup = document.getElementById('units').parentElement;
-    const feeGroup = document.getElementById('feeRate').parentElement;
-
-    // แสดงทุกอย่างก่อน
-    symbolGroup.style.display = "";
-    sectorGroup.style.display = "";
-    brokerGroup.style.display = "";
-    priceGroup.style.display = "";
-    unitsGroup.style.display = "";
-    feeGroup.style.display = "";
-    amountContainer.style.display = "none";
-
-    if(type === "ฝากเงิน" || type === "ถอนเงิน"){
-
-        amountContainer.style.display = "block";
-
-        symbolGroup.style.display = "none";
-        sectorGroup.style.display = "none";
-        brokerGroup.style.display = "none";
-        priceGroup.style.display = "none";
-        unitsGroup.style.display = "none";
-        feeGroup.style.display = "none";
-
-    }
-
-    if(type === "ปันผล"){
-
-        amountContainer.style.display = "block";
-
-        priceGroup.style.display = "none";
-        unitsGroup.style.display = "none";
-        feeGroup.style.display = "none";
-
-    }
-
-});
-
+        if (type === "ปันผล") {
+            amountContainer.style.display = "block";
+            priceGroup.style.display = "none";
+            unitsGroup.style.display = "none";
+            feeGroup.style.display = "none";
+        }
+    });
 }
-    const masterSectorMap = {
-        "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
-        "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
-        "EA": "Energy", "HMPRO": "Commerce", "LH": "Property", "MC": "Fashion", "MINT": "Tourism",
-        "SABINA": "Fashion", "SAT": "Automotive", "SPALI": "Property", "TIPH": "Insurance",
-        "TISCO": "Banking", "TLI": "Insurance", "TU": "Food & Bev", "WHA": "Property (Indus)","TRUE": "Telecommunications"
-    };
 
-    let dynamicSectorMap = {}; 
+const masterSectorMap = {
+    "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
+    "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
+    "EA": "Energy", "HMPRO": "Commerce", "LH": "Property", "MC": "Fashion", "MINT": "Tourism",
+    "SABINA": "Fashion", "SAT": "Automotive", "SPALI": "Property", "TIPH": "Insurance",
+    "TISCO": "Banking", "TLI": "Insurance", "TU": "Food & Bev", "WHA": "Property (Indus)","TRUE": "Telecommunications"
+};
 
-    
-    
+let dynamicSectorMap = {}; 
+
 // --- 7. ฟังก์ชันเสริม ---
 function buildStockDropdown() {
     const datalist = document.getElementById('stockOptions');
-    if(datalist) {
+    if (datalist) {
         datalist.innerHTML = '';
         Object.keys(masterSectorMap).forEach(stock => {
             const option = document.createElement('option');
@@ -186,193 +149,142 @@ function buildStockDropdown() {
         });
     }
 }
+
 function updateMonitor(view) {
-
     currentMonitorView = view;
-
     const dataMap = (view === 'stock') ? portfolio : sectorPortfolio;
     const pnLMap = (view === 'stock') ? realizedPnL : sectorPnL;
 
     renderMonitorTable(dataMap, pnLMap);
- drawAllocationChart(view);
-
+    drawAllocationChart(view);
 }
 
 function sortMonitorBy() {
-
-    const dataMap = currentMonitorView === "stock"
-        ? portfolio
-        : sectorPortfolio;
-
-    const pnLMap = currentMonitorView === "stock"
-        ? realizedPnL
-        : sectorPnL;
+    const dataMap = currentMonitorView === "stock" ? portfolio : sectorPortfolio;
+    const pnLMap = currentMonitorView === "stock" ? realizedPnL : sectorPnL;
 
     const sorted = Object.keys(dataMap)
         .filter(k => dataMap[k].totalUnits > 0)
-        .sort((a,b)=>{
-
-            const roiA = dataMap[a].totalCost === 0 ? 0 :
-                pnLMap[a] / dataMap[a].totalCost;
-
-            const roiB = dataMap[b].totalCost === 0 ? 0 :
-                pnLMap[b] / dataMap[b].totalCost;
-
+        .sort((a,b) => {
+            const roiA = dataMap[a].totalCost === 0 ? 0 : pnLMap[a] / dataMap[a].totalCost;
+            const roiB = dataMap[b].totalCost === 0 ? 0 : pnLMap[b] / dataMap[b].totalCost;
             return (roiA - roiB) * sortDirection;
         });
 
     sortDirection *= -1;
-
     renderMonitorTable(dataMap, pnLMap, sorted);
 }
-    function autoFillSector(symbolValue) {
-        if (!symbolValue) return;
-       const sym = String(symbolValue).trim().toUpperCase();
-        document.getElementById('symbol').value = sym; 
-        if (masterSectorMap[sym]) {
-            document.getElementById('sector').value = masterSectorMap[sym];
-        } else if (dynamicSectorMap[sym]) {
-            document.getElementById('sector').value = dynamicSectorMap[sym];
-        }
-    }
+
+function autoFillSector(symbolValue) {
+    if (!symbolValue) return;
+    const sym = String(symbolValue).trim().toUpperCase();
+    document.getElementById('symbol').value = sym; 
+    
+    if (masterSectorMap[sym]) {
+        document.getElementById('sector').value = masterSectorMap[sym];
+    } else if (dynamicSectorMap[sym]) {
+        document.getElementById('sector').value = dynamicSectorMap[sym];
+    }
+}
 
 function fetchAndRenderData() {
     if (!WEB_APP_URL) return;
 
-    document.getElementById('monitorTableBody').innerHTML =
-        `<tr><td colspan="7">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
-
-    document.getElementById('tradeTableBody').innerHTML =
-        `<tr><td colspan="12">กำลังโหลดประวัติ...</td></tr>`;
+    document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="7">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
+    document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12">กำลังโหลดประวัติ...</td></tr>`;
 
     fetch(WEB_APP_URL)
         .then(response => response.json())
         .then(data => {
             console.log("Refresh Data:", data);
-
             globalTradesData = data.trades || [];
             window.currentPrices = data.prices || {};
-
             dynamicSectorMap = {};
 
             globalTradesData.forEach(t => {
                 if (t.symbol && t.sector) {
-                    dynamicSectorMap[
-                        t.symbol.trim().toUpperCase()
-                    ] = t.sector;
+                    dynamicSectorMap[t.symbol.trim().toUpperCase()] = t.sector;
                 }
             });
 
-   renderPortfolioAndRecords(globalTradesData);
-
+            renderPortfolioAndRecords(globalTradesData);
             buildDividendYear();
             renderDividendTable();
             renderDividendHistory();
-
         })
         .catch(error => {
             console.error("Refresh Error:", error);
-
-            document.getElementById('monitorTableBody').innerHTML =
-                `<tr>
-                <td colspan="5" class="text-danger">
-                โหลดข้อมูลล้มเหลว
-                </td>
-                </tr>`;
-
-            document.getElementById('tradeTableBody').innerHTML =
-                `<tr>
-                <td colspan="12" class="text-danger">
-                โหลดข้อมูลล้มเหลว
-                </td>
-                </tr>`;
+            document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="5" class="text-danger">โหลดข้อมูลล้มเหลว</td></tr>`;
+            document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12" class="text-danger">โหลดข้อมูลล้มเหลว</td></tr>`;
         });
 }
 
-    // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
-    function startEditMode(rowIndex) {
-        const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
-        if(!trade) return;
+// ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
+function startEditMode(rowIndex) {
+    const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
+    if (!trade) return;
 
-        // ดึงข้อมูลเก่าลงฟอร์มคีย์
-        let dateVal = trade.date;
-        if(dateVal.includes("T")) dateVal = dateVal.split("T")[0];
-        
-        document.getElementById('editRowIndex').value = trade.rowIndex;
-        document.getElementById('date').value = dateVal;
-        document.getElementById('type').value = trade.type;
-        document.getElementById('symbol').value = trade.symbol;
-        document.getElementById('sector').value = trade.sector || '';
-        document.getElementById('broker').value = trade.broker || '';
-        document.getElementById('price').value = trade.price;
-        document.getElementById('units').value = trade.units;
-        
-        // คำนวณหา % ค่าธรรมเนียมเดิมกลับมาโชว์
-        const gross = trade.price * trade.units;
-        const feePercent = ((trade.feeTax / gross) * 100).toFixed(4);
-        document.getElementById('feeRate').value = feePercent;
+    // ดึงข้อมูลเก่าลงฟอร์มคีย์
+    let dateVal = trade.date;
+    if (dateVal.includes("T")) dateVal = dateVal.split("T")[0];
+    
+    document.getElementById('editRowIndex').value = trade.rowIndex;
+    document.getElementById('date').value = dateVal;
+    document.getElementById('type').value = trade.type;
+    document.getElementById('symbol').value = trade.symbol;
+    document.getElementById('sector').value = trade.sector || '';
+    document.getElementById('broker').value = trade.broker || '';
+    document.getElementById('price').value = trade.price;
+    document.getElementById('units').value = trade.units;
+    
+    // คำนวณหา % ค่าธรรมเนียมเดิมกลับมาโชว์
+    const gross = trade.price * trade.units;
+    const feePercent = ((trade.feeTax / gross) * 100).toFixed(4);
+    document.getElementById('feeRate').value = feePercent;
 
-        // เปลี่ยนดีไซน์หน้าตาฟอร์มให้รู้ว่ากำลังแก้ไข
-        document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
-        document.getElementById('editAlert').style.display = "block";
-        document.getElementById('submitBtn').innerText = "🆙 อัปเดตข้อมูลไปยัง Google Sheets";
-        document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-edit)";
-        
-        // เลื่อนหน้าจอขึ้นไปที่ฟอร์มคีย์อัตโนมัติ
-        document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
-    }
+    // เปลี่ยนดีไซน์หน้าตาฟอร์มให้รู้ว่ากำลังแก้ไข
+    document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
+    document.getElementById('editAlert').style.display = "block";
+    document.getElementById('submitBtn').innerText = "🆙 อัปเดตข้อมูลไปยัง Google Sheets";
+    document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-edit)";
+    
+    // เลื่อนหน้าจอขึ้นไปที่ฟอร์มคีย์อัตโนมัติ
+    document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
+}
 
-    // ฟังก์ชันยกเลิกโหมดแก้ไข
+// ฟังก์ชันยกเลิกโหมดแก้ไข
 function cancelEditMode() {
-
     document.getElementById('editRowIndex').value = "";
-
     document.getElementById('tradeForm').reset();
-
     document.getElementById('date').valueAsDate = new Date();
-
     document.getElementById('feeRate').value = "0.0";
 
-
-    document.getElementById('formTitle').innerText =
-        "➕ บันทึกรายการใหม่";
-
+    document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
     document.getElementById('editAlert').style.display = "none";
 
-
     const btn = document.getElementById('submitBtn');
-
     btn.disabled = false;   // <<< เพิ่มบรรทัดนี้
-
-    btn.innerText =
-        "💾 บันทึกส่งไปยัง Google Sheets";
-
-    btn.style.backgroundColor =
-        "var(--pastel-orange-dark)";
+    btn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+    btn.style.backgroundColor = "var(--pastel-orange-dark)";
 }
+
 function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
     const mBody = document.getElementById('monitorTableBody');
     mBody.innerHTML = '';
-
     let totalValue = 0;
-
     const keys = sortedKeys || Object.keys(dataMap);
 
     // คำนวณมูลค่าพอร์ตรวม
     keys.forEach(key => {
         const data = dataMap[key];
-
         if (!data || data.totalUnits <= 0) return;
 
         let marketPrice = data.avgPrice;
         let marketValue;
 
         if (currentMonitorView === "stock") {
-            marketPrice =
-                Number(window.currentPrices?.[key]) || data.avgPrice;
-
-            marketValue =
-                data.totalUnits * marketPrice;
+            marketPrice = Number(window.currentPrices?.[key]) || data.avgPrice;
+            marketValue = data.totalUnits * marketPrice;
         } else {
             marketValue = data.totalCost;
         }
@@ -383,89 +295,47 @@ function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
     // วาดตาราง
     keys.forEach(key => {
         const data = dataMap[key];
-
         if (!data || data.totalUnits <= 0) return;
 
         let marketPrice = data.avgPrice;
         let marketValue;
 
         if (currentMonitorView === "stock") {
-            marketPrice =
-                Number(window.currentPrices?.[key]) || data.avgPrice;
-
-            marketValue =
-                data.totalUnits * marketPrice;
+            marketPrice = Number(window.currentPrices?.[key]) || data.avgPrice;
+            marketValue = data.totalUnits * marketPrice;
         } else {
             marketPrice = data.avgPrice;
             marketValue = data.totalCost;
         }
 
         let totalPnL;
-
         if (currentMonitorView === "stock") {
-            totalPnL =
-                (pnLMap[key] || 0) +
-                (unrealizedPnL[key] || 0);
+            totalPnL = (pnLMap[key] || 0) + (unrealizedPnL[key] || 0);
         } else {
-            totalPnL =
-                (pnLMap[key] || 0) +
-                (sectorUnrealizedPnL[key] || 0);
+            totalPnL = (pnLMap[key] || 0) + (sectorUnrealizedPnL[key] || 0);
         }
 
-        const roi =
-            data.totalCost > 0
-            ? (totalPnL / data.totalCost) * 100
-            : 0;
-
-        const weight =
-            totalValue > 0
-            ? (marketValue / totalValue) * 100
-            : 0;
+        const roi = data.totalCost > 0 ? (totalPnL / data.totalCost) * 100 : 0;
+        const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
 
         const row = document.createElement('tr');
-
         row.innerHTML = `
             <td class="fw-bold">${key}</td>
-
             <td>${data.totalUnits.toLocaleString()}</td>
-
-            <td>${data.avgPrice.toLocaleString(undefined, {
-                maximumFractionDigits: 2
-            })}</td>
-
-            <td>${data.totalCost.toLocaleString(undefined, {
-                maximumFractionDigits: 2
-            })}</td>
-
-            <td>${marketPrice.toLocaleString(undefined, {
-                maximumFractionDigits: 2
-            })}</td>
-
-            <td>${marketValue.toLocaleString(undefined, {
-                maximumFractionDigits: 2
-            })}</td>
-
-            <td class="text-secondary fw-bold">
-                ${weight.toFixed(1)}%
-            </td>
-
-            <td class="${totalPnL >= 0 ? 'text-success' : 'text-danger'}">
-                ${totalPnL.toLocaleString(undefined, {
-                    maximumFractionDigits: 2
-                })}
-            </td>
-
-            <td class="${roi >= 0 ? 'text-success' : 'text-danger'}">
-                ${roi.toFixed(2)}%
-            </td>
+            <td>${data.avgPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td>${data.totalCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td>${marketPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td>${marketValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td>
+            <td class="${totalPnL >= 0 ? 'text-success' : 'text-danger'}">${totalPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td class="${roi >= 0 ? 'text-success' : 'text-danger'}">${roi.toFixed(2)}%</td>
         `;
-
         mBody.appendChild(row);
     });
 }
+
 function renderPortfolioAndRecords(trades) {
     document.getElementById('searchInput').value = "";
-
     if (trades) {
         globalTradesData = trades;
     }
@@ -475,10 +345,8 @@ function renderPortfolioAndRecords(trades) {
     // 1. เตรียมตัวแปรสำหรับเก็บข้อมูลทั้งแบบรายหุ้นและราย Sector
     portfolio = {};
     sectorPortfolio = {};
-
     realizedPnL = {};
     unrealizedPnL = {};
-
     sectorPnL = {};
     sectorUnrealizedPnL = {};
     dividendData = {};
@@ -491,35 +359,18 @@ function renderPortfolioAndRecords(trades) {
     
     globalTradesData.forEach(trade => {
         if (trade.type === 'ปันผล') {
-            const sym = String(trade.symbol || "")
-                .trim()
-                .toUpperCase();
-
+            const sym = String(trade.symbol || "").trim().toUpperCase();
             if (!dividendData[sym]) {
-                dividendData[sym] = {
-                    count: 0,
-                    amount: 0,
-                    items: []
-                };
+                dividendData[sym] = { count: 0, amount: 0, items: [] };
             }
-
             const amount = Number(trade.netAmount) || 0;
-
             dividendData[sym].count++;
             dividendData[sym].amount += amount;
-
-            dividendData[sym].items.push({
-                date: trade.date,
-                amount: amount
-            });
-
+            dividendData[sym].items.push({ date: trade.date, amount: amount });
             return;
         }
 
-        if (
-            trade.type === 'ฝากเงิน' ||
-            trade.type === 'ถอนเงิน'
-        ) return;
+        if (trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน') return;
 
         const sym = String(trade.symbol || "").trim().toUpperCase();
         const sector = String(trade.sector || "อื่นๆ").trim();
@@ -566,16 +417,9 @@ function renderPortfolioAndRecords(trades) {
     // ===============================
     Object.keys(portfolio).forEach(sym => {
         if (portfolio[sym].totalUnits > 0) {
-            const currentPrice =
-                (window.currentPrices && window.currentPrices[sym])
-                ? Number(window.currentPrices[sym])
-                : portfolio[sym].avgPrice;
-
-            const marketValue =
-                portfolio[sym].totalUnits * currentPrice;
-
-            unrealizedPnL[sym] =
-                marketValue - portfolio[sym].totalCost;
+            const currentPrice = (window.currentPrices && window.currentPrices[sym]) ? Number(window.currentPrices[sym]) : portfolio[sym].avgPrice;
+            const marketValue = portfolio[sym].totalUnits * currentPrice;
+            unrealizedPnL[sym] = marketValue - portfolio[sym].totalCost;
         }
     });
 
@@ -586,27 +430,18 @@ function renderPortfolioAndRecords(trades) {
 
     globalTradesData.forEach(trade => {
         if (trade.type !== "ซื้อ") return;
-
         const sym = String(trade.symbol).trim().toUpperCase();
         const sector = trade.sector || "อื่นๆ";
-
         if (!sectorUnrealizedPnL[sector]) {
             sectorUnrealizedPnL[sector] = 0;
         }
     });
 
     Object.keys(portfolio).forEach(sym => {
-        const trade = globalTradesData.find(t =>
-            String(t.symbol).trim().toUpperCase() === sym
-        );
-
+        const trade = globalTradesData.find(t => String(t.symbol).trim().toUpperCase() === sym);
         if (!trade) return;
-
         const sector = trade.sector || "อื่นๆ";
-
-        sectorUnrealizedPnL[sector] =
-            (sectorUnrealizedPnL[sector] || 0) +
-            (unrealizedPnL[sym] || 0);
+        sectorUnrealizedPnL[sector] = (sectorUnrealizedPnL[sector] || 0) + (unrealizedPnL[sym] || 0);
     });
 
     let netDeposited = 0;
@@ -619,13 +454,10 @@ function renderPortfolioAndRecords(trades) {
     Object.keys(portfolio).forEach(sym => {
         if (portfolio[sym].totalUnits > 0) {
             activeStocksCount++;
-
             let marketPrice = window.currentPrices[sym] || portfolio[sym].avgPrice;
             let marketValue = portfolio[sym].totalUnits * marketPrice;
-
             totalPortfolioValue += marketValue;
         }
-
         totalPnL += realizedPnL[sym] + (unrealizedPnL[sym] || 0);
     });
 
@@ -655,270 +487,192 @@ function renderPortfolioAndRecords(trades) {
     drawAllocationChart(currentMonitorView);
     renderDividendTable();
 }
-    function loadMore() {
-    displayCount += 50;
-    renderPortfolioAndRecords();
+
+function loadMore() {
+    displayCount += 50;
+    renderPortfolioAndRecords();
 }
 
 function searchTrades() {
-    const input = document.getElementById("searchInput").value.toUpperCase();
-    
-    // ถ้าช่องค้นหาว่าง ให้แสดงรายการปกติ (ตามจำนวน displayCount)
-    if (input === "") {
-        renderPortfolioAndRecords();
-        return;
-    }
+    const input = document.getElementById("searchInput").value.toUpperCase();
+    
+    // ถ้าช่องค้นหาว่าง ให้แสดงรายการปกติ (ตามจำนวน displayCount)
+    if (input === "") {
+        renderPortfolioAndRecords();
+        return;
+    }
 
-    // ถ้ามีการพิมพ์ค้นหา ให้กรองข้อมูลทั้งหมด
-    const filteredData = globalTradesData.filter(trade => {
-        const dateStr = trade.date.split("T")[0]; // วันที่
-        const sym = String(trade.symbol || "").toUpperCase(); // ชื่อหุ้น
-        
-        return sym.includes(input) || dateStr.includes(input);
-    });
+    // ถ้ามีการพิมพ์ค้นหา ให้กรองข้อมูลทั้งหมด
+    const filteredData = globalTradesData.filter(trade => {
+        const dateStr = trade.date.split("T")[0]; // วันที่
+        const sym = String(trade.symbol || "").toUpperCase(); // ชื่อหุ้น
+        return sym.includes(input) || dateStr.includes(input);
+    });
 
-    // วาดตารางใหม่ด้วยผลลัพธ์ที่กรองแล้ว (แสดงทั้งหมดที่หาเจอ)
-    renderTableOnly(filteredData);
+    // วาดตารางใหม่ด้วยผลลัพธ์ที่กรองแล้ว (แสดงทั้งหมดที่หาเจอ)
+    renderTableOnly(filteredData);
 }
 
 // ฟังก์ชันพิเศษ: วาดแค่ตาราง โดยไม่คำนวณ Dashboard ซ้ำ
 function renderTableOnly(data) {
-    const tbodyRecord = document.getElementById('tradeTableBody');
-    tbodyRecord.innerHTML = '';
-    
-    data.slice().reverse().forEach(trade => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${trade.date.split("T")[0]}</td>
-            <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
-            <td class="fw-bold">${trade.symbol}</td>
-            <td>${trade.sector || '-'}</td>
-            <td>${trade.broker || '-'}</td>
-            <td>${parseFloat(trade.price).toLocaleString()}</td>
-            <td>${parseInt(trade.units).toLocaleString()}</td>
-            <td>${parseFloat(trade.grossAmount).toLocaleString()}</td>
-            <td>${parseFloat(trade.feeTax).toLocaleString()}</td>
-            <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td>
-            <td>-</td>
-            <td>
-                <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
-                <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
-            </td>`;
-        tbodyRecord.appendChild(row);
-    });
+    const tbodyRecord = document.getElementById('tradeTableBody');
+    tbodyRecord.innerHTML = '';
+    
+    data.slice().reverse().forEach(trade => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${trade.date.split("T")[0]}</td>
+            <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
+            <td class="fw-bold">${trade.symbol}</td>
+            <td>${trade.sector || '-'}</td>
+            <td>${trade.broker || '-'}</td>
+            <td>${parseFloat(trade.price).toLocaleString()}</td>
+            <td>${parseInt(trade.units).toLocaleString()}</td>
+            <td>${parseFloat(trade.grossAmount).toLocaleString()}</td>
+            <td>${parseFloat(trade.feeTax).toLocaleString()}</td>
+            <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td>
+            <td>-</td>
+            <td>
+                <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
+                <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
+            </td>`;
+        tbodyRecord.appendChild(row);
+    });
 }
-    
-    function deleteRecord(rowIndex, symbol, units) {
-        if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol} จำนวน ${units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
-            return;
-        }
-
-        document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12" style="color:var(--pastel-sell); font-weight:bold;">⏳ กำลังลบข้อมูล...</td></tr>`;
-
-       fetch(WEB_APP_URL,{
- method:"POST",
- cache:"no-cache",
- headers:{
-   "Content-Type":"text/plain;charset=utf-8"
- },
- body:JSON.stringify({
-   action:"delete",
-   rowIndex:rowIndex
- })
-})
-.then(r=>r.json())
-.then(()=>{
-
-alert("ลบข้อมูลสำเร็จ!");
-
-fetchAndRenderData();
-
-})
-.catch(err=>{
-
-console.error(err);
-
-alert("ลบข้อมูลล้มเหลว");
-
-});
-    }
-        
-const tradeForm = document.getElementById('tradeForm');
-
-if(tradeForm){
-
-tradeForm.addEventListener('submit', function(e){
-
-    e.preventDefault();
-
-    if(!WEB_APP_URL){
-        alert("ยังไม่ได้เชื่อม Google Sheet");
+    
+function deleteRecord(rowIndex, symbol, units) {
+    if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol} จำนวน ${units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
         return;
     }
 
-    const submitBtn = document.getElementById('submitBtn');
-    const editRowIndex = document.getElementById('editRowIndex').value;
+    document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12" style="color:var(--pastel-sell); font-weight:bold;">⏳ กำลังลบข้อมูล...</td></tr>`;
 
-    submitBtn.disabled = true;
-    submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
-
-    const price = parseFloat(document.getElementById('price').value) || 0;
-    const units = parseInt(document.getElementById('units').value) || 0;
-    const feeRate = parseFloat(document.getElementById('feeRate').value) / 100;
-    const type = document.getElementById('type').value;
-
-    const grossAmount = price * units;
-    const feeTax = grossAmount * feeRate;
-
-    // แก้ไขตรงนี้: คำนวณ netAmount ให้จบในที่เดียว
-    let netAmount = 0;
-if(type === 'ฝากเงิน' || type === 'ถอนเงิน'){
-
-    netAmount =
-    parseFloat(document.getElementById('amount').value) || 0;
-
-}
-else if(type === 'ปันผล'){
-
-    netAmount =
-    parseFloat(document.getElementById('amount').value) || 0;
-
-}
-else{
-
-    netAmount =
-    type === 'ซื้อ'
-    ? grossAmount + feeTax
-    : grossAmount - feeTax;
-
-}
-
-const isCash =
-type === 'ฝากเงิน' ||
-type === 'ถอนเงิน';
-
-const isDividend =
-type === 'ปันผล';
-
-const tradeData = {
-
-    action: editRowIndex !== "" ? "edit" : "insert",
-
-    rowIndex: editRowIndex,
-
-    date: document.getElementById('date').value,
-
-    type: type,
-
-    symbol:
-    document.getElementById('symbol')
-    .value
-    .trim()
-    .toUpperCase(),
-
-    sector:
-    isCash
-    ? 'Cash Management'
-    : document.getElementById('sector').value,
-
-    price:
-    (type === 'ซื้อ' || type === 'ขาย')
-    ? price
-    : 0,
-
-    units:
-    (type === 'ซื้อ' || type === 'ขาย')
-    ? units
-    : 0,
-
-    grossAmount:
-    (type === 'ซื้อ' || type === 'ขาย')
-    ? grossAmount.toFixed(2)
-    : 0,
-
-    feeTax:
-    (type === 'ซื้อ' || type === 'ขาย')
-    ? feeTax.toFixed(2)
-    : 0,
-
-    netAmount:
-    netAmount.toFixed(2)
-
-};
-
-fetch(WEB_APP_URL,{
-    method:"POST",
-    cache:"no-cache",
-    headers:{
-        "Content-Type":"text/plain;charset=utf-8"
-    },
-    body:JSON.stringify(tradeData)
-})
-.then(response => response.json())
-.then(result => {
-
-    console.log(result);
-
-    if(result.status === "success"){
-
-        alert(editRowIndex !== ""
-            ? "อัปเดตข้อมูลสำเร็จ!"
-            : "บันทึกข้อมูลสำเร็จ!");
-
-        cancelEditMode();
-
+    fetch(WEB_APP_URL, {
+        method: "POST",
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+            action: "delete",
+            rowIndex: rowIndex
+        })
+    })
+    .then(r => r.json())
+    .then(() => {
+        alert("ลบข้อมูลสำเร็จ!");
         fetchAndRenderData();
-
-    }else{
-
-        submitBtn.disabled = false;
-        submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
-
-        alert("เกิดข้อผิดพลาด");
-
-    }
-
-})
-.catch(err=>{
-
-    console.error(err);
-
-    submitBtn.disabled = false;
-    submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
-
-    alert("บันทึกข้อมูลไม่สำเร็จ");
-
-});
-});
-
+    })
+    .catch(err => {
+        console.error(err);
+        alert("ลบข้อมูลล้มเหลว");
+    });
 }
+        
+const tradeForm = document.getElementById('tradeForm');
+if (tradeForm) {
+    tradeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        if (!WEB_APP_URL) {
+            alert("ยังไม่ได้เชื่อม Google Sheet");
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        const editRowIndex = document.getElementById('editRowIndex').value;
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
+
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        const units = parseInt(document.getElementById('units').value) || 0;
+        const feeRate = parseFloat(document.getElementById('feeRate').value) / 100;
+        const type = document.getElementById('type').value;
+
+        const grossAmount = price * units;
+        const feeTax = grossAmount * feeRate;
+
+        // แก้ไขตรงนี้: คำนวณ netAmount ให้จบในที่เดียว
+        let netAmount = 0;
+        if (type === 'ฝากเงิน' || type === 'ถอนเงิน') {
+            netAmount = parseFloat(document.getElementById('amount').value) || 0;
+        } else if (type === 'ปันผล') {
+            netAmount = parseFloat(document.getElementById('amount').value) || 0;
+        } else {
+            netAmount = type === 'ซื้อ' ? grossAmount + feeTax : grossAmount - feeTax;
+        }
+
+        const isCash = type === 'ฝากเงิน' || type === 'ถอนเงิน';
+        const isDividend = type === 'ปันผล';
+
+        const tradeData = {
+            action: editRowIndex !== "" ? "edit" : "insert",
+            rowIndex: editRowIndex,
+            date: document.getElementById('date').value,
+            type: type,
+            symbol: document.getElementById('symbol').value.trim().toUpperCase(),
+            sector: isCash ? 'Cash Management' : document.getElementById('sector').value,
+            price: (type === 'ซื้อ' || type === 'ขาย') ? price : 0,
+            units: (type === 'ซื้อ' || type === 'ขาย') ? units : 0,
+            grossAmount: (type === 'ซื้อ' || type === 'ขาย') ? grossAmount.toFixed(2) : 0,
+            feeTax: (type === 'ซื้อ' || type === 'ขาย') ? feeTax.toFixed(2) : 0,
+            netAmount: netAmount.toFixed(2)
+        };
+
+        fetch(WEB_APP_URL, {
+            method: "POST",
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify(tradeData)
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
+            if (result.status === "success") {
+                alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
+                cancelEditMode();
+                fetchAndRenderData();
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+                alert("เกิดข้อผิดพลาด");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+            alert("บันทึกข้อมูลไม่สำเร็จ");
+        });
+    });
+}
+
 function drawAllocationChart(view = "stock") {
     const dataMap = view === "stock" ? portfolio : sectorPortfolio;
-
     const labels = [];
     const values = [];
 
     Object.keys(dataMap).forEach(key => {
         if (dataMap[key].totalUnits > 0) {
             let value = 0;
-
             if (view === "stock") {
                 let price = window.currentPrices[key] || 0;
                 value = dataMap[key].totalUnits * price;
             } else {
                 value = dataMap[key].totalCost;
             }
-
             labels.push(key);
             values.push(value);
         }
     });
 
     const canvas = document.getElementById("allocationChart");
-
-   if(window.allocationChart && typeof window.allocationChart.destroy === "function"){
-    window.allocationChart.destroy();
-}
+    if (window.allocationChart && typeof window.allocationChart.destroy === "function") {
+        window.allocationChart.destroy();
+    }
 
     window.allocationChart = new Chart(canvas, {
         type: "doughnut",
@@ -946,24 +700,18 @@ function drawAllocationChart(view = "stock") {
         }
     });
 }
+
 function buildDividendYear() {
     const yearSelect = document.getElementById("dividendYear");
-
     if (!yearSelect) return;
 
-    yearSelect.innerHTML = `
-        <option value="0">
-            ทุกปี
-        </option>
-    `;
+    yearSelect.innerHTML = `<option value="0">ทุกปี</option>`;
 
     let years = [];
-
     globalTradesData.forEach(t => {
         if (String(t.type).trim() === "ปันผล") {
             let date = new Date(t.date);
             let year = date.getFullYear();
-
             if (!isNaN(year) && !years.includes(year)) {
                 years.push(year);
             }
@@ -976,17 +724,15 @@ function buildDividendYear() {
         let option = document.createElement("option");
         option.value = year;
         option.text = year;
-
         yearSelect.appendChild(option);
     });
 
     console.log("Dividend Years:", years);
 }
-function renderDividendTable(){
 
+function renderDividendTable() {
     const tbody = document.getElementById("dividendTableBody");
-
-    if(!tbody) return;
+    if (!tbody) return;
 
     tbody.innerHTML = "";
 
@@ -994,15 +740,13 @@ function renderDividendTable(){
     const month = Number(document.getElementById("dividendMonth").value);
 
     let result = {};
-
     let total = 0;
     let allTotal = 0;
     let allCount = 0;
     let allStock = {};
 
-    globalTradesData.forEach(t=>{
-
-        if(String(t.type).trim() !== "ปันผล") return;
+    globalTradesData.forEach(t => {
+        if (String(t.type).trim() !== "ปันผล") return;
 
         allTotal += Number(t.netAmount) || 0;
         allCount++;
@@ -1010,142 +754,107 @@ function renderDividendTable(){
 
         const d = new Date(t.date);
 
-        if(year > 0 && d.getFullYear() !== year) return;
-        if(month > 0 && (d.getMonth()+1) !== month) return;
+        if (year > 0 && d.getFullYear() !== year) return;
+        if (month > 0 && (d.getMonth() + 1) !== month) return;
 
         const sym = t.symbol.toUpperCase();
 
-        if(!result[sym]){
-            result[sym]={
-                count:0,
-                amount:0
+        if (!result[sym]) {
+            result[sym] = {
+                count: 0,
+                amount: 0
             };
         }
 
         result[sym].count++;
         result[sym].amount += Number(t.netAmount) || 0;
-
         total += Number(t.netAmount) || 0;
-
     });
 
-    document.getElementById("dividendSelectedTotal").innerText =
-        total.toLocaleString(undefined,{minimumFractionDigits:2});
+    document.getElementById("dividendSelectedTotal").innerText = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById("dividendAllTotal").innerText = allTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById("dividendStockCount").innerText = Object.keys(allStock).length;
+    document.getElementById("dividendCount").innerText = allCount;
+    document.getElementById("dividendYearTotal").innerText = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
-    document.getElementById("dividendAllTotal").innerText =
-        allTotal.toLocaleString(undefined,{minimumFractionDigits:2});
-
-    document.getElementById("dividendStockCount").innerText =
-        Object.keys(allStock).length;
-
-    document.getElementById("dividendCount").innerText =
-        allCount;
-
-    document.getElementById("dividendYearTotal").innerText =
-        total.toLocaleString(undefined,{minimumFractionDigits:2});
-
-    Object.keys(result).forEach(sym=>{
-
-        const cost = portfolio[sym]
-            ? portfolio[sym].totalCost
-            : 0;
-
-        const yieldPercent =
-            cost > 0
-            ? (result[sym].amount / cost) * 100
-            : 0;
+    Object.keys(result).forEach(sym => {
+        const cost = portfolio[sym] ? portfolio[sym].totalCost : 0;
+        const yieldPercent = cost > 0 ? (result[sym].amount / cost) * 100 : 0;
 
         const row = document.createElement("tr");
-
         row.innerHTML = `
             <td>${sym}</td>
             <td>${result[sym].count}</td>
             <td>${result[sym].amount.toLocaleString()}</td>
             <td>${yieldPercent.toFixed(2)}%</td>
         `;
-
         tbody.appendChild(row);
-
     });
-
 }
-function switchTab(tab){
 
+function switchTab(tab) {
     // ซ่อนทุกหน้า
     document.getElementById("portfolioTab").style.display = "none";
     document.getElementById("dividendTab").style.display = "none";
     document.getElementById("settingsTab").style.display = "none";
-    document.getElementById("analyticsTab").style.display="none";
+    document.getElementById("analyticsTab").style.display = "none";
 
     // รีเซ็ตสีปุ่ม
     document.getElementById("tabPortfolioBtn").classList.remove("active");
     document.getElementById("tabDividendBtn").classList.remove("active");
     document.getElementById("tabSettingsBtn").classList.remove("active");
-   document.getElementById("tabAnalyticsBtn").classList.remove("active");
-
+    document.getElementById("tabAnalyticsBtn").classList.remove("active");
 
     // แสดงหน้าที่เลือก
-    if(tab === "portfolio"){
+    if (tab === "portfolio") {
         document.getElementById("portfolioTab").style.display = "block";
         document.getElementById("tabPortfolioBtn").classList.add("active");
     }
 
-    if(tab === "dividend"){
+    if (tab === "dividend") {
         document.getElementById("dividendTab").style.display = "block";
         document.getElementById("tabDividendBtn").classList.add("active");
     }
 
-    if(tab === "settings"){
+    if (tab === "settings") {
         document.getElementById("settingsTab").style.display = "block";
         document.getElementById("tabSettingsBtn").classList.add("active");
     }
-if(tab==="analytics"){
-
-    document.getElementById("analyticsTab").style.display="block";
-    document.getElementById("tabAnalyticsBtn").classList.add("active");
-
+    
+    if (tab === "analytics") {
+        document.getElementById("analyticsTab").style.display = "block";
+        document.getElementById("tabAnalyticsBtn").classList.add("active");
+    }
 }
-}
-function renderDividendHistory(){
 
+function renderDividendHistory() {
     const historyTbody = document.getElementById("dividendHistoryBody");
-
-    if(!historyTbody) return;
+    if (!historyTbody) return;
 
     let html = "";
-
-    const historyData = globalTradesData.filter(t =>
-        String(t.type).trim() === "ปันผล"
-    );
+    const historyData = globalTradesData.filter(t => String(t.type).trim() === "ปันผล");
 
     historyData.forEach(t => {
-
         html += `
         <tr>
             <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
             <td>${t.symbol}</td>
             <td>${t.sector}</td>
             <td class="text-end">
-                ${Number(t.netAmount || 0).toLocaleString(undefined,{
-                    minimumFractionDigits:2
-                })}
+                ${Number(t.netAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </td>
         </tr>
         `;
-
     });
 
     historyTbody.innerHTML = html;
 }
+
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
-window.onload=function(){
-
-    const dateInput=document.getElementById('date');
-
-    if(dateInput){
-        dateInput.valueAsDate=new Date();
+window.onload = function() {
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        dateInput.valueAsDate = new Date();
     }
-
     initConnection();
-
 };
