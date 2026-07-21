@@ -114,6 +114,94 @@
                 <canvas id="allocationChart"></canvas>
             </div>
         </div>
+            <!-- SECTION 2: RECORD FORM -->
+    <div class="card mb-3">
+        <h5 class="card-title mb-2" id="formTitle">➕ บันทึกรายการใหม่</h5>
+        <div id="editAlert" class="edit-mode-alert" style="display:none;">
+            ⚠️ คุณกำลังอยู่ใน <b>"โหมดแก้ไขข้อมูล"</b> <button type="button" class="btn btn-sm btn-secondary float-end" style="font-size: 0.7rem; padding: 2px 6px;" onclick="cancelEditMode()">ยกเลิก</button>
+        </div>
+        <form id="tradeForm" class="row g-3">
+            <input type="hidden" id="editRowIndex" value="">
+            <div class="col-6">
+                <label class="form-label">วันที่ซื้อ-ขาย</label>
+                <input type="date" id="date" class="form-control" required>
+            </div>
+            <div class="col-6">
+                <label class="form-label">ซื้อ หรือ ขาย</label>
+                <select id="type" class="form-select" required>
+                    <option value="ซื้อ">ซื้อ (BUY)</option>
+                    <option value="ขาย">ขาย (SELL)</option>
+                    <option value="ฝากเงิน">ฝากเงิน (Deposit)</option>
+                    <option value="ถอนเงิน">ถอนเงิน (Withdrawal)</option>
+                    <option value="ปันผล">ปันผล (Dividend)</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <label class="form-label">Symbol ชื่อหุ้น</label>
+                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" autocomplete="off" list="stockOptions" onchange="autoFillSector(this.value)" onblur="autoFillSector(this.value)">
+                <datalist id="stockOptions"></datalist>
+            </div>
+            <div class="col-6">
+                <label class="form-label">Sector (กลุ่มอุตสาหกรรม)</label>
+                <input type="text" id="sector" class="form-control" placeholder="เช่น Commerce">
+            </div>
+            <div class="col-12">
+                <label class="form-label">โบรคเกอร์ (Broker)</label>
+                <input type="text" id="broker" class="form-control" placeholder="เช่น บล.บัวหลวง">
+            </div>
+            <div class="col-6">
+                <label class="form-label">Price / DPU</label>
+                <input type="number" step="any" id="price" class="form-control" placeholder="0.00">
+            </div>
+            <div class="col-6">
+                <label class="form-label">Units</label>
+                <input type="number" id="units" class="form-control" placeholder="0">
+            </div>
+            <div class="col-12" id="amountContainer" style="display: none;">
+                <label class="form-label">จำนวนเงิน (สำหรับฝาก/ถอน)</label>
+                <input type="number" step="any" id="amount" class="form-control" placeholder="0.00">
+            </div>    
+            <div class="col-12">
+                <label class="form-label">ค่าธรรมเนียม & ภาษี %</label>
+                <input type="number" step="any" id="feeRate" class="form-control" value="0.0">
+            </div>
+            <div class="col-12 mt-4">
+                <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold">💾 บันทึกส่งไปยัง Google Sheets</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- SECTION 3: TRANSACTION RECORD -->
+    <div class="card mb-3">
+        <h5 class="card-title mb-2">📜 ประวัติการทำรายการ</h5>
+        <div class="mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหาหุ้น (เช่น TRUE) หรือวันที่ (เช่น 2026-07-17)..." onkeyup="searchTrades()">
+        </div>
+        <div class="table-responsive" style="border-radius: 10px; overflow-x: auto !important; border: 1px solid #f7dfd3;">
+            <table class="table table-striped table-hover align-middle m-0 text-center" style="min-width: 900px;">
+                <thead class="table-header-custom">
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Symbol</th>
+                        <th>Sector</th>
+                        <th>Broker</th>
+                        <th>Price/ DPU</th>
+                        <th>Units</th>
+                        <th>Gross</th>
+                        <th>Fee&Tax</th>
+                        <th>Net</th>
+                        <th>P&L</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeTableBody">
+                    <!-- ข้อมูลของคุณ -->
+                </tbody>
+            </table>
+        </div>
+        <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">💡 ปัดตาราง ซ้าย-ขวา เพื่อดูคอลัมน์ทั้งหมดบนมือถือ</small>
+    </div>
     </div>
 
     <!-- DIVIDEND TAB CONTENT -->
@@ -205,94 +293,7 @@
         </div>
     </div>
 
-    <!-- SECTION 2: RECORD FORM -->
-    <div class="card mb-3">
-        <h5 class="card-title mb-2" id="formTitle">➕ บันทึกรายการใหม่</h5>
-        <div id="editAlert" class="edit-mode-alert" style="display:none;">
-            ⚠️ คุณกำลังอยู่ใน <b>"โหมดแก้ไขข้อมูล"</b> <button type="button" class="btn btn-sm btn-secondary float-end" style="font-size: 0.7rem; padding: 2px 6px;" onclick="cancelEditMode()">ยกเลิก</button>
-        </div>
-        <form id="tradeForm" class="row g-3">
-            <input type="hidden" id="editRowIndex" value="">
-            <div class="col-6">
-                <label class="form-label">วันที่ซื้อ-ขาย</label>
-                <input type="date" id="date" class="form-control" required>
-            </div>
-            <div class="col-6">
-                <label class="form-label">ซื้อ หรือ ขาย</label>
-                <select id="type" class="form-select" required>
-                    <option value="ซื้อ">ซื้อ (BUY)</option>
-                    <option value="ขาย">ขาย (SELL)</option>
-                    <option value="ฝากเงิน">ฝากเงิน (Deposit)</option>
-                    <option value="ถอนเงิน">ถอนเงิน (Withdrawal)</option>
-                    <option value="ปันผล">ปันผล (Dividend)</option>
-                </select>
-            </div>
-            <div class="col-6">
-                <label class="form-label">Symbol ชื่อหุ้น</label>
-                <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" autocomplete="off" list="stockOptions" onchange="autoFillSector(this.value)" onblur="autoFillSector(this.value)">
-                <datalist id="stockOptions"></datalist>
-            </div>
-            <div class="col-6">
-                <label class="form-label">Sector (กลุ่มอุตสาหกรรม)</label>
-                <input type="text" id="sector" class="form-control" placeholder="เช่น Commerce">
-            </div>
-            <div class="col-12">
-                <label class="form-label">โบรคเกอร์ (Broker)</label>
-                <input type="text" id="broker" class="form-control" placeholder="เช่น บล.บัวหลวง">
-            </div>
-            <div class="col-6">
-                <label class="form-label">Price / DPU</label>
-                <input type="number" step="any" id="price" class="form-control" placeholder="0.00">
-            </div>
-            <div class="col-6">
-                <label class="form-label">Units</label>
-                <input type="number" id="units" class="form-control" placeholder="0">
-            </div>
-            <div class="col-12" id="amountContainer" style="display: none;">
-                <label class="form-label">จำนวนเงิน (สำหรับฝาก/ถอน)</label>
-                <input type="number" step="any" id="amount" class="form-control" placeholder="0.00">
-            </div>    
-            <div class="col-12">
-                <label class="form-label">ค่าธรรมเนียม & ภาษี %</label>
-                <input type="number" step="any" id="feeRate" class="form-control" value="0.0">
-            </div>
-            <div class="col-12 mt-4">
-                <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold">💾 บันทึกส่งไปยัง Google Sheets</button>
-            </div>
-        </form>
-    </div>
 
-    <!-- SECTION 3: TRANSACTION RECORD -->
-    <div class="card mb-3">
-        <h5 class="card-title mb-2">📜 ประวัติการทำรายการ</h5>
-        <div class="mb-3">
-            <input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหาหุ้น (เช่น TRUE) หรือวันที่ (เช่น 2026-07-17)..." onkeyup="searchTrades()">
-        </div>
-        <div class="table-responsive" style="border-radius: 10px; overflow-x: auto !important; border: 1px solid #f7dfd3;">
-            <table class="table table-striped table-hover align-middle m-0 text-center" style="min-width: 900px;">
-                <thead class="table-header-custom">
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Symbol</th>
-                        <th>Sector</th>
-                        <th>Broker</th>
-                        <th>Price/ DPU</th>
-                        <th>Units</th>
-                        <th>Gross</th>
-                        <th>Fee&Tax</th>
-                        <th>Net</th>
-                        <th>P&L</th>
-                        <th>จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody id="tradeTableBody">
-                    <!-- ข้อมูลของคุณ -->
-                </tbody>
-            </table>
-        </div>
-        <small class="text-muted text-center d-block mt-2" style="font-size: 0.75rem;">💡 ปัดตาราง ซ้าย-ขวา เพื่อดูคอลัมน์ทั้งหมดบนมือถือ</small>
-    </div>
 
 </div>
 <script src="script.js"></script>
