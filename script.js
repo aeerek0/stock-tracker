@@ -121,12 +121,20 @@ if (typeElement) {
             feeGroup.style.display = "none";
         }
 
-        if (type === "ปันผล") {
-            amountContainer.style.display = "block";
-            priceGroup.style.display = "none";
-            unitsGroup.style.display = "none";
-            feeGroup.style.display = "none";
-        }
+if (type === "ปันผล") {
+    amountContainer.style.display = "block";
+
+    // ปันผลใช้ Symbol + Sector + Price(DPU) + Units
+    symbolGroup.style.display = "";
+    sectorGroup.style.display = "";
+    brokerGroup.style.display = "";
+
+    priceGroup.style.display = "";
+    unitsGroup.style.display = "";
+
+    // ไม่ต้องใช้ค่าธรรมเนียม
+    feeGroup.style.display = "none";
+}
     });
 }
 
