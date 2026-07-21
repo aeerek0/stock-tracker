@@ -1110,14 +1110,11 @@ function openDividendMonth(index){
 }
 
 function showDividendDetail(month, items, total){
-     alert("เดือน " + month);
 
     document.getElementById("dividendModalTitle")
     .innerText = month;
 
-
     let html="";
-
 
     items.forEach(item=>{
 
@@ -1137,14 +1134,12 @@ function showDividendDetail(month, items, total){
 
     });
 
-
     html += `
     <hr>
     <div class="text-end fw-bold">
         รวม ${total.toLocaleString()} บาท
     </div>
     `;
-
 
     document.getElementById("dividendModalBody")
     .innerHTML = html;
