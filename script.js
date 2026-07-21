@@ -14,6 +14,7 @@ let sectorPnL = {};
 let sectorUnrealizedPnL = {};
 let currentPrices = {};
 let totalDividend = 0;
+let dividendHistoryLimit = 20;
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
@@ -837,7 +838,10 @@ function renderDividendHistory() {
     let html = "";
     const historyData = globalTradesData.filter(t => String(t.type).trim() === "ปันผล");
 
-    historyData.forEach(t => {
+    historyData
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, dividendHistoryLimit)
+    .forEach(t => {
         html += `
         <tr>
             <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
