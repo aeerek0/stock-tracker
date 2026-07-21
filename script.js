@@ -1107,64 +1107,40 @@ if(tab==="analytics"){
 }
 }
 
-function renderDividendHistory(){
-     console.log("renderDividendHistory called");
+function renderDividendHistory() {
 
-    console.log(globalTradesData);
+    console.log("renderDividendHistory called");
 
-    const dividendData = globalTradesData.filter(t =>
+    const tbody = document.getElementById("dividendHistoryBody");
+
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    const historyData = globalTradesData.filter(t =>
         String(t.type).trim() === "ปันผล"
     );
 
-    console.log(dividendData);
+    console.log("Dividend:", historyData);
 
-    const tbody =
-    document.getElementById("dividendHistoryBody");
+    historyData
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .forEach(t => {
 
-    if(!tbody) return;
+            tbody.innerHTML += `
+                <tr>
+                    <td>${t.date}</td>
+                    <td>${t.symbol}</td>
+                    <td>${t.sector}</td>
+                    <td class="text-end">
+                        ${Number(t.netAmount || 0).toLocaleString(undefined, {
+                            minimumFractionDigits: 2
+                        })}
+                    </td>
+                </tr>
+            `;
 
-
-    tbody.innerHTML="";
-
-
-    const dividendData =
-    globalTradesData.filter(t =>
-        String(t.type).trim() === "ปันผล"
-    );
-
-
-    console.log("Dividend:", dividendData);
-
-
-    dividendData
-    .sort((a,b)=>
-        new Date(b.date)-new Date(a.date)
-    )
-    .forEach(t=>{
-
-
-        tbody.innerHTML += `
-
-        <tr>
-
-            <td>${t.date}</td>
-
-            <td>${t.symbol}</td>
-
-            <td>${t.sector}</td>
-
-            <td class="text-end">
-                ${Number(t.netAmount || 0)
-                .toLocaleString(undefined,{
-                    minimumFractionDigits:2
-                })}
-            </td>
-
-        </tr>
-
-        `;
-
-    });
+        });
 
 }
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
