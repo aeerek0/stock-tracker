@@ -1108,7 +1108,6 @@ if(tab==="analytics"){
 }
 
 function renderDividendHistory(){
- console.log("Trades:", globalTradesData);
 
     const tbody =
     document.getElementById("dividendHistoryBody");
@@ -1116,12 +1115,20 @@ function renderDividendHistory(){
     if(!tbody) return;
 
 
-    tbody.innerHTML = "";
+    tbody.innerHTML="";
 
 
-    globalTradesData
-    .filter(t => t.type === "ปันผล")
-    .sort((a,b)=> 
+    const dividendData =
+    globalTradesData.filter(t =>
+        String(t.type).trim() === "ปันผล"
+    );
+
+
+    console.log("Dividend:", dividendData);
+
+
+    dividendData
+    .sort((a,b)=>
         new Date(b.date)-new Date(a.date)
     )
     .forEach(t=>{
@@ -1138,19 +1145,15 @@ function renderDividendHistory(){
             <td>${t.sector}</td>
 
             <td class="text-end">
-                ${Number(t.netAmount)
-                .toLocaleString(
-                    undefined,
-                    {
-                     minimumFractionDigits:2
-                    }
-                )}
+                ${Number(t.netAmount || 0)
+                .toLocaleString(undefined,{
+                    minimumFractionDigits:2
+                })}
             </td>
 
         </tr>
 
         `;
-
 
     });
 
