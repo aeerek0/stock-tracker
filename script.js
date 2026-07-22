@@ -1580,9 +1580,10 @@ function renderDividendMonthlyChart(){
         },
 
 
-        options:{
-
-            responsive:true,
+options:{
+    responsive:true,
+    maintainAspectRatio:false
+}
 
 
             scales:{
@@ -1682,9 +1683,10 @@ function renderDividendStockChart(){
         },
 
 
-        options:{
-
-            responsive:true,
+options:{
+    responsive:true,
+    maintainAspectRatio:false
+}
 
             plugins:{
 
