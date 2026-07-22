@@ -223,8 +223,6 @@ function fetchAndRenderData() {
             renderPortfolioAndRecords(globalTradesData);
             buildDividendYear();
             buildCalendarYear();
-            
-            ();
             renderDividendHistory();
            
         })
