@@ -1024,7 +1024,7 @@ rows.forEach(item=>{
     tbody.appendChild(row);
 
 });
-    renderDividendMonthlyChart();
+   // renderDividendMonthlyChart();
     //renderDividendStockChart();
     
 
