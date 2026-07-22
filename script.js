@@ -19,6 +19,7 @@ let showAllDividend = false;
 let dividendCostBasis = {};
 let dividendMonthlyChart = null;
 let dividendStockChart = null;
+let dividendYearChart = null;
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
@@ -1006,6 +1007,9 @@ function renderDividendTable() {
     // หากต้องการเปิดใช้กราฟภายหลัง สามารถปลดคอมเมนต์ด้านล่างนี้ได้ครับ
     if (typeof renderDividendMonthlyChart === 'function') renderDividendMonthlyChart();
     if (typeof renderDividendStockChart === 'function') renderDividendStockChart();
+    if (typeof renderDividendStockChart === 'function') renderDividendYearChart();
+    
+    
 }
 function renderDividendKPI(){
 
@@ -1587,6 +1591,88 @@ function renderDividendStockChart() {
             }
         }
     });
+}
+function renderDividendYearChart(){
+
+    let yearData = {};
+
+
+    globalTradesData.forEach(t=>{
+
+        if(String(t.type).trim() !== "ปันผล")
+            return;
+
+
+        const d = new Date(t.date);
+
+        const year = d.getFullYear() + 543;
+
+
+        if(!yearData[year]){
+            yearData[year] = 0;
+        }
+
+
+        yearData[year] += Number(t.netAmount) || 0;
+
+    });
+
+
+
+    const labels = Object.keys(yearData)
+        .sort((a,b)=>a-b);
+
+
+    const values = labels.map(y=>yearData[y]);
+
+
+
+    const ctx = document.getElementById(
+        "dividendYearChart"
+    );
+
+
+    if(!ctx) return;
+
+
+
+    if(dividendYearChart){
+        dividendYearChart.destroy();
+    }
+
+
+
+    dividendYearChart = new Chart(ctx,{
+
+        type:"bar",
+
+        data:{
+
+            labels:labels,
+
+            datasets:[{
+
+                label:"Dividend (บาท)",
+
+                data:values
+
+            }]
+
+        },
+
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            animation:false
+
+        }
+
+    });
+
 }
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
