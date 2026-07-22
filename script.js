@@ -1824,63 +1824,9 @@ function calculateAverageDividendMonth(){
 
 }
 
-function openDividendMonth(index){
-
-    const data = window["dividendMonth_" + index];
-
-    if(!data) return;
-
-
-    let html = `
-        <h5>${data.month}</h5>
-
-        <hr>
-
-        <div>
-    `;
-
-
-    data.items.forEach(item=>{
-
-        html += `
-            <div class="d-flex justify-content-between mb-2">
-
-                <span>
-                    ${item.symbol}
-                </span>
-
-                <span>
-                    ฿${item.amount.toLocaleString()}
-                </span>
-
-            </div>
-        `;
-
-    });
-
-
-    html += `
-        </div>
-
-        <hr>
-
-        <b>
-            รวม ฿${data.total.toLocaleString()}
-        </b>
-    `;
-
-
-    // ถ้ามี Bootstrap Modal
-    document.getElementById("dividendModalBody").innerHTML = html;
-
-    const modal = new bootstrap.Modal(
-        document.getElementById("dividendModal")
-    );
-
-    modal.show();
-
+function openDividendMonth(index) {
+    alert("กดเดือน " + index);
 }
-
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
     const dateInput = document.getElementById('date');
