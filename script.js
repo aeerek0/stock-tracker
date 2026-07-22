@@ -1111,27 +1111,27 @@ function renderDividendKPI(){
 
 
 
-    // Yield รวม
-let cost = 0;
+// Yield รวม (ใช้ข้อมูลเดียวกับ Dividend Monitor)
 
-Object.keys(dividendCostBasis)
-.forEach(sym=>{
+let totalCost = 0;
+let totalAmount = 0;
 
-    cost += dividendCostBasis[sym] || 0;
+Object.keys(dividendData).forEach(sym => {
+
+    const info = getDividendSummary(sym);
+
+    totalAmount += info.amount;
+    totalCost += info.cost;
 
 });
 
-
 const yieldTotal =
-    cost > 0
-    ? (totalDividend / cost) * 100
-    : 0;
+    totalCost > 0
+        ? (totalAmount / totalCost) * 100
+        : 0;
 
-
-    document.getElementById(
-        "dividendTotalYield"
-    ).innerText =
-        yieldTotal.toFixed(2)+"%";
+document.getElementById("dividendTotalYield").innerText =
+    yieldTotal.toFixed(2) + "%";
 
 
 }
