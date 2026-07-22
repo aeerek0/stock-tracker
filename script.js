@@ -958,24 +958,71 @@ function renderDividendTable() {
         total.toLocaleString(undefined,{minimumFractionDigits:2});
 
 
-    Object.keys(result).forEach(sym=>{
+// สร้างข้อมูลก่อน เพื่อเอาไปเรียง
+let rows = Object.keys(result).map(sym => {
 
- const info = getDividendSummary(sym, year, month);
+    const info = getDividendSummary(sym, year, month);
 
-        const row=document.createElement("tr");
+    return {
+        symbol: sym,
+        count: info.count,
+        dpu: info.dpu,
+        amount: info.amount,
+        cost: info.cost,
+        yield: info.yield
+    };
 
-row.innerHTML = `
-<td>${sym}</td>
-<td>${info.count}</td>
-<td>${info.dpu.toFixed(2)}</td>
-<td>${info.amount.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
-<td>${info.cost.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
-<td>${info.yield.toFixed(2)}%</td>
-`;
+});
 
-        tbody.appendChild(row);
 
-    });
+// อ่านค่าจาก Dropdown
+const sortType = document.getElementById("dividendSort").value;
+
+
+// เรียงข้อมูล
+rows.sort((a,b)=>{
+
+    switch(sortType){
+
+        case "yield":
+            return b.yield - a.yield;
+
+        case "amount":
+            return b.amount - a.amount;
+
+        case "cost":
+            return b.cost - a.cost;
+
+        case "dpu":
+            return b.dpu - a.dpu;
+
+        case "symbol":
+            return a.symbol.localeCompare(b.symbol);
+
+        default:
+            return 0;
+    }
+
+});
+
+
+// แสดงตารางหลังเรียงแล้ว
+rows.forEach(item=>{
+
+    const row=document.createElement("tr");
+
+    row.innerHTML = `
+    <td>${item.symbol}</td>
+    <td>${item.count}</td>
+    <td>${item.dpu.toFixed(2)}</td>
+    <td>${item.amount.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+    <td>${item.cost.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+    <td>${item.yield.toFixed(2)}%</td>
+    `;
+
+    tbody.appendChild(row);
+
+});
 
 }
 
