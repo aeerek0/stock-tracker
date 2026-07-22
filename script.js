@@ -958,17 +958,17 @@ function renderDividendTable() {
 const top = calculateTopDividendStock();
 
 
-document.getElementById("topDividendStock").innerText =
+document.getElementById("dividendTopStock").innerText =
     top.symbol;
 
 
-document.getElementById("topDividendAmount").innerText =
+document.getElementById("dividendTopAmount").innerText =
     top.amount.toLocaleString(undefined,{
         minimumFractionDigits:2
     }) + " บาท";
 
 
-document.getElementById("topDividendPercent").innerText =
+document.getElementById("dividendTopPercent").innerText =
     top.percent + "% ของ Dividend ทั้งหมด";
     
 
