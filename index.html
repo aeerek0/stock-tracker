@@ -298,6 +298,17 @@
                         <option value="12">ธันวาคม</option>
                     </select>
                 </div>
+<div class="col-md-3">
+    <label>เรียงตาม</label>
+    <select id="dividendSort" onchange="renderDividendTable()">
+        <option value="yield">Yield สูงสุด</option>
+        <option value="amount">เงินปันผลมากสุด</option>
+        <option value="cost">ต้นทุนมากสุด</option>
+        <option value="dpu">DPU สูงสุด</option>
+        <option value="symbol">ชื่อหุ้น A-Z</option>
+    </select>
+</div>
+                
             </div>
             <div class="alert alert-success">
                 💰 Dividend รวม : <b><span id="dividendYearTotal">0.00</span></b> บาท
