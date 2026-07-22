@@ -1824,8 +1824,25 @@ function calculateAverageDividendMonth(){
 
 }
 
-function openDividendMonth(index) {
-    alert("กดเดือน " + index);
+function openDividendMonth(index){
+
+    const data = window["dividendMonth_" + index];
+
+    if(!data){
+        alert("ไม่พบข้อมูล");
+        return;
+    }
+
+    let text = data.month + "\n\n";
+
+    data.items.forEach(item=>{
+        text += item.symbol + " : ฿" + item.amount.toLocaleString() + "\n";
+    });
+
+    text += "\nรวม ฿" + data.total.toLocaleString();
+
+    alert(text);
+
 }
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
