@@ -224,7 +224,7 @@ function fetchAndRenderData() {
             buildDividendYear();
             buildCalendarYear();
             
-            renderDividendTable();
+            ();
             renderDividendHistory();
            
         })
@@ -845,6 +845,53 @@ function buildCalendarYear(){
 
 }
 
+function getDividendSummary(sym, year = 0, month = 0) {
+
+    if (!dividendData[sym]) {
+        return {
+            count: 0,
+            amount: 0,
+            dpu: 0,
+            cost: 0,
+            yield: 0
+        };
+    }
+
+    let count = 0;
+    let amount = 0;
+    let dpu = 0;
+    let cost = 0;
+
+    dividendData[sym].items.forEach(item => {
+
+        const d = new Date(item.date);
+
+        if (year && d.getFullYear() !== year) return;
+        if (month && (d.getMonth() + 1) !== month) return;
+
+        count++;
+        amount += item.amount;
+        dpu += item.dpu;
+        cost += item.cost;
+
+    });
+
+    return {
+
+        count,
+
+        amount,
+
+        dpu: count ? dpu / count : 0,
+
+        cost,
+
+        yield: cost ? (amount / cost) * 100 : 0
+
+    };
+
+}
+
 function renderDividendTable() {
 
     const tbody = document.getElementById("dividendTableBody");
@@ -915,42 +962,15 @@ function renderDividendTable() {
 
     Object.keys(result).forEach(sym=>{
 
-        let cost = 0;
-
-        if(dividendData[sym]){
-
-            dividendData[sym].items.forEach(item=>{
-
-                cost += item.cost;
-
-            });
-
-        }
-
-        const avgCost =
-            dividendData[sym] && dividendData[sym].count>0
-            ? cost/dividendData[sym].count
-            : 0;
-
-        const yieldPercent =
-            avgCost>0
-            ? (result[sym].amount/avgCost)*100
-            : 0;
-
-        const avgDPU =
-            result[sym].count>0
-            ? result[sym].dpu/result[sym].count
-            : 0;
-
+ const info = getDividendSummary(sym, year, month);
 
         const row=document.createElement("tr");
 
         row.innerHTML=`
-            <td>${sym}</td>
-            <td>${result[sym].count}</td>
-            <td>${avgDPU.toFixed(2)}</td>
-            <td>${result[sym].amount.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
-            <td>${yieldPercent.toFixed(2)}%</td>
+<td>${info.count}</td>
+<td>${info.dpu.toFixed(2)}</td>
+<td>${info.amount.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+<td>${info.yield.toFixed(2)}%</td>
         `;
 
         tbody.appendChild(row);
