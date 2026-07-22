@@ -845,6 +845,7 @@ function buildCalendarYear(){
 }
 
 function renderDividendTable() {
+
     const tbody = document.getElementById("dividendTableBody");
     if (!tbody) return;
 
@@ -860,95 +861,101 @@ function renderDividendTable() {
     let allStock = {};
 
     globalTradesData.forEach(t => {
+
         if (String(t.type).trim() !== "ปันผล") return;
 
-        allTotal += Number(t.netAmount) || 0;
+        const amount = Number(t.netAmount) || 0;
+
+        allTotal += amount;
         allCount++;
-        allStock[t.symbol.toUpperCase()] = true;
+        allStock[String(t.symbol).toUpperCase()] = true;
 
         const d = new Date(t.date);
 
         if (year > 0 && d.getFullYear() !== year) return;
         if (month > 0 && (d.getMonth() + 1) !== month) return;
 
-        const sym = t.symbol.toUpperCase();
+        const sym = String(t.symbol).toUpperCase();
 
-       if (!result[sym]) {
-    result[sym] = {
-        count: 0,
-        amount: 0,
-        dpu: 0
-    };
-}
+        if (!result[sym]) {
+
+            result[sym] = {
+                count: 0,
+                amount: 0,
+                dpu: 0
+            };
+
+        }
 
         result[sym].count++;
-        result[sym].amount += Number(t.netAmount) || 0;
-        if (!result[sym]) {
-    result[sym] = {
-        count: 0,
-        amount: 0,
-        dpu: 0
-    };
-}
+        result[sym].amount += amount;
+        result[sym].dpu += Number(t.price) || 0;
 
-result[sym].count++;
-result[sym].amount += Number(t.netAmount) || 0;
-result[sym].dpu = Number(t.price) || 0;
-        total += Number(t.netAmount) || 0;
-    });
-
-    document.getElementById("dividendSelectedTotal").innerText = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
-    document.getElementById("dividendAllTotal").innerText = allTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
-    document.getElementById("dividendStockCount").innerText = Object.keys(allStock).length;
-    document.getElementById("dividendCount").innerText = allCount;
-    document.getElementById("dividendYearTotal").innerText = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
-
-    Object.keys(result).forEach(sym => {
-let cost = 0;
-
-if (dividendData[sym]) {
-
-    dividendData[sym].items.forEach(item => {
-
-        cost += item.cost;
+        total += amount;
 
     });
 
-}
 
-const avgCost =
-    dividendData[sym] && dividendData[sym].count > 0
-        ? cost / dividendData[sym].count
-        : 0;
+    document.getElementById("dividendSelectedTotal").innerText =
+        total.toLocaleString(undefined,{minimumFractionDigits:2});
 
-const yieldPercent =
-    avgCost > 0
-        ? (result[sym].amount / avgCost) * 100
-        : 0;
-        const yieldPercent = cost > 0 ? (result[sym].amount / cost) * 100 : 0;
+    document.getElementById("dividendAllTotal").innerText =
+        allTotal.toLocaleString(undefined,{minimumFractionDigits:2});
 
-        const row = document.createElement("tr");
-row.innerHTML = `
-<td>${sym}</td>
+    document.getElementById("dividendStockCount").innerText =
+        Object.keys(allStock).length;
 
-<td>${result[sym].count}</td>
+    document.getElementById("dividendCount").innerText =
+        allCount;
 
-<td>
-    ${result[sym]
-        ? result[sym].dpu.toFixed(2)
-        : "0.00"}
-</td>
+    document.getElementById("dividendYearTotal").innerText =
+        total.toLocaleString(undefined,{minimumFractionDigits:2});
 
-<td>
-${result[sym].amount.toLocaleString()}
-</td>
 
-<td>
-${yieldPercent.toFixed(2)}%
-</td>
-`;
+    Object.keys(result).forEach(sym=>{
+
+        let cost = 0;
+
+        if(dividendData[sym]){
+
+            dividendData[sym].items.forEach(item=>{
+
+                cost += item.cost;
+
+            });
+
+        }
+
+        const avgCost =
+            dividendData[sym] && dividendData[sym].count>0
+            ? cost/dividendData[sym].count
+            : 0;
+
+        const yieldPercent =
+            avgCost>0
+            ? (result[sym].amount/avgCost)*100
+            : 0;
+
+        const avgDPU =
+            result[sym].count>0
+            ? result[sym].dpu/result[sym].count
+            : 0;
+
+
+        const row=document.createElement("tr");
+
+        row.innerHTML=`
+            <td>${sym}</td>
+            <td>${result[sym].count}</td>
+            <td>${avgDPU.toFixed(2)}</td>
+            <td>${result[sym].amount.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+            <td>${yieldPercent.toFixed(2)}%</td>
+        `;
+
         tbody.appendChild(row);
+
     });
+
 }
 
 function renderDividendKPI(){
