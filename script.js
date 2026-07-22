@@ -953,6 +953,9 @@ function renderDividendTable() {
     document.getElementById("dividendYearTotal").innerText =
         total.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
+    document.getElementById("dividendGrowth").innerText =
+    calculateDividendGrowth() + "%";
+
     // สร้างข้อมูลก่อน เพื่อเอาไปเรียง
     let rows = Object.keys(result).map(sym => {
         const info = getDividendSummary(sym, year, month);
@@ -1672,6 +1675,54 @@ function renderDividendYearChart(){
         }
 
     });
+
+}
+
+function calculateDividendGrowth(){
+
+    let yearly = {};
+
+
+    globalTradesData.forEach(t=>{
+
+        if(String(t.type).trim() !== "ปันผล")
+            return;
+
+
+        const year =
+            new Date(t.date).getFullYear();
+
+
+        if(!yearly[year]){
+            yearly[year] = 0;
+        }
+
+
+        yearly[year] += Number(t.netAmount) || 0;
+
+    });
+
+
+
+    const years = Object.keys(yearly)
+        .sort((a,b)=>b-a);
+
+
+    if(years.length < 2)
+        return "0";
+
+
+    const latest = yearly[years[0]];
+    const previous = yearly[years[1]];
+
+
+    if(previous === 0)
+        return "0";
+
+
+    return (
+        ((latest - previous) / previous) * 100
+    ).toFixed(2);
 
 }
 
