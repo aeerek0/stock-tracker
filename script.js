@@ -18,7 +18,7 @@ let dividendHistoryLimit = 10;
 let showAllDividend = false;
 let dividendCostBasis = {};
 let dividendMonthlyChart = null;
-
+let dividendStockChart = null;
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
@@ -1025,6 +1025,8 @@ rows.forEach(item=>{
 
 });
     renderDividendMonthlyChart();
+    renderDividendStockChart();
+    
 
 }
 
@@ -1602,7 +1604,101 @@ function renderDividendMonthlyChart(){
     });
 
 }
+function renderDividendStockChart(){
 
+    const year = Number(
+        document.getElementById("dividendYear").value
+    );
+
+
+    let stockData = {};
+
+
+    globalTradesData.forEach(t=>{
+
+        if(String(t.type).trim() !== "ปันผล")
+            return;
+
+
+        const d = new Date(t.date);
+
+
+        if(year > 0 && d.getFullYear() !== year)
+            return;
+
+
+        const sym = String(t.symbol)
+                    .toUpperCase();
+
+
+        if(!stockData[sym]){
+            stockData[sym] = 0;
+        }
+
+
+        stockData[sym] += Number(t.netAmount) || 0;
+
+    });
+
+
+
+    const labels = Object.keys(stockData);
+
+    const values = Object.values(stockData);
+
+
+
+    const ctx = document
+        .getElementById("dividendStockChart");
+
+
+    if(!ctx) return;
+
+
+
+    // ลบกราฟเก่า
+    if(dividendStockChart){
+        dividendStockChart.destroy();
+    }
+
+
+
+    dividendStockChart = new Chart(ctx,{
+
+        type:"doughnut",
+
+        data:{
+
+            labels:labels,
+
+            datasets:[{
+
+                label:"Dividend",
+
+                data:values
+
+            }]
+
+        },
+
+
+        options:{
+
+            responsive:true,
+
+            plugins:{
+
+                legend:{
+                    position:"right"
+                }
+
+            }
+
+        }
+
+    });
+
+}
 
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
