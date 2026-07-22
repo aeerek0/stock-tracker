@@ -892,7 +892,6 @@ function getDividendSummary(sym, year = 0, month = 0) {
 }
 
 function renderDividendTable() {
-
     const tbody = document.getElementById("dividendTableBody");
     if (!tbody) return;
 
@@ -908,7 +907,6 @@ function renderDividendTable() {
     let allStock = {};
 
     globalTradesData.forEach(t => {
-
         if (String(t.type).trim() !== "ปันผล") return;
 
         const amount = Number(t.netAmount) || 0;
@@ -925,13 +923,11 @@ function renderDividendTable() {
         const sym = String(t.symbol).toUpperCase();
 
         if (!result[sym]) {
-
             result[sym] = {
                 count: 0,
                 amount: 0,
                 dpu: 0
             };
-
         }
 
         result[sym].count++;
@@ -939,15 +935,13 @@ function renderDividendTable() {
         result[sym].dpu += Number(t.price) || 0;
 
         total += amount;
-
     });
 
-
     document.getElementById("dividendSelectedTotal").innerText =
-        total.toLocaleString(undefined,{minimumFractionDigits:2});
+        total.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
     document.getElementById("dividendAllTotal").innerText =
-        allTotal.toLocaleString(undefined,{minimumFractionDigits:2});
+        allTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
     document.getElementById("dividendStockCount").innerText =
         Object.keys(allStock).length;
@@ -956,80 +950,63 @@ function renderDividendTable() {
         allCount;
 
     document.getElementById("dividendYearTotal").innerText =
-        total.toLocaleString(undefined,{minimumFractionDigits:2});
+        total.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
+    // สร้างข้อมูลก่อน เพื่อเอาไปเรียง
+    let rows = Object.keys(result).map(sym => {
+        const info = getDividendSummary(sym, year, month);
 
-// สร้างข้อมูลก่อน เพื่อเอาไปเรียง
-let rows = Object.keys(result).map(sym => {
+        return {
+            symbol: sym,
+            count: info.count,
+            dpu: info.dpu,
+            amount: info.amount,
+            cost: info.cost,
+            yield: info.yield
+        };
+    });
 
-    const info = getDividendSummary(sym, year, month);
+    // อ่านค่าจาก Dropdown
+    const sortType = document.getElementById("dividendSort").value;
 
-    return {
-        symbol: sym,
-        count: info.count,
-        dpu: info.dpu,
-        amount: info.amount,
-        cost: info.cost,
-        yield: info.yield
-    };
+    // เรียงข้อมูล
+    rows.sort((a, b) => {
+        switch (sortType) {
+            case "yield":
+                return b.yield - a.yield;
+            case "amount":
+                return b.amount - a.amount;
+            case "cost":
+                return b.cost - a.cost;
+            case "dpu":
+                return b.dpu - a.dpu;
+            case "symbol":
+                return a.symbol.localeCompare(b.symbol);
+            default:
+                return 0;
+        }
+    });
 
-});
+    // แสดงตารางหลังเรียงแล้ว
+    rows.forEach(item => {
+        const row = document.createElement("tr");
 
+        row.innerHTML = `
+            <td>${item.symbol}</td>
+            <td>${item.count}</td>
+            <td>${item.dpu.toFixed(2)}</td>
+            <td>${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+            <td>${item.cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+            <td>${item.yield.toFixed(2)}%</td>
+        `;
 
-// อ่านค่าจาก Dropdown
-const sortType = document.getElementById("dividendSort").value;
+        tbody.appendChild(row);
+    });
 
-
-// เรียงข้อมูล
-rows.sort((a,b)=>{
-
-    switch(sortType){
-
-        case "yield":
-            return b.yield - a.yield;
-
-        case "amount":
-            return b.amount - a.amount;
-
-        case "cost":
-            return b.cost - a.cost;
-
-        case "dpu":
-            return b.dpu - a.dpu;
-
-        case "symbol":
-            return a.symbol.localeCompare(b.symbol);
-
-        default:
-            return 0;
-    }
-
-});
-
-
-// แสดงตารางหลังเรียงแล้ว
-rows.forEach(item=>{
-
-    const row=document.createElement("tr");
-
-    row.innerHTML = `
-    <td>${item.symbol}</td>
-    <td>${item.count}</td>
-    <td>${item.dpu.toFixed(2)}</td>
-    <td>${item.amount.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
-    <td>${item.cost.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
-    <td>${item.yield.toFixed(2)}%</td>
-    `;
-
-    tbody.appendChild(row);
-
-});
-   // renderDividendMonthlyChart();
-    //renderDividendStockChart();
-    
-
+    // หากต้องการเปิดใช้กราฟภายหลัง สามารถปลดคอมเมนต์ด้านล่างนี้ได้ครับ
+    // if (typeof renderDividendMonthlyChart === 'function') renderDividendMonthlyChart();
+    // if (typeof renderDividendStockChart === 'function') renderDividendStockChart();
 }
-
 function renderDividendKPI(){
 
     let yearTotal = {};
@@ -1496,212 +1473,121 @@ function showDividendDetail(month, items, total){
     modal.show();
 
 }
-function renderDividendMonthlyChart(){
-
+function renderDividendMonthlyChart() {
     const year = Number(
         document.getElementById("dividendYear").value
     );
 
-
     let monthly = [
-        0,0,0,0,0,0,
-        0,0,0,0,0,0
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0
     ];
 
-
-    globalTradesData.forEach(t=>{
-
-        if(String(t.type).trim() !== "ปันผล")
+    globalTradesData.forEach(t => {
+        if (String(t.type).trim() !== "ปันผล")
             return;
-
 
         const d = new Date(t.date);
 
-
-        if(year > 0 && d.getFullYear() !== year)
+        if (year > 0 && d.getFullYear() !== year)
             return;
 
-
         const month = d.getMonth();
-
-
         monthly[month] += Number(t.netAmount) || 0;
-
-
     });
 
-
-
-    const ctx = document
-        .getElementById("dividendMonthlyChart");
-
-
-    if(!ctx) return;
-
-
+    const ctx = document.getElementById("dividendMonthlyChart");
+    if (!ctx) return;
 
     // ลบกราฟเก่า
-    if(dividendMonthlyChart){
+    if (dividendMonthlyChart) {
         dividendMonthlyChart.destroy();
     }
 
-
-
-    dividendMonthlyChart = new Chart(ctx,{
-
-        type:"bar",
-
-        data:{
-
-            labels:[
-                "ม.ค.",
-                "ก.พ.",
-                "มี.ค.",
-                "เม.ย.",
-                "พ.ค.",
-                "มิ.ย.",
-                "ก.ค.",
-                "ส.ค.",
-                "ก.ย.",
-                "ต.ค.",
-                "พ.ย.",
-                "ธ.ค."
+    dividendMonthlyChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: [
+                "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+                "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
             ],
-
-
-            datasets:[{
-
-                label:"Dividend (บาท)",
-
-                data:monthly
-
+            datasets: [{
+                label: "Dividend (บาท)",
+                data: monthly
             }]
-
         },
-
-
-options:{
-    responsive:true,
-    maintainAspectRatio:false
-}
-
-
-            scales:{
-
-                y:{
-
-                    ticks:{
-                        callback:function(value){
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    ticks: {
+                        callback: function(value) {
                             return value.toLocaleString();
                         }
                     }
-
                 }
-
             }
-
         }
-
     });
-
 }
-function renderDividendStockChart(){
 
+function renderDividendStockChart() {
     const year = Number(
         document.getElementById("dividendYear").value
     );
 
-
     let stockData = {};
 
-
-    globalTradesData.forEach(t=>{
-
-        if(String(t.type).trim() !== "ปันผล")
+    globalTradesData.forEach(t => {
+        if (String(t.type).trim() !== "ปันผล")
             return;
-
 
         const d = new Date(t.date);
 
-
-        if(year > 0 && d.getFullYear() !== year)
+        if (year > 0 && d.getFullYear() !== year)
             return;
 
+        const sym = String(t.symbol).toUpperCase();
 
-        const sym = String(t.symbol)
-                    .toUpperCase();
-
-
-        if(!stockData[sym]){
+        if (!stockData[sym]) {
             stockData[sym] = 0;
         }
 
-
         stockData[sym] += Number(t.netAmount) || 0;
-
     });
 
-
-
     const labels = Object.keys(stockData);
-
     const values = Object.values(stockData);
 
-
-
-    const ctx = document
-        .getElementById("dividendStockChart");
-
-
-    if(!ctx) return;
-
-
+    const ctx = document.getElementById("dividendStockChart");
+    if (!ctx) return;
 
     // ลบกราฟเก่า
-    if(dividendStockChart){
+    if (dividendStockChart) {
         dividendStockChart.destroy();
     }
 
-
-
-    dividendStockChart = new Chart(ctx,{
-
-        type:"doughnut",
-
-        data:{
-
-            labels:labels,
-
-            datasets:[{
-
-                label:"Dividend",
-
-                data:values
-
+    dividendStockChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Dividend",
+                data: values
             }]
-
         },
-
-
-options:{
-    responsive:true,
-    maintainAspectRatio:false
-}
-
-            plugins:{
-
-                legend:{
-                    position:"right"
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "right"
                 }
-
             }
-
         }
-
     });
-
 }
-
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
