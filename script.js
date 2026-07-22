@@ -965,12 +965,13 @@ function renderDividendTable() {
         const row=document.createElement("tr");
 
         row.innerHTML=`
-<td>${result[sym].count}</td>
+row.innerHTML = `
+<td>${sym}</td>
 <td>${info.count}</td>
 <td>${info.dpu.toFixed(2)}</td>
 <td>${info.amount.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
 <td>${info.yield.toFixed(2)}%</td>
-        `;
+`;
 
         tbody.appendChild(row);
 
