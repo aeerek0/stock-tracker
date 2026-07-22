@@ -969,6 +969,7 @@ row.innerHTML = `
 <td>${info.count}</td>
 <td>${info.dpu.toFixed(2)}</td>
 <td>${info.amount.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+<td>${info.cost.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
 <td>${info.yield.toFixed(2)}%</td>
 `;
 
