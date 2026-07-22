@@ -955,6 +955,13 @@ function renderDividendTable() {
 
     document.getElementById("dividendGrowth").innerText =
     calculateDividendGrowth() + "%";
+    
+document.getElementById("dividendAvgMonth").innerText =
+    calculateAverageDividendMonth()
+    .toLocaleString(undefined,{
+        minimumFractionDigits:2
+    }) + " บาท";
+    
 const top = calculateTopDividendStock();
 
 
@@ -1801,6 +1808,23 @@ function calculateTopDividendStock(){
 
 }
 
+function calculateAverageDividendMonth(){
+
+    let total = 0;
+
+    globalTradesData.forEach(t=>{
+
+        if(String(t.type).trim() !== "ปันผล")
+            return;
+
+        total += Number(t.netAmount) || 0;
+
+    });
+
+
+    return total / 12;
+
+}
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
