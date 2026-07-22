@@ -893,7 +893,7 @@ function renderDividendTable() {
 
 result[sym].count++;
 result[sym].amount += Number(t.netAmount) || 0;
-result[sym].dpu += Number(t.price) || 0;
+result[sym].dpu = Number(t.price) || 0;
         total += Number(t.netAmount) || 0;
     });
 
