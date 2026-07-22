@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
 </head>
 <body>
 <div class="container-fluid">
@@ -235,85 +234,75 @@
                         <h5 id="dividendCount">0</h5>
                     </div>
                 </div>
-<div class="card mt-3">
-    <h5 class="card-title">⭐ Dividend KPI</h5>
-
-    <div class="row text-center">
-
-        <div class="col-6 col-md-3">
-            <div class="p-3 bg-light rounded">
-                <div>💰 ปันผลปีล่าสุด</div>
-                <h5 id="dividendLatestYear">0.00</h5>
             </div>
         </div>
 
-        <div class="col-6 col-md-3">
-            <div class="p-3 bg-light rounded">
-                <div>📈 Yield รวม</div>
-                <h5 id="dividendTotalYield">0.00%</h5>
-            </div>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <div class="p-3 bg-light rounded">
-                <div>🏆 หุ้นปันผลสูงสุด</div>
-                <h5 id="dividendTopStock">-</h5>
-            </div>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <div class="p-3 bg-light rounded">
-                <div>📅 เดือนสูงสุด</div>
-                <h5 id="dividendTopMonth">-</h5>
-            </div>
-        </div>
-
-    </div>
-</div>
-                
+        <div class="card mt-3">
+            <h5 class="card-title">⭐ Dividend KPI</h5>
+            <div class="row text-center">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div>💰 ปันผลปีล่าสุด</div>
+                        <h5 id="dividendLatestYear">0.00</h5>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div>📈 Yield รวม</div>
+                        <h5 id="dividendTotalYield">0.00%</h5>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div>🏆 หุ้นปันผลสูงสุด</div>
+                        <h5 id="dividendTopStock">-</h5>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded">
+                        <div>📅 เดือนสูงสุด</div>
+                        <h5 id="dividendTopMonth">-</h5>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="card mt-3">
             <h5 class="card-title">💰 Dividend Monitor</h5>
-<div class="row mb-3">
-
-    <div class="col-md-4">
-        <label class="form-label">เลือกปี</label>
-        <select id="dividendYear" class="form-select" onchange="renderDividendTable()"></select>
-    </div>
-
-    <div class="col-md-4">
-        <label class="form-label">เลือกเดือน</label>
-        <select id="dividendMonth" class="form-select" onchange="renderDividendTable()">
-            <option value="0">ทั้งปี</option>
-            <option value="1">มกราคม</option>
-            <option value="2">กุมภาพันธ์</option>
-            <option value="3">มีนาคม</option>
-            <option value="4">เมษายน</option>
-            <option value="5">พฤษภาคม</option>
-            <option value="6">มิถุนายน</option>
-            <option value="7">กรกฎาคม</option>
-            <option value="8">สิงหาคม</option>
-            <option value="9">กันยายน</option>
-            <option value="10">ตุลาคม</option>
-            <option value="11">พฤศจิกายน</option>
-            <option value="12">ธันวาคม</option>
-        </select>
-    </div>
-
-    <div class="col-md-4">
-        <label class="form-label">เรียงตาม</label>
-        <select id="dividendSort" class="form-select" onchange="renderDividendTable()">
-            <option value="yield">Yield สูงสุด</option>
-            <option value="amount">เงินปันผลมากสุด</option>
-            <option value="cost">ต้นทุนมากสุด</option>
-            <option value="dpu">DPU สูงสุด</option>
-            <option value="symbol">ชื่อหุ้น A-Z</option>
-        </select>
-    </div>
-
-</div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">เลือกปี</label>
+                    <select id="dividendYear" class="form-select" onchange="renderDividendTable()"></select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">เลือกเดือน</label>
+                    <select id="dividendMonth" class="form-select" onchange="renderDividendTable()">
+                        <option value="0">ทั้งปี</option>
+                        <option value="1">มกราคม</option>
+                        <option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option>
+                        <option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option>
+                        <option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option>
+                        <option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">เรียงตาม</label>
+                    <select id="dividendSort" class="form-select" onchange="renderDividendTable()">
+                        <option value="yield">Yield สูงสุด</option>
+                        <option value="amount">เงินปันผลมากสุด</option>
+                        <option value="cost">ต้นทุนมากสุด</option>
+                        <option value="dpu">DPU สูงสุด</option>
+                        <option value="symbol">ชื่อหุ้น A-Z</option>
+                    </select>
+                </div>
+            </div>
             <div class="alert alert-success">
                 💰 Dividend รวม : <b><span id="dividendYearTotal">0.00</span></b> บาท
             </div>
@@ -333,27 +322,22 @@
         </div>
 
         <div class="card mt-4">
-    <div class="card-header">
-        📈 Dividend รายเดือน
-    </div>
+            <div class="card-header">📈 Dividend รายเดือน</div>
+            <div class="card-body">
+                <div style="height:300px;">
+                    <canvas id="dividendMonthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
 
-    <div class="card-body">
-        <div style="height:300px;">
-    <canvas id="dividendMonthlyChart"></canvas>
-</div>
-    </div>
-</div>
-<div class="card mt-4">
-    <div class="card-header">
-        🥧 Dividend แยกตามหุ้น
-    </div>
-
-    <div class="card-body">
-        <<div style="height:300px;">
-    <canvas id="dividendStockChart"></canvas>
-</div>
-    </div>
-</div>
+        <div class="card mt-4">
+            <div class="card-header">🥧 Dividend แยกตามหุ้น</div>
+            <div class="card-body">
+                <div style="height:300px;">
+                    <canvas id="dividendStockChart"></canvas>
+                </div>
+            </div>
+        </div>
         
         <div class="card mt-3">
             <div class="d-flex justify-content-between align-items-center">
