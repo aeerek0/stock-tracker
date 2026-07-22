@@ -842,15 +842,17 @@ function renderDividendTable() {
 
         const sym = t.symbol.toUpperCase();
 
-        if (!result[sym]) {
-            result[sym] = {
-                count: 0,
-                amount: 0
-            };
-        }
+       if (!result[sym]) {
+    result[sym] = {
+        count: 0,
+        amount: 0,
+        dpu: 0
+    };
+}
 
         result[sym].count++;
         result[sym].amount += Number(t.netAmount) || 0;
+        result[sym].dpu = Number(t.price) || 0;
         total += Number(t.netAmount) || 0;
     });
 
@@ -873,9 +875,9 @@ row.innerHTML = `
 <td>${result[sym].count}</td>
 
 <td>
-${dividendData[sym] && dividendData[sym].dpu
-    ? dividendData[sym].dpu.toFixed(2)
-    : "0.00"}
+    ${result[sym]
+        ? result[sym].dpu.toFixed(2)
+        : "0.00"}
 </td>
 
 <td>
