@@ -373,7 +373,11 @@ function renderPortfolioAndRecords(trades) {
     // 2. ลูปคำนวณข้อมูลทั้งหมด
     let totalPortfolioValue = 0, totalPnL = 0, activeStocksCount = 0;
     
-    globalTradesData.forEach(trade => {
+    const sortedTrades = [...globalTradesData].sort((a, b) => {
+    return new Date(a.date) - new Date(b.date);
+});
+
+sortedTrades.forEach(trade => {
 if (trade.type === 'ปันผล') {
 
     const sym = String(trade.symbol || "").trim().toUpperCase();
@@ -879,7 +883,17 @@ function renderDividendTable() {
 
         result[sym].count++;
         result[sym].amount += Number(t.netAmount) || 0;
-        result[sym].dpu = Number(t.price) || 0;
+        if (!result[sym]) {
+    result[sym] = {
+        count: 0,
+        amount: 0,
+        dpu: 0
+    };
+}
+
+result[sym].count++;
+result[sym].amount += Number(t.netAmount) || 0;
+result[sym].dpu += Number(t.price) || 0;
         total += Number(t.netAmount) || 0;
     });
 
@@ -890,9 +904,27 @@ function renderDividendTable() {
     document.getElementById("dividendYearTotal").innerText = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
     Object.keys(result).forEach(sym => {
-        const cost = portfolio[sym]
-    ? portfolio[sym].totalCost
-    : 0;
+let cost = 0;
+
+if (dividendData[sym]) {
+
+    dividendData[sym].items.forEach(item => {
+
+        cost += item.cost;
+
+    });
+
+}
+
+const avgCost =
+    dividendData[sym] && dividendData[sym].count > 0
+        ? cost / dividendData[sym].count
+        : 0;
+
+const yieldPercent =
+    avgCost > 0
+        ? (result[sym].amount / avgCost) * 100
+        : 0;
         const yieldPercent = cost > 0 ? (result[sym].amount / cost) * 100 : 0;
 
         const row = document.createElement("tr");
