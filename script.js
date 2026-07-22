@@ -955,6 +955,22 @@ function renderDividendTable() {
 
     document.getElementById("dividendGrowth").innerText =
     calculateDividendGrowth() + "%";
+const top = calculateTopDividendStock();
+
+
+document.getElementById("topDividendStock").innerText =
+    top.symbol;
+
+
+document.getElementById("topDividendAmount").innerText =
+    top.amount.toLocaleString(undefined,{
+        minimumFractionDigits:2
+    }) + " บาท";
+
+
+document.getElementById("topDividendPercent").innerText =
+    top.percent + "% ของ Dividend ทั้งหมด";
+    
 
     // สร้างข้อมูลก่อน เพื่อเอาไปเรียง
     let rows = Object.keys(result).map(sym => {
@@ -1725,6 +1741,66 @@ function calculateDividendGrowth(){
     ).toFixed(2);
 
 }
+function calculateTopDividendStock(){
+
+    let stock = {};
+
+
+    globalTradesData.forEach(t=>{
+
+        if(String(t.type).trim() !== "ปันผล")
+            return;
+
+
+        const sym = String(t.symbol)
+                    .toUpperCase();
+
+
+        stock[sym] =
+            (stock[sym] || 0)
+            + (Number(t.netAmount) || 0);
+
+    });
+
+
+
+    let maxStock = "";
+    let maxAmount = 0;
+
+
+    Object.keys(stock).forEach(sym=>{
+
+        if(stock[sym] > maxAmount){
+
+            maxAmount = stock[sym];
+            maxStock = sym;
+
+        }
+
+    });
+
+
+    const total =
+        Object.values(stock)
+        .reduce((a,b)=>a+b,0);
+
+
+
+    const percent =
+        total > 0
+        ? ((maxAmount / total)*100).toFixed(2)
+        : 0;
+
+
+
+    return {
+        symbol:maxStock,
+        amount:maxAmount,
+        percent:percent
+    };
+
+}
+
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
