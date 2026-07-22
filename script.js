@@ -20,6 +20,7 @@ let dividendCostBasis = {};
 let dividendMonthlyChart = null;
 let dividendStockChart = null;
 let dividendYearChart = null;
+let dividendMonthData = {};
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
@@ -1417,13 +1418,13 @@ const year = yearSelect
 
 if(data.items.length>3){
 
-    const index = i;
+  const index = i;
 
-    window["dividendMonth_" + index] = {
-        month: months[i-1],
-        items: data.items,
-        total: data.total
-    };
+dividendMonthData[index] = {
+    month: months[i-1],
+    items: data.items,
+    total: data.total
+};
 
     html += `
     <div class="calendar-more"
@@ -1445,12 +1446,9 @@ if(data.items.length>3){
         `;
 
         container.innerHTML+=html;
+        dividendMonthData = {};
 
-        for(let key in window){
-    if(key.startsWith("dividendMonth_")){
-        delete window[key];
-    }
-}
+
 
     }
 
@@ -1823,19 +1821,18 @@ function calculateAverageDividendMonth(){
     return total / 12;
 
 }
+function openDividendMonth(index) {
 
-function openDividendMonth(index){
+    const data = dividendMonthData[index];
 
-    const data = window["dividendMonth_" + index];
-
-    if(!data){
+    if (!data) {
         alert("ไม่พบข้อมูล");
         return;
     }
 
     let text = data.month + "\n\n";
 
-    data.items.forEach(item=>{
+    data.items.forEach(item => {
         text += item.symbol + " : ฿" + item.amount.toLocaleString() + "\n";
     });
 
