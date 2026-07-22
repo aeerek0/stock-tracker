@@ -374,24 +374,51 @@ function renderPortfolioAndRecords(trades) {
     let totalPortfolioValue = 0, totalPnL = 0, activeStocksCount = 0;
     
     globalTradesData.forEach(trade => {
-        if (trade.type === 'ปันผล') {
-            const sym = String(trade.symbol || "").trim().toUpperCase();
-if (!dividendData[sym]) {
-    dividendData[sym] = {
-        count: 0,
-        amount: 0,
-        dpu: 0,
-        items: []
-    };
-}
-            const amount = Number(trade.netAmount) || 0;
-            dividendData[sym].dpu += Number(trade.price) || 0;
-            dividendData[sym].count++;
-            dividendData[sym].amount += amount;
-            dividendData[sym].items.push({ date: trade.date, amount: amount });
-            return;
-        }
+if (trade.type === 'ปันผล') {
 
+    const sym = String(trade.symbol || "").trim().toUpperCase();
+
+    if (!dividendData[sym]) {
+
+        dividendData[sym] = {
+            count: 0,
+            amount: 0,
+            items: [],
+            totalCost: 0
+        };
+
+    }
+
+    const amount = Number(trade.netAmount) || 0;
+
+    dividendData[sym].count++;
+
+    dividendData[sym].amount += amount;
+
+    // ⭐ เก็บต้นทุน ณ วันที่รับปันผล
+    const costAtDividend =
+        portfolio[sym]
+            ? portfolio[sym].totalCost
+            : 0;
+
+    dividendData[sym].totalCost += costAtDividend;
+
+    dividendData[sym].items.push({
+
+        date: trade.date,
+
+        amount: amount,
+
+        dpu: Number(trade.price) || 0,
+
+        units: Number(trade.units) || 0,
+
+        cost: costAtDividend
+
+    });
+
+    return;
+}
         if (trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน') return;
 
         const sym = String(trade.symbol || "").trim().toUpperCase();
