@@ -17,6 +17,7 @@ let totalDividend = 0;
 let dividendHistoryLimit = 10;
 let showAllDividend = false;
 let dividendCostBasis = {};
+let dividendMonthlyChart = null;
 
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
@@ -1023,6 +1024,7 @@ rows.forEach(item=>{
     tbody.appendChild(row);
 
 });
+    renderDividendMonthlyChart();
 
 }
 
@@ -1492,6 +1494,115 @@ function showDividendDetail(month, items, total){
     modal.show();
 
 }
+function renderDividendMonthlyChart(){
+
+    const year = Number(
+        document.getElementById("dividendYear").value
+    );
+
+
+    let monthly = [
+        0,0,0,0,0,0,
+        0,0,0,0,0,0
+    ];
+
+
+    globalTradesData.forEach(t=>{
+
+        if(String(t.type).trim() !== "ปันผล")
+            return;
+
+
+        const d = new Date(t.date);
+
+
+        if(year > 0 && d.getFullYear() !== year)
+            return;
+
+
+        const month = d.getMonth();
+
+
+        monthly[month] += Number(t.netAmount) || 0;
+
+
+    });
+
+
+
+    const ctx = document
+        .getElementById("dividendMonthlyChart");
+
+
+    if(!ctx) return;
+
+
+
+    // ลบกราฟเก่า
+    if(dividendMonthlyChart){
+        dividendMonthlyChart.destroy();
+    }
+
+
+
+    dividendMonthlyChart = new Chart(ctx,{
+
+        type:"bar",
+
+        data:{
+
+            labels:[
+                "ม.ค.",
+                "ก.พ.",
+                "มี.ค.",
+                "เม.ย.",
+                "พ.ค.",
+                "มิ.ย.",
+                "ก.ค.",
+                "ส.ค.",
+                "ก.ย.",
+                "ต.ค.",
+                "พ.ย.",
+                "ธ.ค."
+            ],
+
+
+            datasets:[{
+
+                label:"Dividend (บาท)",
+
+                data:monthly
+
+            }]
+
+        },
+
+
+        options:{
+
+            responsive:true,
+
+
+            scales:{
+
+                y:{
+
+                    ticks:{
+                        callback:function(value){
+                            return value.toLocaleString();
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
 
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
