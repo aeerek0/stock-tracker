@@ -861,7 +861,9 @@ function renderDividendTable() {
     document.getElementById("dividendYearTotal").innerText = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
     Object.keys(result).forEach(sym => {
-        const cost = dividendCostBasis[sym] || 0;
+        const cost = portfolio[sym]
+    ? portfolio[sym].totalCost
+    : 0;
         const yieldPercent = cost > 0 ? (result[sym].amount / cost) * 100 : 0;
 
         const row = document.createElement("tr");
