@@ -1455,15 +1455,7 @@ if(data.items.length>3){
     }
 
 }
-function openDividendMonth(index){
 
-    console.log("CLICK MONTH:", index);
-
-    const data = window["dividendMonth_" + index];
-
-    console.log(data);
-
-}
 
 function showDividendDetail(month, items, total){
 
