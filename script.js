@@ -136,7 +136,8 @@ if (type === "ปันผล") {
     // ไม่ต้องใช้ค่าธรรมเนียม
     feeGroup.style.display = "none";
 }
-    );
+});
+    
 }
 
 const masterSectorMap = {
