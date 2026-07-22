@@ -1025,7 +1025,7 @@ rows.forEach(item=>{
 
 });
     renderDividendMonthlyChart();
-    renderDividendStockChart();
+    //renderDividendStockChart();
     
 
 }
