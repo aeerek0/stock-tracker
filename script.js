@@ -1446,6 +1446,12 @@ if(data.items.length>3){
 
         container.innerHTML+=html;
 
+        for(let key in window){
+    if(key.startsWith("dividendMonth_")){
+        delete window[key];
+    }
+}
+
     }
 
 }
