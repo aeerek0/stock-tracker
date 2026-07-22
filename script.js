@@ -1004,8 +1004,8 @@ function renderDividendTable() {
     });
 
     // หากต้องการเปิดใช้กราฟภายหลัง สามารถปลดคอมเมนต์ด้านล่างนี้ได้ครับ
-    // if (typeof renderDividendMonthlyChart === 'function') renderDividendMonthlyChart();
-    // if (typeof renderDividendStockChart === 'function') renderDividendStockChart();
+    if (typeof renderDividendMonthlyChart === 'function') renderDividendMonthlyChart();
+    if (typeof renderDividendStockChart === 'function') renderDividendStockChart();
 }
 function renderDividendKPI(){
 
