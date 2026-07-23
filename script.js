@@ -373,7 +373,21 @@ if (currentMonitorView === "stock") {
         
         const roi = data.totalCost > 0 ? (totalPnL / data.totalCost) * 100 : 0;
         const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
-        const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
+     // Dividend Yield
+let dividendReceived = 0;
+
+globalTradesData.forEach(trade => {
+    if (
+        trade.type === "ปันผล" &&
+        String(trade.symbol).trim().toUpperCase() === key
+    ) {
+        dividendReceived += Number(trade.netAmount || 0);
+    }
+});
+
+const dividendYield = data.totalCost > 0
+    ? (dividendReceived / data.totalCost) * 100
+    : 0;
         
         const row = document.createElement('tr');
         row.innerHTML = `
