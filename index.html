@@ -146,10 +146,19 @@
                     <label class="form-label">Sector (กลุ่มอุตสาหกรรม)</label>
                     <input type="text" id="sector" class="form-control" placeholder="เช่น Commerce">
                 </div>
-                <div class="col-12">
-                    <label class="form-label">โบรคเกอร์ (Broker)</label>
-                    <input type="text" id="broker" class="form-control" placeholder="เช่น บล.บัวหลวง">
-                </div>
+               <div class="col-12">
+    <label class="form-label">โบรคเกอร์ (Broker)</label>
+
+    <input 
+        type="text" 
+        id="broker" 
+        class="form-control" 
+        list="brokerOptions"
+        placeholder="เลือก Broker">
+
+    <datalist id="brokerOptions"></datalist>
+
+</div>
                 <div class="col-6">
                     <label class="form-label">Price / DPU</label>
                     <input type="number" step="any" id="price" class="form-control" placeholder="0.00">
