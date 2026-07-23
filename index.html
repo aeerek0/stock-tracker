@@ -207,95 +207,193 @@
 
     <!-- DIVIDEND TAB CONTENT -->
     <div id="dividendTab" style="display:none;">
-        <div class="card mt-3">
-            <h5 class="card-title">📊 Dividend Summary</h5>
-            <div class="row text-center">
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded">
-                        <div>ปันผลปีที่เลือก</div>
-                        <h5 id="dividendSelectedTotal">0.00</h5>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded">
-                        <div>ปันผลสะสมทั้งหมด</div>
-                        <h5 id="dividendAllTotal">0.00</h5>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded">
-                        <div>หุ้นที่จ่าย</div>
-                        <h5 id="dividendStockCount">0</h5>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded">
-                        <div>จำนวนครั้ง</div>
-                        <h5 id="dividendCount">0</h5>
-                    </div>
-                </div>
+       <!-- Dividend Summary -->
+<div class="card mt-3 dividend-summary-card">
+
+    <h5 class="card-title">
+        📊 Dividend Summary
+    </h5>
+
+
+    <div class="dividend-summary-grid">
+
+
+        <div class="dividend-summary-item">
+
+            <div class="dividend-summary-label">
+                ปันผลปีที่เลือก
             </div>
+
+            <div class="dividend-summary-value" id="dividendSelectedTotal">
+                0.00
+            </div>
+
         </div>
 
-        <div class="card mt-3">
-            <h5 class="card-title">⭐ Dividend KPI</h5>
-            <div class="row text-center">
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded">
-                        <div>💰 ปันผลปีล่าสุด</div>
-                        <h5 id="dividendLatestYear">0.00</h5>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded">
-                        <div>📈 Yield รวม</div>
-                        <h5 id="dividendTotalYield">0.00%</h5>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-    <div class="p-3 bg-light rounded">
-        <div>🏆 หุ้นปันผลสูงสุด</div>
 
-        <h5 id="dividendTopStock">-</h5>
 
-        <small id="dividendTopAmount">
-            -
-        </small>
+        <div class="dividend-summary-item">
 
-        <br>
+            <div class="dividend-summary-label">
+                ปันผลสะสมทั้งหมด
+            </div>
 
-        <small id="dividendTopPercent">
-            -
-        </small>
+            <div class="dividend-summary-value" id="dividendAllTotal">
+                0.00
+            </div>
+
+        </div>
+
+
+
+        <div class="dividend-summary-item">
+
+            <div class="dividend-summary-label">
+                หุ้นที่จ่าย
+            </div>
+
+            <div class="dividend-summary-value" id="dividendStockCount">
+                0
+            </div>
+
+        </div>
+
+
+
+        <div class="dividend-summary-item">
+
+            <div class="dividend-summary-label">
+                จำนวนครั้ง
+            </div>
+
+            <div class="dividend-summary-value" id="dividendCount">
+                0
+            </div>
+
+        </div>
+
 
     </div>
+
 </div>
 
-                <div class="col">
-                <div class="card">
-                <div class="card-body">
-            📈 Dividend Growth
-            <h4 id="dividendGrowth">0%</h4>
-            </div>
-        </div>
-    </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded">
-                        <div>📅 เดือนสูงสุด</div>
-                        <h5 id="dividendTopMonth">-</h5>
-                    </div>
-                </div>
 
-<div class="col-6 col-md-3">
-    <div class="p-3 bg-light rounded">
-        <div>💰 Average Dividend / Month</div>
-        <h5 id="dividendAvgMonth">-</h5>
+
+
+<!-- Dividend KPI -->
+<div class="card mt-3 dividend-kpi-card">
+
+
+    <h5 class="card-title">
+        ⭐ Dividend KPI
+    </h5>
+
+
+    <div class="dividend-kpi-grid">
+
+
+
+        <div class="dividend-kpi-item">
+
+            <div class="dividend-kpi-label">
+                💰 ปันผลปีล่าสุด
+            </div>
+
+            <div class="dividend-kpi-value" id="dividendLatestYear">
+                0.00
+            </div>
+
+        </div>
+
+
+
+        <div class="dividend-kpi-item">
+
+            <div class="dividend-kpi-label">
+                📈 Yield รวม
+            </div>
+
+            <div class="dividend-kpi-value" id="dividendTotalYield">
+                0.00%
+            </div>
+
+        </div>
+
+
+
+
+        <div class="dividend-kpi-item">
+
+            <div class="dividend-kpi-label">
+                🏆 หุ้นปันผลสูงสุด
+            </div>
+
+            <div class="dividend-kpi-value" id="dividendTopStock">
+                -
+            </div>
+
+            <small id="dividendTopAmount">
+                -
+            </small>
+
+            <br>
+
+            <small id="dividendTopPercent">
+                -
+            </small>
+
+        </div>
+
+
+
+
+        <div class="dividend-kpi-item highlight">
+
+            <div class="dividend-kpi-label">
+                📈 Dividend Growth
+            </div>
+
+            <div class="dividend-kpi-value" id="dividendGrowth">
+                0%
+            </div>
+
+        </div>
+
+
+
+
+        <div class="dividend-kpi-item">
+
+            <div class="dividend-kpi-label">
+                📅 เดือนสูงสุด
+            </div>
+
+            <div class="dividend-kpi-value" id="dividendTopMonth">
+                -
+            </div>
+
+        </div>
+
+
+
+
+        <div class="dividend-kpi-item">
+
+            <div class="dividend-kpi-label">
+                💰 Average Dividend / Month
+            </div>
+
+            <div class="dividend-kpi-value" id="dividendAvgMonth">
+                -
+            </div>
+
+        </div>
+
+
+
     </div>
+
 </div>
-                
-            </div>
-        </div>
-
         <div class="card mt-3">
             <h5 class="card-title">💰 Dividend Monitor</h5>
             <div class="row mb-3">
