@@ -403,4 +403,33 @@
     }
 
 }
+
+.dividend-kpi-item:nth-child(1){
+    border-left:5px solid #e88d67;
+}
+
+
+.dividend-kpi-item:nth-child(2){
+    border-left:5px solid #4faba2;
+}
+
+
+.dividend-kpi-item:nth-child(3){
+    border-left:5px solid #f4a261;
+}
+
+
+.dividend-kpi-item:nth-child(4){
+    border-left:5px solid #6c8cff;
+}
+
+
+.dividend-kpi-item:nth-child(5){
+    border-left:5px solid #9b72cf;
+}
+
+
+.dividend-kpi-item:nth-child(6){
+    border-left:5px solid #43aa8b;
+}
     </style>
