@@ -151,6 +151,12 @@ const masterSectorMap = {
     "TISCO": "Banking", "TLI": "Insurance", "TU": "Food & Bev", "WHA": "Property (Indus)","TRUE": "Telecommunications"
 };
 
+const masterBrokerList = [
+    "Finansia",
+    "Yuanta",
+    "Pi"
+];
+
 let dynamicSectorMap = {}; 
 
 // --- 7. ฟังก์ชันเสริม ---
@@ -163,6 +169,27 @@ function buildStockDropdown() {
             option.value = stock;
             datalist.appendChild(option);
         });
+    }
+}
+
+function buildBrokerDropdown() {
+
+    const datalist = document.getElementById('brokerOptions');
+
+    if (datalist) {
+
+        datalist.innerHTML = '';
+
+        masterBrokerList.forEach(broker => {
+
+            const option = document.createElement('option');
+
+            option.value = broker;
+
+            datalist.appendChild(option);
+
+        });
+
     }
 }
 
