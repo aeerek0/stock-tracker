@@ -399,14 +399,18 @@ function renderPortfolioAndRecords(trades) {
     buildDividendYear();
     
     // 1. เตรียมตัวแปรสำหรับเก็บข้อมูลทั้งแบบรายหุ้นและราย Sector
+ 
     portfolio = {};
-    sectorPortfolio = {};
-    realizedPnL = {};
-     = {};
-    sectorPnL = {};
-    sector = {};
-    dividendData = {};
-    dividendCostBasis = {};
+sectorPortfolio = {};
+
+realizedPnL = {};
+unrealizedPnL = {};
+
+sectorPnL = {};
+sectorUnrealizedPnL = {};
+
+dividendData = {};
+dividendCostBasis = {};
  
     const tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
