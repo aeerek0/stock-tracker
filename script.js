@@ -362,13 +362,15 @@ function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
             marketValue = data.totalCost;
         }
 
-    let totalPnL;
+let totalPnL;
+
 if (currentMonitorView === "stock") {
     totalPnL = unrealizedPnL[key] || 0;
 } else {
     totalPnL = sectorUnrealizedPnL[key] || 0;
 }
 
+        
         const roi = data.totalCost > 0 ? (totalPnL / data.totalCost) * 100 : 0;
         const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
 
@@ -400,9 +402,9 @@ function renderPortfolioAndRecords(trades) {
     portfolio = {};
     sectorPortfolio = {};
     realizedPnL = {};
-    unrealizedPnL = {};
+     = {};
     sectorPnL = {};
-    sectorUnrealizedPnL = {};
+    sector = {};
     dividendData = {};
     dividendCostBasis = {};
  
@@ -523,14 +525,14 @@ dividendCostBasis[sym] += netAmount;
     // ----------------------------
     // คำนวณ Unrealized ราย Sector
     // ----------------------------
-    sectorUnrealizedPnL = {};
+    sector = {};
 
     globalTradesData.forEach(trade => {
         if (trade.type !== "ซื้อ") return;
         const sym = String(trade.symbol).trim().toUpperCase();
         const sector = trade.sector || "อื่นๆ";
-        if (!sectorUnrealizedPnL[sector]) {
-            sectorUnrealizedPnL[sector] = 0;
+        if (!sector[sector]) {
+            sector[sector] = 0;
         }
     });
 
@@ -538,7 +540,7 @@ dividendCostBasis[sym] += netAmount;
         const trade = globalTradesData.find(t => String(t.symbol).trim().toUpperCase() === sym);
         if (!trade) return;
         const sector = trade.sector || "อื่นๆ";
-        sectorUnrealizedPnL[sector] = (sectorUnrealizedPnL[sector] || 0) + (unrealizedPnL[sym] || 0);
+        sector[sector] = (sectorUnrealizedPnL[sector] || 0) + (unrealizedPnL[sym] || 0);
     });
 
     let netDeposited = 0;
