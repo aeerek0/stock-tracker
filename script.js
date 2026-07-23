@@ -204,7 +204,13 @@ function autoFillSector(symbolValue) {
 }
 
 function fetchAndRenderData() {
-    if (!WEB_APP_URL) return;
+       alert("กด Refresh แล้ว");
+
+    if (!WEB_APP_URL) {
+        alert("ไม่พบ WEB_APP_URL");
+        return;
+    }
+
 
     document.getElementById('monitorTableBody').innerHTML = `<tr><td colspan="7">กำลังโหลดพอร์ตของคุณ...</td></tr>`;
     document.getElementById('tradeTableBody').innerHTML = `<tr><td colspan="12">กำลังโหลดประวัติ...</td></tr>`;
