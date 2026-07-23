@@ -1393,72 +1393,69 @@ const year = yearSelect
                 </div>
             `;
 
-        }else{
+}else{
 
     // เรียงจากเงินปันผลมาก → น้อย
     data.items.sort((a, b) => b.amount - a.amount);
 
-    // นับจำนวนบริษัทจริง (ไม่นับรายการซ้ำ)
+    // นับจำนวนบริษัทไม่ซ้ำ
     const companyCount = new Set(
         data.items.map(item => item.symbol)
     ).size;
 
-    html+=`
+    html += `
         <div class="text-muted mb-2">
             🏢 ${companyCount} บริษัท
         </div>
     `;
 
+    // ===== แสดง 3 รายการแรก =====
+    html += `<div id="dividend-preview-${i}">`;
+
     data.items.slice(0,3).forEach(item=>{
 
-                html+=`
-                <div class="calendar-item">
+        html += `
+        <div class="calendar-item">
+            <span>${item.symbol}</span>
+            <span>${item.amount.toLocaleString()}</span>
+        </div>
+        `;
 
-                    <span>${item.symbol}</span>
+    });
 
-                    <span>
-                        ${item.amount.toLocaleString()}
-                    </span>
+    html += `</div>`;
 
-                </div>
-                `;
+    // ===== ถ้ามีมากกว่า 3 รายการ =====
+    if(data.items.length > 3){
 
-            });
-
-if (data.items.length > 3) {
-
-    html += `
+        html += `
         <div class="calendar-more"
+             id="dividend-btn-${i}"
              onclick="toggleDividendDetail(${i})">
 
             👁 ดูทั้งหมด ${data.items.length} รายการ
 
         </div>
 
-        <div id="dividend-detail-${i}"
-             class="dividend-detail"
-             style="display:none;">
-    `;
-
-    data.items.forEach(item => {
-
-        html += `
-            <div class="calendar-item">
-
-                <span>${item.symbol}</span>
-
-                <span>${item.amount.toLocaleString()}</span>
-
-            </div>
+        <div id="dividend-detail-${i}" style="display:none;">
         `;
 
-    });
+        data.items.forEach(item=>{
 
-    html += `</div>`;
+            html += `
+            <div class="calendar-item">
+                <span>${item.symbol}</span>
+                <span>${item.amount.toLocaleString()}</span>
+            </div>
+            `;
+
+        });
+
+        html += `</div>`;
+
+    }
+
 }
-
-        }
-
         html+=`
             </div>
 
@@ -1841,18 +1838,23 @@ function calculateAverageDividendMonth(){
 }
 function toggleDividendDetail(month){
 
-    const div = document.getElementById("dividend-detail-" + month);
+    const preview = document.getElementById("dividend-preview-" + month);
+    const detail = document.getElementById("dividend-detail-" + month);
     const btn = document.getElementById("dividend-btn-" + month);
 
-    if(div.style.display === "none"){
+    if(!preview || !detail || !btn) return;
 
-        div.style.display = "block";
+    if(detail.style.display === "none"){
+
+        preview.style.display = "none";
+        detail.style.display = "block";
         btn.innerHTML = "▲ ซ่อนรายการ";
 
     }else{
 
-        div.style.display = "none";
-        btn.innerHTML = "👁 ดูทั้งหมด";
+        preview.style.display = "block";
+        detail.style.display = "none";
+        btn.innerHTML = `👁 ดูทั้งหมด ${detail.children.length} รายการ`;
 
     }
 
