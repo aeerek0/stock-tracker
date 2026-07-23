@@ -362,12 +362,12 @@ function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
             marketValue = data.totalCost;
         }
 
-        let totalPnL;
-        if (currentMonitorView === "stock") {
-            totalPnL = (pnLMap[key] || 0) + (unrealizedPnL[key] || 0);
-        } else {
-            totalPnL = (pnLMap[key] || 0) + (sectorUnrealizedPnL[key] || 0);
-        }
+    let totalPnL;
+if (currentMonitorView === "stock") {
+    totalPnL = unrealizedPnL[key] || 0;
+} else {
+    totalPnL = sectorUnrealizedPnL[key] || 0;
+}
 
         const roi = data.totalCost > 0 ? (totalPnL / data.totalCost) * 100 : 0;
         const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
