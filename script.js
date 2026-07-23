@@ -42,10 +42,13 @@ function initConnection() {
         }
 
         // โหลดรายชื่อหุ้น
-        if (typeof buildStockDropdown === 'function') {
-            buildStockDropdown();
-        }
+      if (typeof buildStockDropdown === 'function') {
+    buildStockDropdown();
+}
 
+if (typeof buildBrokerDropdown === 'function') {
+    buildBrokerDropdown();
+}
         // ทดสอบ Connection
         fetch(WEB_APP_URL)
             .then(response => {
