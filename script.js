@@ -207,7 +207,7 @@ function fetchAndRenderData() {
        alert("กด Refresh แล้ว");
 
     if (!WEB_APP_URL) {
-        alert("ไม่พบ WEB_APP_URL");
+        alert(WEB_APP_URL);
         return;
     }
 
