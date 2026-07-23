@@ -204,7 +204,8 @@ function autoFillSector(symbolValue) {
 }
 
 function fetchAndRenderData() {
-       alert("กด Refresh แล้ว");
+       console.log("เริ่ม Refresh");
+    
 
     if (!WEB_APP_URL) {
         alert(WEB_APP_URL);
