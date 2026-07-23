@@ -1307,6 +1307,8 @@ function renderDividendCalendar() {
     if (!container) return;
 
     container.innerHTML = "";
+    dividendMonthData = {};
+
 
    const yearSelect = document.getElementById("calendarYear");
 
@@ -1445,9 +1447,8 @@ dividendMonthData[index] = {
         </div>
         `;
 
-      container.innerHTML = "";
-    dividendMonthData = {};
-
+      container.innerHTML += html;
+    
 
     }
 
