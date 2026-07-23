@@ -373,7 +373,8 @@ if (currentMonitorView === "stock") {
         
         const roi = data.totalCost > 0 ? (totalPnL / data.totalCost) * 100 : 0;
         const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
-
+        const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
+        
         const row = document.createElement('tr');
         row.innerHTML = `
             <td class="fw-bold">${key}</td>
@@ -385,6 +386,7 @@ if (currentMonitorView === "stock") {
             <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td>
             <td class="${totalPnL >= 0 ? 'text-success' : 'text-danger'}">${totalPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
             <td class="${roi >= 0 ? 'text-success' : 'text-danger'}">${roi.toFixed(2)}%</td>
+<td class="text-primary fw-bold">${dividendYield.toFixed(2)}%</td>
         `;
         mBody.appendChild(row);
     });
