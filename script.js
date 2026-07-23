@@ -1445,9 +1445,8 @@ dividendMonthData[index] = {
         </div>
         `;
 
-        container.innerHTML+=html;
-        dividendMonthData = {};
-
+      container.innerHTML = "";
+    dividendMonthData = {};
 
 
     }
