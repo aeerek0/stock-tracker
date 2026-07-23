@@ -260,4 +260,147 @@
     text-align:center;
     padding:18px 0;
 }
+
+/* ==============================
+   Dividend Dashboard
+================================ */
+
+.dividend-summary-card {
+    background: linear-gradient(135deg,#fff8f2,#ffffff);
+    border:1px solid #fcd5c1;
+    border-left:5px solid #e88d67;
+}
+
+
+.dividend-kpi-card {
+    background: linear-gradient(135deg,#fffaf0,#ffffff);
+    border:1px solid #f8dfb0;
+    border-left:5px solid #f4a261;
+}
+
+
+/* Title */
+.dividend-section-title {
+    font-size:1.05rem;
+    font-weight:bold;
+    color:#6e3b23;
+    margin-bottom:15px;
+}
+
+
+/* Summary Box */
+.dividend-summary-grid {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+}
+
+
+.dividend-summary-item {
+    background:#ffffff;
+    border-radius:12px;
+    padding:12px;
+    text-align:center;
+    border:1px solid #f7dfd3;
+}
+
+
+.dividend-summary-label {
+    font-size:.8rem;
+    color:#856f63;
+}
+
+
+.dividend-summary-value {
+    font-size:1.2rem;
+    font-weight:bold;
+    color:#e88d67;
+}
+
+
+/* KPI */
+.dividend-kpi-grid {
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+
+}
+
+
+.dividend-kpi-item {
+
+    background:#ffffff;
+    border-radius:14px;
+    padding:14px;
+
+    border:1px solid #f3e3c2;
+
+}
+
+
+.dividend-kpi-label {
+
+    font-size:.8rem;
+    color:#806b5c;
+
+}
+
+
+.dividend-kpi-value {
+
+    font-size:1.3rem;
+    font-weight:bold;
+    color:#6e3b23;
+
+}
+
+
+.dividend-kpi-item.highlight {
+
+    background:#fff4df;
+    border-color:#f4a261;
+
+}
+
+
+/* Mobile */
+@media(max-width:576px){
+
+
+    .dividend-summary-grid {
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+
+    .dividend-kpi-grid {
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .dividend-summary-item {
+
+        padding:10px;
+
+    }
+
+
+    .dividend-summary-value {
+
+        font-size:1rem;
+
+    }
+
+
+    .dividend-kpi-value {
+
+        font-size:1.15rem;
+
+    }
+
+}
     </style>
