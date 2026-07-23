@@ -1395,13 +1395,21 @@ const year = yearSelect
 
         }else{
 
-            html+=`
-                <div class="text-muted mb-2">
-                    🏢 ${data.items.length} บริษัท
-                </div>
-            `;
+    // เรียงจากเงินปันผลมาก → น้อย
+    data.items.sort((a, b) => b.amount - a.amount);
 
-            data.items.slice(0,3).forEach(item=>{
+    // นับจำนวนบริษัทจริง (ไม่นับรายการซ้ำ)
+    const companyCount = new Set(
+        data.items.map(item => item.symbol)
+    ).size;
+
+    html+=`
+        <div class="text-muted mb-2">
+            🏢 ${companyCount} บริษัท
+        </div>
+    `;
+
+    data.items.slice(0,3).forEach(item=>{
 
                 html+=`
                 <div class="calendar-item">
@@ -1834,16 +1842,17 @@ function calculateAverageDividendMonth(){
 function toggleDividendDetail(month){
 
     const div = document.getElementById("dividend-detail-" + month);
-
-    if(!div) return;
+    const btn = document.getElementById("dividend-btn-" + month);
 
     if(div.style.display === "none"){
 
         div.style.display = "block";
+        btn.innerHTML = "▲ ซ่อนรายการ";
 
     }else{
 
         div.style.display = "none";
+        btn.innerHTML = "👁 ดูทั้งหมด";
 
     }
 
