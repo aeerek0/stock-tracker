@@ -20,7 +20,7 @@ let dividendCostBasis = {};
 let dividendMonthlyChart = null;
 let dividendStockChart = null;
 let dividendYearChart = null;
-let dividendMonthData = {};
+
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
@@ -1307,7 +1307,6 @@ function renderDividendCalendar() {
     if (!container) return;
 
     container.innerHTML = "";
-    dividendMonthData = {};
 
 
    const yearSelect = document.getElementById("calendarYear");
@@ -1418,25 +1417,36 @@ const year = yearSelect
 
             });
 
-if(data.items.length>3){
-
-  const index = i;
-
-dividendMonthData[index] = {
-    month: months[i-1],
-    items: data.items,
-    total: data.total
-};
+if (data.items.length > 3) {
 
     html += `
-    <div class="calendar-more"
-         onclick="openDividendMonth(${index})">
+        <div class="calendar-more"
+             onclick="toggleDividendDetail(${i})">
 
-        👁 ดูทั้งหมด ${data.items.length} รายการ
+            👁 ดูทั้งหมด ${data.items.length} รายการ
 
-    </div>
+        </div>
+
+        <div id="dividend-detail-${i}"
+             class="dividend-detail"
+             style="display:none;">
     `;
 
+    data.items.forEach(item => {
+
+        html += `
+            <div class="calendar-item">
+
+                <span>${item.symbol}</span>
+
+                <span>${item.amount.toLocaleString()}</span>
+
+            </div>
+        `;
+
+    });
+
+    html += `</div>`;
 }
 
         }
@@ -1821,24 +1831,21 @@ function calculateAverageDividendMonth(){
     return total / 12;
 
 }
-function openDividendMonth(index) {
+function toggleDividendDetail(month){
 
-    const data = dividendMonthData[index];
+    const div = document.getElementById("dividend-detail-" + month);
 
-    if (!data) {
-        alert("ไม่พบข้อมูล");
-        return;
+    if(!div) return;
+
+    if(div.style.display === "none"){
+
+        div.style.display = "block";
+
+    }else{
+
+        div.style.display = "none";
+
     }
-
-    let text = data.month + "\n\n";
-
-    data.items.forEach(item => {
-        text += item.symbol + " : ฿" + item.amount.toLocaleString() + "\n";
-    });
-
-    text += "\nรวม ฿" + data.total.toLocaleString();
-
-    alert(text);
 
 }
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
