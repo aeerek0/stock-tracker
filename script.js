@@ -423,20 +423,60 @@ if (currentMonitorView === "stock") {
         const roi = data.totalCost > 0 ? (totalPnL / data.totalCost) * 100 : 0;
         const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
      // Dividend Yield
+// Dividend Yield
 let dividendReceived = 0;
 
-globalTradesData.forEach(trade => {
-    if (
-        trade.type === "ปันผล" &&
-        String(trade.symbol).trim().toUpperCase() === key
-    ) {
-        dividendReceived += Number(trade.netAmount || 0);
-    }
-});
+if (currentMonitorView === "stock") {
+
+    // กรณีดูรายหุ้น
+    globalTradesData.forEach(trade => {
+
+        if (
+            trade.type === "ปันผล" &&
+            String(trade.symbol).trim().toUpperCase() === key
+        ) {
+            dividendReceived += Number(trade.netAmount || 0);
+        }
+
+    });
+
+} else {
+
+    // กรณีดูราย Sector
+    Object.keys(portfolio).forEach(sym => {
+
+        const stockTrade = globalTradesData.find(
+            t => String(t.symbol).trim().toUpperCase() === sym
+        );
+
+        if (!stockTrade) return;
+
+        const stockSector = stockTrade.sector || "อื่นๆ";
+
+        if (stockSector === key) {
+
+            globalTradesData.forEach(trade => {
+
+                if (
+                    trade.type === "ปันผล" &&
+                    String(trade.symbol).trim().toUpperCase() === sym
+                ) {
+                    dividendReceived += Number(trade.netAmount || 0);
+                }
+
+            });
+
+        }
+
+    });
+
+}
+
 
 const dividendYield = data.totalCost > 0
     ? (dividendReceived / data.totalCost) * 100
     : 0;
+
         
         const row = document.createElement('tr');
         row.innerHTML = `
