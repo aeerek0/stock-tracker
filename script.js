@@ -586,8 +586,23 @@ dividendCostBasis[sym] += netAmount;
 
     // 3. Render ตารางประวัติ
     globalTradesData.slice(-displayCount).reverse().forEach(trade => {
+        const gross = Number(trade.grossAmount) || 0;
+const fee = Number(trade.feeTax) || 0;
+
+const feeRate = gross > 0
+    ? (fee / gross) * 100
+    : 0;
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${new Date(trade.date).toLocaleDateString('en-CA')}</td><td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td><td class="fw-bold">${trade.symbol}</td><td>${trade.sector || '-'}</td><td>${trade.broker || '-'}</td><td>${parseFloat(trade.price).toLocaleString()}</td><td>${parseInt(trade.units).toLocaleString()}</td><td>${parseFloat(trade.grossAmount).toLocaleString()}</td><td>${parseFloat(trade.feeTax).toLocaleString()}</td><td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td><td>-</td><td><button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button> <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button></td>`;
+        row.innerHTML = `<td>${new Date(trade.date).toLocaleDateString('en-CA')}</td><td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td><td class="fw-bold">${trade.symbol}</td><td>${trade.sector || '-'}</td><td>${trade.broker || '-'}</td>
+        <td>${parseFloat(trade.price).toLocaleString()}</td><td>${parseInt(trade.units).toLocaleString()}</td>
+        <td>${parseFloat(trade.grossAmount).toLocaleString()}</td>
+        <td>${fee.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}
+    <br>
+    <small class="text-muted">${feeRate.toFixed(4)}%</small>
+</td><td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td><td>-</td><td><button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button> <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button></td>`;
         tbodyRecord.appendChild(row);
     });
 
