@@ -768,6 +768,7 @@ const tradeData = {
     type: type,
     symbol: document.getElementById('symbol').value.trim().toUpperCase(),
     sector: isCash ? 'Cash Management' : document.getElementById('sector').value,
+    broker: document.getElementById('broker').value.trim(),
 
     // ซื้อ / ขาย / ปันผล เก็บราคาและจำนวนหุ้น
     price: (type === 'ซื้อ' || type === 'ขาย' || type === 'ปันผล') ? price : 0,
