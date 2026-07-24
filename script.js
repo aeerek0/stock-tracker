@@ -575,9 +575,10 @@ function renderPortfolioAndRecords(trades) {
         }
 
         // --- กรณี: เงินปันผล ---
-        if (trade.type === 'ปันผล') {
-            cashBalance += amount; // รับปันผล = เงินสดเพิ่ม
-            totalDividend += amount;
+if (trade.type === 'ปันผล') {
+
+    // ไม่เพิ่ม cash เพราะเงินจะเข้าเมื่อบันทึก "ฝากเงิน"
+    totalDividend += amount;
 
             if (!dividendData[sym]) {
                 dividendData[sym] = { count: 0, amount: 0, items: [], totalCost: 0 };
