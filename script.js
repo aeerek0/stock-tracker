@@ -352,6 +352,20 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
         if (portfolio[sym].totalUnits > 0) {
             const currentPrice = (window.currentPrices && window.currentPrices[sym]) ? Number(window.currentPrices[sym]) : portfolio[sym].avgPrice;
             const marketValue = portfolio[sym].totalUnits * currentPrice;
+            // ดึงกลุ่มอุตสาหกรรม (Sector) ของหุ้น ถ้าไม่พบให้จัดอยู่ในกลุ่ม "อื่นๆ"
+            const sec = symbolSectorMap[sym] || "อื่นๆ";
+
+                // ถ้ายังไม่มีข้อมูลของ Sector นี้ใน Object ให้สร้างโครงสร้างเริ่มต้นขึ้นมา
+            if (!sectorPortfolio[sec]) {
+                sectorPortfolio[sec] = {
+                    totalUnits: 0,
+                    totalCost: 0,
+                    totalMarketValue: 0
+                        };
+                }
+
+// บวกสะสมมูลค่าตลาด (Market Value) เข้าไปใน Sector นั้นๆ
+sectorPortfolio[sec].totalMarketValue += marketValue;
             const unPnL = marketValue - portfolio[sym].totalCost;
 
             unrealizedPnL[sym] = unPnL;
@@ -680,7 +694,7 @@ function drawAllocationChart(view = "stock") {
                 let price = window.currentPrices?.[key] || 0;
                 value = item.totalUnits * price;
             } else {
-                value = item.totalMarketValue || item.totalCost || 0;
+                value = item.totalMarketValue || 0;
             }
 
             if (value > 0) {
