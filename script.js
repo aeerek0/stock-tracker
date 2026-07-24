@@ -680,14 +680,27 @@ Object.keys(portfolio).forEach(sym => {
     sectorUnrealizedPnL[sec] += unrealizedPnL[sym] || 0;
 });
 
-    let netDeposited = 0;
+let netDeposited = 0;
+let hasCashTransaction = false;
 
-    
-    globalTradesData.forEach(t => {
-        if (t.type === 'ฝากเงิน') netDeposited += parseFloat(t.netAmount);
-        else if (t.type === 'ถอนเงิน') netDeposited -= parseFloat(t.netAmount);
-    });
+globalTradesData.forEach(t => {
 
+    if (t.type === 'ฝากเงิน') {
+        netDeposited += Number(t.netAmount || 0);
+        hasCashTransaction = true;
+    }
+
+    else if (t.type === 'ถอนเงิน') {
+        netDeposited -= Number(t.netAmount || 0);
+        hasCashTransaction = true;
+    }
+
+});
+
+// ไม่มีฝาก/ถอน ให้เงินสดเป็น 0
+if (!hasCashTransaction) {
+    netDeposited = 0;
+}
     // สรุป Dashboard
     Object.keys(portfolio).forEach(sym => {
         if (portfolio[sym].totalUnits > 0) {
