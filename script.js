@@ -616,6 +616,156 @@ function cancelEditMode() {
     const typeEl = document.getElementById('type');
     if (typeEl) typeEl.dispatchEvent(new Event('change'));
 }
+// --- Render Monitor Table ---
+
+function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
+    const mBody = document.getElementById('monitorTableBody');
+    if (!mBody) return;
+    mBody.innerHTML = '';
+
+    const header = document.getElementById('monitorSymbolHeader');
+    if (header) {
+        header.innerText = currentMonitorView === "stock" ? "Symbol" : "Sector";
+    }
+
+    // กำหนดค่าเริ่มต้นข้อมูลป้องกัน undefined
+    const safeDataMap = dataMap || {};
+    const keys = sortedKeys || Object.keys(safeDataMap);
+    let totalValue = 0;
+
+    // 1. คำนวณมูลค่าพอร์ตรวม
+    keys.forEach(key => {
+        const data = safeDataMap[key];
+        if (!data || data.totalUnits <= 0) return;
+
+        let marketValue = 0;
+
+        if (currentMonitorView === "stock") {
+            const currentPrices = window.currentPrices || {};
+            let marketPrice = Number(currentPrices[key]) || data.avgPrice;
+            marketValue = data.totalUnits * marketPrice;
+        } else {
+            const portfolio = window.portfolio || {};
+            const globalTradesData = window.globalTradesData || [];
+
+            Object.keys(portfolio).forEach(sym => {
+                const trade = globalTradesData.find(
+                    t => String(t.symbol).trim().toUpperCase() === sym
+                );
+                if (!trade) return;
+
+                const sec = trade.sector || "อื่นๆ";
+                if (sec === key) {
+                    const currentPrices = window.currentPrices || {};
+                    const price = Number(currentPrices[sym]) || portfolio[sym].avgPrice;
+                    marketValue += portfolio[sym].totalUnits * price;
+                }
+            });
+        }
+
+        totalValue += marketValue;
+    });
+
+    // 2. วาดตารางข้อมูล
+    keys.forEach(key => {
+        const data = safeDataMap[key];
+        if (!data || data.totalUnits <= 0) return;
+
+        let marketPrice = data.avgPrice;
+        let marketValue = 0;
+        const portfolio = window.portfolio || {};
+        const globalTradesData = window.globalTradesData || [];
+
+        if (currentMonitorView === "stock") {
+            const currentPrices = window.currentPrices || {};
+            marketPrice = Number(currentPrices[key]) || data.avgPrice;
+            marketValue = data.totalUnits * marketPrice;
+        } else {
+            marketPrice = 0;
+            Object.keys(portfolio).forEach(sym => {
+                const trade = globalTradesData.find(
+                    t => String(t.symbol).trim().toUpperCase() === sym
+                );
+                if (!trade) return;
+
+                const sec = trade.sector || "อื่นๆ";
+                if (sec === key) {
+                    const currentPrices = window.currentPrices || {};
+                    const price = Number(currentPrices[sym]) || portfolio[sym].avgPrice;
+                    marketValue += portfolio[sym].totalUnits * price;
+                }
+            });
+        }
+
+        // ดึงค่า PnL
+        let totalPnL = 0;
+        if (currentMonitorView === "stock") {
+            const unrealizedPnL = window.unrealizedPnL || {};
+            totalPnL = unrealizedPnL[key] || 0;
+        } else {
+            const sectorUnrealizedPnL = window.sectorUnrealizedPnL || {};
+            totalPnL = sectorUnrealizedPnL[key] || 0;
+        }
+
+        const roi = data.totalCost > 0 ? (totalPnL / data.totalCost) * 100 : 0;
+        const weight = totalValue > 0 ? (marketValue / totalValue) * 100 : 0;
+
+        // คำนวณ Dividend Yield
+        let dividendReceived = 0;
+
+        if (currentMonitorView === "stock") {
+            globalTradesData.forEach(trade => {
+                if (
+                    trade.type === "ปันผล" &&
+                    String(trade.symbol).trim().toUpperCase() === key
+                ) {
+                    dividendReceived += Number(trade.netAmount || 0);
+                }
+            });
+        } else {
+            Object.keys(portfolio).forEach(sym => {
+                const stockTrade = globalTradesData.find(
+                    t => String(t.symbol).trim().toUpperCase() === sym
+                );
+                if (!stockTrade) return;
+
+                const stockSector = stockTrade.sector || "อื่นๆ";
+                if (stockSector === key) {
+                    globalTradesData.forEach(trade => {
+                        if (
+                            trade.type === "ปันผล" &&
+                            String(trade.symbol).trim().toUpperCase() === sym
+                        ) {
+                            dividendReceived += Number(trade.netAmount || 0);
+                        }
+                    });
+                }
+            });
+        }
+
+        const dividendYield = data.totalCost > 0
+            ? (dividendReceived / data.totalCost) * 100
+            : 0;
+
+        // สร้างแถวตาราง HTML
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="fw-bold">${key}</td>
+            <td>${data.totalUnits.toLocaleString()}</td>
+            <td>${currentMonitorView === "stock" ? data.avgPrice.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "-"}</td>
+            <td>${data.totalCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td>${currentMonitorView === "stock" ? marketPrice.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "-"}</td>
+            <td>${marketValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td>
+            <td class="${totalPnL >= 0 ? 'text-success' : 'text-danger'}">${totalPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td class="${roi >= 0 ? 'text-success' : 'text-danger'}">${roi.toFixed(2)}%</td>
+            <td class="text-primary fw-bold">
+                ${currentMonitorView === "sector" && dividendReceived === 0 ? "-" : dividendYield.toFixed(2) + "%"}
+            </td>
+        `;
+        mBody.appendChild(row);
+    });
+}
 
 function deleteRecord(rowIndex, symbol, units) {
     if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol || ''} จำนวน ${(units || 0).toLocaleString()} หุ้น ใช่หรือไม่?`)) {
