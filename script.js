@@ -499,7 +499,13 @@ ${currentMonitorView === "stock"
             <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td>
             <td class="${totalPnL >= 0 ? 'text-success' : 'text-danger'}">${totalPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
             <td class="${roi >= 0 ? 'text-success' : 'text-danger'}">${roi.toFixed(2)}%</td>
-<td class="text-primary fw-bold">${dividendYield.toFixed(2)}%</td>
+<td class="text-primary fw-bold">
+${
+    currentMonitorView === "sector" && dividendReceived === 0
+    ? "-"
+    : dividendYield.toFixed(2) + "%"
+}
+</td>
         `;
         mBody.appendChild(row);
     });
