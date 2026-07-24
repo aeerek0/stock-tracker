@@ -442,9 +442,19 @@ const dividendYield = data.totalCost > 0
         row.innerHTML = `
             <td class="fw-bold">${key}</td>
             <td>${data.totalUnits.toLocaleString()}</td>
-            <td>${data.avgPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td>
+${currentMonitorView === "stock"
+    ? data.avgPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })
+    : "-"
+}
+</td>
             <td>${data.totalCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-            <td>${marketPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+            <td>
+${currentMonitorView === "stock"
+    ? marketPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })
+    : "-"
+}
+</td>
             <td>${marketValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
             <td class="text-secondary fw-bold">${weight.toFixed(1)}%</td>
             <td class="${totalPnL >= 0 ? 'text-success' : 'text-danger'}">${totalPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
