@@ -291,10 +291,9 @@ function startEditMode(rowIndex) {
     document.getElementById('price').value = trade.price;
     document.getElementById('units').value = trade.units;
     
-    // คำนวณหา % ค่าธรรมเนียมเดิมกลับมาโชว์
-    const gross = trade.price * trade.units;
-    const feePercent = ((trade.feeTax / gross) * 100).toFixed(4);
-    document.getElementById('feeRate').value = feePercent;
+// แสดงค่าธรรมเนียมจริง (บาท)
+document.getElementById('feeRate').value =
+    Number(trade.feeTax || 0).toFixed(2);
 
     // เปลี่ยนดีไซน์หน้าตาฟอร์มให้รู้ว่ากำลังแก้ไข
     document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
