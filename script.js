@@ -476,7 +476,7 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
     const dataMap = (activeView === 'stock') ? portfolio : sectorPortfolio;
     const pnLMap = (activeView === 'stock') ? realizedPnL : sectorPnL;
 
-    if (typeof renderMonitorTable === 'function') renderMonitorTable(dataMap, pnLMap);
+   // if (typeof renderMonitorTable === 'function') renderMonitorTable(dataMap, pnLMap);
     //if (typeof drawAllocationChart === 'function') drawAllocationChart(activeView);
     if (typeof renderDividendTable === 'function') renderDividendTable();
     if (typeof renderDividendHistory === 'function') renderDividendHistory();
