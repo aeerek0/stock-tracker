@@ -683,34 +683,26 @@ if (totalCost > 0) {
         const el = document.getElementById(id);
         if (el) el.innerText = text;
     };
+// 1. ย้ายฟังก์ชันกำหนดสีขึ้นมาไว้นอกสุด เพื่อให้เรียกใช้ได้ตลอดเวลา
+const setElementColor = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.style.color = val >= 0 ? "#4faba2" : "#e56b6f";
+};
 
-    setElementText('dashTotalValue', totalPortfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2 }));
-    setElementText('dashTotalPnL', (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2 }));
-    setElementText(
-    'dashGrowth',
-    `Growth ${(growthPercent >= 0 ? '+' : '')}${growthPercent.toFixed(2)}%`
-);
-    setElementText('dashUnrealizedPnL', (totalUnrealized >= 0 ? '+' : '') + totalUnrealized.toLocaleString(undefined, { minimumFractionDigits: 2 }));
-    setElementText('dashTotalStocks', activeStocksCount);
-    setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
-    setElementText('dashCashBalance', cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }));
-    setElementText('dashNetWorth', netWorth.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+// 2. อัปเดตข้อความบน Dashboard
+setElementText('dashTotalValue', totalPortfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+setElementText('dashTotalPnL', (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+setElementText('dashGrowth', `Growth ${growthPercent >= 0 ? '+' : ''}${growthPercent.toFixed(2)}%`);
+setElementText('dashUnrealizedPnL', (totalUnrealized >= 0 ? '+' : '') + totalUnrealized.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+setElementText('dashTotalStocks', activeStocksCount);
+setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+setElementText('dashCashBalance', cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+setElementText('dashNetWorth', netWorth.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
-    setElementText(
-    'dashGrowth',
-    `Growth ${growthPercent >= 0 ? '+' : ''}${growthPercent.toFixed(2)}%`
-);
-
-// สี Growth
+// 3. ปรับสีข้อความตามค่าบวก/ลบ
 setElementColor('dashGrowth', growthPercent);
-
-    // ปรับสีข้อความ PnL
-    const setElementColor = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.style.color = val >= 0 ? "#4faba2" : "#e56b6f";
-    };
-    setElementColor('dashTotalPnL', totalPnL);
-    setElementColor('dashUnrealizedPnL', totalUnrealized);
+setElementColor('dashTotalPnL', totalPnL);
+setElementColor('dashUnrealizedPnL', totalUnrealized);
 
     // 6. Render ตารางประวัติการเทรด (แสดงจากล่าสุดไปเก่าสุด)
     globalTradesData.slice(-displayCount).reverse().forEach(trade => {
