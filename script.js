@@ -756,12 +756,6 @@ globalTradesData.forEach(trade => {
 
 });
 
-
-// 4. Render Monitor Table ตาม View ที่เลือก
-const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
-const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
-
-renderMonitorTable(dataMap, pnLMap);
     
     // 4. Render Monitor Table ตาม View ที่เลือก (stock หรือ sector)
     const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
