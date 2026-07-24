@@ -949,16 +949,24 @@ function drawAllocationChart(view = "stock") {
     const values = [];
 
     Object.keys(dataMap).forEach(key => {
-        if (dataMap[key].totalUnits > 0) {
+        // เช็กทั้งจำนวนหุ้น หรือถ้าเป็น sector ให้เช็กมูลค่ารวม
+        const hasUnits = dataMap[key].totalUnits > 0;
+        const hasValue = view === "sector" && (dataMap[key].totalMarketValue > 0 || dataMap[key].totalCost > 0);
+
+        if (hasUnits || hasValue) {
             let value = 0;
             if (view === "stock") {
-                let price = window.currentPrices[key] || 0;
+                let price = window.currentPrices?.[key] || 0;
                 value = dataMap[key].totalUnits * price;
             } else {
-                value = dataMap[key].totalCost;
+                // คำนวณตาม Market Value ของ Sector (หรือใช้ totalCost ถ้ายังไม่ได้รวมราคาตลาด)
+                value = dataMap[key].totalMarketValue || dataMap[key].totalCost || 0;
             }
-            labels.push(key);
-            values.push(value);
+
+            if (value > 0) {
+                labels.push(key);
+                values.push(value);
+            }
         }
     });
 
@@ -967,20 +975,62 @@ function drawAllocationChart(view = "stock") {
         window.allocationChart.destroy();
     }
     
-    Chart.register(ChartDataLabels);
+    // ชุดสีมาตรฐานสวยๆ สำหรับกราฟ
+    const chartColors = [
+        "#4faba2", "#e56b6f", "#f7b801", "#3a86ff", "#8338ec", 
+        "#ff006e", "#fb5607", "#06d6a0", "#118ab2", "#073b4c"
+    ];
+
     window.allocationChart = new Chart(canvas, {
         type: "doughnut",
         data: {
             labels: labels,
             datasets: [{
-                data: values
+                data: values,
+                backgroundColor: chartColors.slice(0, labels.length) // ใส่ชุดสีป้องกันกล่อง Legend ดำ
             }]
         },
         options: {
-        plugins: {
-        legend: {
-                position: "bottom"
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            const dataset = data.datasets[0];
+                            const total = dataset.data.reduce((a, b) => a + b, 0);
+
+                            return data.labels.map((label, i) => {
+                                const value = dataset.data[i];
+                                const percent = total > 0 
+                                    ? (value / total * 100).toFixed(1) 
+                                    : "0.0";
+
+                                return {
+                                    text: `${label} (${percent}%)`,
+                                    fillStyle: dataset.backgroundColor[i], // ดึงสีจาก dataset มาแสดงใน Legend
+                                    strokeStyle: dataset.backgroundColor[i],
+                                    hidden: chart.getDatasetMeta(0).data[i]?.hidden || false,
+                                    index: i
+                                };
+                            });
+                        }
+                    }
                 },
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        let percentage = (value * 100 / sum).toFixed(1) + "%";
+                        return percentage;
+                    },
+                    color: '#fff'
+                }
+            }
+        },
+        plugins: [ChartDataLabels] // ใส่ Plugin เฉพาะ Instance นี้อย่างปลอดภัย
+    });
+}
 
                 datalabels: {
         color: "#fff",
