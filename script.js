@@ -526,7 +526,8 @@ sectorUnrealizedPnL = {};
 
 dividendData = {};
 dividendCostBasis = {};
- 
+ sectorDividendData = {};
+    
     const tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
 
@@ -716,6 +717,46 @@ const feeRate = gross > 0
         tbodyRecord.appendChild(loadMoreRow);
     }
 
+// ===============================
+// สรุป Dividend ตาม Sector
+// ===============================
+
+sectorDividendData = {};
+
+globalTradesData.forEach(trade => {
+
+    if (trade.type !== "ปันผล") return;
+
+    const sym = String(trade.symbol || "")
+        .trim()
+        .toUpperCase();
+
+    const stock = globalTradesData.find(t =>
+        String(t.symbol || "")
+        .trim()
+        .toUpperCase() === sym &&
+        t.sector
+    );
+
+    if (!stock) return;
+
+    const sector = stock.sector || "อื่นๆ";
+
+    if (!sectorDividendData[sector]) {
+        sectorDividendData[sector] = 0;
+    }
+
+    sectorDividendData[sector] += Number(trade.netAmount || 0);
+
+});
+
+
+// 4. Render Monitor Table ตาม View ที่เลือก
+const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
+const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
+
+renderMonitorTable(dataMap, pnLMap);
+    
     // 4. Render Monitor Table ตาม View ที่เลือก (stock หรือ sector)
     const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
     const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
