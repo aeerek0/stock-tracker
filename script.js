@@ -655,7 +655,16 @@ function renderTableOnly(data) {
     tbodyRecord.innerHTML = '';
     
     data.slice().reverse().forEach(trade => {
+
+        const gross = Number(trade.grossAmount) || 0;
+        const fee = Number(trade.feeTax) || 0;
+
+        const feeRate = gross > 0
+            ? (fee / gross) * 100
+            : 0;
+
         const row = document.createElement('tr');
+
         row.innerHTML = `
             <td>${trade.date.split("T")[0]}</td>
             <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
@@ -665,17 +674,27 @@ function renderTableOnly(data) {
             <td>${parseFloat(trade.price).toLocaleString()}</td>
             <td>${parseInt(trade.units).toLocaleString()}</td>
             <td>${parseFloat(trade.grossAmount).toLocaleString()}</td>
-            <td>${parseFloat(trade.feeTax).toLocaleString()}</td>
+
+            <td>
+                ${fee.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}
+                <br>
+                <small class="text-muted">${feeRate.toFixed(4)}%</small>
+            </td>
+
             <td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td>
             <td>-</td>
             <td>
                 <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
                 <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
-            </td>`;
+            </td>
+        `;
+
         tbodyRecord.appendChild(row);
     });
 }
-    
 function deleteRecord(rowIndex, symbol, units) {
     if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol} จำนวน ${units.toLocaleString()} หุ้น ใช่หรือไม่?`)) {
         return;
