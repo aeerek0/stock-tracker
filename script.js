@@ -542,25 +542,29 @@ dividendCostBasis[sym] += netAmount;
     });
 
     // ----------------------------
-    // คำนวณ Unrealized ราย Sector
-    // ----------------------------
-    sector = {};
+ // ----------------------------
+// คำนวณ Unrealized ราย Sector
+// ----------------------------
+sectorUnrealizedPnL = {};
 
-    globalTradesData.forEach(trade => {
-        if (trade.type !== "ซื้อ") return;
-        const sym = String(trade.symbol).trim().toUpperCase();
-        const sector = trade.sector || "อื่นๆ";
-        if (!sector[sector]) {
-            sector[sector] = 0;
-        }
-    });
+Object.keys(portfolio).forEach(sym => {
 
-    Object.keys(portfolio).forEach(sym => {
-        const trade = globalTradesData.find(t => String(t.symbol).trim().toUpperCase() === sym);
-        if (!trade) return;
-        const sector = trade.sector || "อื่นๆ";
-        sector[sector] = (sectorUnrealizedPnL[sector] || 0) + (unrealizedPnL[sym] || 0);
-    });
+    if (portfolio[sym].totalUnits <= 0) return;
+
+    const trade = globalTradesData.find(
+        t => String(t.symbol).trim().toUpperCase() === sym
+    );
+
+    if (!trade) return;
+
+    const sec = trade.sector || "อื่นๆ";
+
+    if (!sectorUnrealizedPnL[sec]) {
+        sectorUnrealizedPnL[sec] = 0;
+    }
+
+    sectorUnrealizedPnL[sec] += unrealizedPnL[sym] || 0;
+});
 
     let netDeposited = 0;
     globalTradesData.forEach(t => {
