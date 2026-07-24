@@ -313,12 +313,13 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
             return;
         }
 
+        // Initialize Objects
         if (!portfolio[sym]) {
             portfolio[sym] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
             realizedPnL[sym] = 0;
         }
         if (!sectorPortfolio[sector]) {
-            sectorPortfolio[sector] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
+            sectorPortfolio[sector] = { totalCost: 0, totalMarketValue: 0 };
             sectorPnL[sector] = 0;
         }
 
@@ -328,22 +329,29 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
             portfolio[sym].totalCost += amount;
             portfolio[sym].avgPrice = portfolio[sym].totalUnits > 0 ? portfolio[sym].totalCost / portfolio[sym].totalUnits : 0;
 
-            sectorPortfolio[sector].totalUnits += units;
             sectorPortfolio[sector].totalCost += amount;
-            sectorPortfolio[sector].avgPrice = sectorPortfolio[sector].totalUnits > 0 ? sectorPortfolio[sector].totalCost / sectorPortfolio[sector].totalUnits : 0;
+
         } else if (trade.type === 'ขาย') {
             cashBalance += amount;
+            
+            // คำนวณต้นทุนของหุ้นที่ขายออกตามราคาเฉลี่ย
             const costOfSoldShares = units * portfolio[sym].avgPrice;
-            const sectorCostOfSold = units * sectorPortfolio[sector].avgPrice;
 
             realizedPnL[sym] += (amount - costOfSoldShares);
-            sectorPnL[sector] += (amount - sectorCostOfSold);
+            sectorPnL[sector] += (amount - costOfSoldShares);
 
             portfolio[sym].totalUnits -= units;
             portfolio[sym].totalCost -= costOfSoldShares;
+            sectorPortfolio[sector].totalCost -= costOfSoldShares;
 
-            sectorPortfolio[sector].totalUnits -= units;
-            sectorPortfolio[sector].totalCost -= sectorCostOfSold;
+            // ป้องกันเศษทศนิยมค้าง หรือขายหมดพอร์ต
+            if (portfolio[sym].totalUnits <= 0) {
+                portfolio[sym].totalUnits = 0;
+                portfolio[sym].totalCost = 0;
+                portfolio[sym].avgPrice = 0;
+            } else {
+                portfolio[sym].avgPrice = portfolio[sym].totalCost / portfolio[sym].totalUnits;
+            }
         }
     });
 
@@ -352,30 +360,24 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
         if (portfolio[sym].totalUnits > 0) {
             const currentPrice = (window.currentPrices && window.currentPrices[sym]) ? Number(window.currentPrices[sym]) : portfolio[sym].avgPrice;
             const marketValue = portfolio[sym].totalUnits * currentPrice;
-            // ดึงกลุ่มอุตสาหกรรม (Sector) ของหุ้น ถ้าไม่พบให้จัดอยู่ในกลุ่ม "อื่นๆ"
             const sec = symbolSectorMap[sym] || "อื่นๆ";
 
-                // ถ้ายังไม่มีข้อมูลของ Sector นี้ใน Object ให้สร้างโครงสร้างเริ่มต้นขึ้นมา
             if (!sectorPortfolio[sec]) {
-                sectorPortfolio[sec] = {
-                    totalUnits: 0,
-                    totalCost: 0,
-                    totalMarketValue: 0
-                        };
-                }
+                sectorPortfolio[sec] = { totalCost: 0, totalMarketValue: 0 };
+            }
 
-// บวกสะสมมูลค่าตลาด (Market Value) เข้าไปใน Sector นั้นๆ
-sectorPortfolio[sec].totalMarketValue += marketValue;
+            // สะสม Market Value ให้ Sector
+            sectorPortfolio[sec].totalMarketValue += marketValue;
+            
+            // คำนวณ Unrealized PnL
             const unPnL = marketValue - portfolio[sym].totalCost;
-
             unrealizedPnL[sym] = unPnL;
-            const sec = symbolSectorMap[sym] || "อื่นๆ";
             sectorUnrealizedPnL[sec] = (sectorUnrealizedPnL[sec] || 0) + unPnL;
 
             activeStocksCount++;
             totalPortfolioValue += marketValue;
         }
-        totalRealizedPnL += realizedPnL[sym];
+        totalRealizedPnL += (realizedPnL[sym] || 0);
     });
 
     // 4. Update Dashboard Cards UI
@@ -457,7 +459,6 @@ sectorPortfolio[sec].totalMarketValue += marketValue;
     if (typeof renderDividendHistory === 'function') renderDividendHistory();
     if (typeof renderDividendKPI === 'function') renderDividendKPI();
 }
-
 function loadMore() {
     displayCount += 20;
     renderPortfolioAndRecords(globalTradesData);
