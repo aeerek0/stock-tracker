@@ -526,315 +526,195 @@ function renderPortfolioAndRecords(trades) {
 
     buildDividendYear();
     
-    // 1. เตรียมตัวแปรสำหรับเก็บข้อมูลทั้งแบบรายหุ้นและราย Sector
- 
+    // 1. ประกาศตัวแปรระดับ Local (ป้องกัน Global Scope Leak)
     portfolio = {};
-sectorPortfolio = {};
+    sectorPortfolio = {};
+    realizedPnL = {};
+    unrealizedPnL = {};
+    sectorPnL = {};
+    sectorUnrealizedPnL = {};
+    dividendData = {};
+    dividendCostBasis = {};
+    sectorDividendData = {};
 
-realizedPnL = {};
-unrealizedPnL = {};
-
-sectorPnL = {};
-sectorUnrealizedPnL = {};
-
-dividendData = {};
-dividendCostBasis = {};
- sectorDividendData = {};
+    // Map สำหรับเก็บข้อมูล Sector ของแต่ละหุ้นไว้ดึงข้อมูลง่ายๆ (O(1))
+    const symbolSectorMap = {};
     
     const tbodyRecord = document.getElementById('tradeTableBody');
     tbodyRecord.innerHTML = '';
 
-    // 2. ลูปคำนวณข้อมูลทั้งหมด
-    let totalPortfolioValue = 0, totalPnL = 0, activeStocksCount = 0;
-    
-    const sortedTrades = [...globalTradesData].sort((a, b) => {
-    return new Date(a.date) - new Date(b.date);
-});
+    let totalPortfolioValue = 0;
+    let totalPnL = 0;
+    let activeStocksCount = 0;
+    let cashBalance = 0; // เงินสดคงเหลือจริงในพอร์ต
+    let totalDividend = 0;
 
-sortedTrades.forEach(trade => {
-if (trade.type === 'ปันผล') {
+    // 2. เรียงลำดับรายการตามวันที่ (จากอดีตไปปัจจุบัน)
+    const sortedTrades = [...globalTradesData].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    const sym = String(trade.symbol || "").trim().toUpperCase();
-
-    if (!dividendData[sym]) {
-
-        dividendData[sym] = {
-            count: 0,
-            amount: 0,
-            items: [],
-            totalCost: 0
-        };
-
-    }
-
-    const amount = Number(trade.netAmount) || 0;
-
-    dividendData[sym].count++;
-
-    dividendData[sym].amount += amount;
-
-    // ⭐ เก็บต้นทุน ณ วันที่รับปันผล
-    const costAtDividend =
-        portfolio[sym]
-            ? portfolio[sym].totalCost
-            : 0;
-
-    dividendData[sym].totalCost += costAtDividend;
-
-    dividendData[sym].items.push({
-
-        date: trade.date,
-
-        amount: amount,
-
-        dpu: Number(trade.price) || 0,
-
-        units: Number(trade.units) || 0,
-
-        cost: costAtDividend
-
-    });
-
-    return;
-}
-        if (trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน') return;
-
+    // 3. ลูปประมวลผลการเทรดแบบ Single-Pass
+    sortedTrades.forEach(trade => {
         const sym = String(trade.symbol || "").trim().toUpperCase();
         const sector = String(trade.sector || "อื่นๆ").trim();
-        const units = parseInt(trade.units);
-        const netAmount = parseFloat(trade.netAmount);
+        const amount = Number(trade.netAmount) || 0;
+        const units = parseInt(trade.units) || 0;
 
-        // คำนวณรายหุ้น
+        // บันทึก Sector ของหุ้นตัวนั้นๆ
+        if (sym && sector && sector !== "อื่นๆ") {
+            symbolSectorMap[sym] = sector;
+        }
+
+        // --- กรณี: ฝาก/ถอน เงิน ---
+        if (trade.type === 'ฝากเงิน') {
+            cashBalance += amount;
+            return;
+        }
+        if (trade.type === 'ถอนเงิน') {
+            cashBalance -= amount;
+            return;
+        }
+
+        // --- กรณี: เงินปันผล ---
+        if (trade.type === 'ปันผล') {
+            cashBalance += amount; // รับปันผล = เงินสดเพิ่ม
+            totalDividend += amount;
+
+            if (!dividendData[sym]) {
+                dividendData[sym] = { count: 0, amount: 0, items: [], totalCost: 0 };
+            }
+
+            dividendData[sym].count++;
+            dividendData[sym].amount += amount;
+
+            const costAtDividend = portfolio[sym] ? portfolio[sym].totalCost : 0;
+            dividendData[sym].totalCost += costAtDividend;
+
+            dividendData[sym].items.push({
+                date: trade.date,
+                amount: amount,
+                dpu: Number(trade.price) || 0,
+                units: units,
+                cost: costAtDividend
+            });
+
+            // สะสมปันผลตาม Sector
+            const symSector = symbolSectorMap[sym] || sector;
+            sectorDividendData[symSector] = (sectorDividendData[symSector] || 0) + amount;
+            return;
+        }
+
+        // --- กรณี: ซื้อ / ขาย หุ้น ---
         if (!portfolio[sym]) {
             portfolio[sym] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
             realizedPnL[sym] = 0;
         }
         
-        // คำนวณราย Sector
         if (!sectorPortfolio[sector]) {
             sectorPortfolio[sector] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
             sectorPnL[sector] = 0;
         }
 
         if (trade.type === 'ซื้อ') {
-            portfolio[sym].totalUnits += units;
-            portfolio[sym].totalCost += netAmount;
-            if (!dividendCostBasis[sym]) {
-            dividendCostBasis[sym] = 0;
-                }
-
-dividendCostBasis[sym] += netAmount;
-            portfolio[sym].avgPrice = portfolio[sym].totalUnits > 0 ? portfolio[sym].totalCost / portfolio[sym].totalUnits : 0;
+            cashBalance -= amount; // ซื้อหุ้น = เงินสดลดลง
             
+            portfolio[sym].totalUnits += units;
+            portfolio[sym].totalCost += amount;
+            portfolio[sym].avgPrice = portfolio[sym].totalUnits > 0 ? portfolio[sym].totalCost / portfolio[sym].totalUnits : 0;
+
+            dividendCostBasis[sym] = (dividendCostBasis[sym] || 0) + amount;
+
             sectorPortfolio[sector].totalUnits += units;
-            sectorPortfolio[sector].totalCost += netAmount;
+            sectorPortfolio[sector].totalCost += amount;
             sectorPortfolio[sector].avgPrice = sectorPortfolio[sector].totalUnits > 0 ? sectorPortfolio[sector].totalCost / sectorPortfolio[sector].totalUnits : 0;
-        } else {
+
+        } else if (trade.type === 'ขาย') {
+            cashBalance += amount; // ขายหุ้น = เงินสดเพิ่มขึ้น
+
             const costOfSoldShares = units * portfolio[sym].avgPrice;
             const sectorCostOfSold = units * sectorPortfolio[sector].avgPrice;
-            
-            realizedPnL[sym] += (netAmount - costOfSoldShares);
-            sectorPnL[sector] += (netAmount - sectorCostOfSold);
-            
+
+            realizedPnL[sym] += (amount - costOfSoldShares);
+            sectorPnL[sector] += (amount - sectorCostOfSold);
+
             portfolio[sym].totalUnits -= units;
             portfolio[sym].totalCost -= costOfSoldShares;
-            
+
             sectorPortfolio[sector].totalUnits -= units;
             sectorPortfolio[sector].totalCost -= sectorCostOfSold;
         }
     });
 
-    // ===============================
-    // คำนวณ Unrealized P/L
-    // ===============================
+    // 4. คำนวณ Unrealized P/L (รายหุ้น และ ราย Sector)
     Object.keys(portfolio).forEach(sym => {
         if (portfolio[sym].totalUnits > 0) {
             const currentPrice = (window.currentPrices && window.currentPrices[sym]) ? Number(window.currentPrices[sym]) : portfolio[sym].avgPrice;
             const marketValue = portfolio[sym].totalUnits * currentPrice;
-            unrealizedPnL[sym] = marketValue - portfolio[sym].totalCost;
-        }
-    });
+            const unPnL = marketValue - portfolio[sym].totalCost;
 
-    // ----------------------------
- // ----------------------------
-// คำนวณ Unrealized ราย Sector
-// ----------------------------
-sectorUnrealizedPnL = {};
+            unrealizedPnL[sym] = unPnL;
+            
+            // สะสม Unrealized P/L แยกตาม Sector
+            const sec = symbolSectorMap[sym] || "อื่นๆ";
+            sectorUnrealizedPnL[sec] = (sectorUnrealizedPnL[sec] || 0) + unPnL;
 
-Object.keys(portfolio).forEach(sym => {
-
-    if (portfolio[sym].totalUnits <= 0) return;
-
-    const trade = globalTradesData.find(
-        t => String(t.symbol).trim().toUpperCase() === sym
-    );
-
-    if (!trade) return;
-
-    const sec = trade.sector || "อื่นๆ";
-
-    if (!sectorUnrealizedPnL[sec]) {
-        sectorUnrealizedPnL[sec] = 0;
-    }
-
-    sectorUnrealizedPnL[sec] += unrealizedPnL[sym] || 0;
-});
-
-let netDeposited = 0;
-let hasCashTransaction = false;
-
-globalTradesData.forEach(t => {
-
-    if (t.type === 'ฝากเงิน') {
-        netDeposited += Number(t.netAmount || 0);
-        hasCashTransaction = true;
-    }
-
-    else if (t.type === 'ถอนเงิน') {
-        netDeposited -= Number(t.netAmount || 0);
-        hasCashTransaction = true;
-    }
-
-});
-
-// ไม่มีฝาก/ถอน ให้เงินสดเป็น 0
-if (!hasCashTransaction) {
-    netDeposited = 0;
-}
-    // สรุป Dashboard
-    Object.keys(portfolio).forEach(sym => {
-        if (portfolio[sym].totalUnits > 0) {
+            // สรุป Dashboard
             activeStocksCount++;
-            let marketPrice = window.currentPrices[sym] || portfolio[sym].avgPrice;
-            let marketValue = portfolio[sym].totalUnits * marketPrice;
             totalPortfolioValue += marketValue;
         }
         totalPnL += realizedPnL[sym] + (unrealizedPnL[sym] || 0);
     });
 
- document.getElementById('dashTotalValue').innerText =
-    totalPortfolioValue.toLocaleString(undefined, {
-        minimumFractionDigits: 2
-    });
+    // 5. อัปเดตข้อมูลบน Dashboard UI
+    const totalUnrealized = Object.values(unrealizedPnL).reduce((sum, val) => sum + val, 0);
+    const netWorth = totalPortfolioValue + cashBalance;
 
+    const setElementText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+    };
 
-document.getElementById('dashTotalPnL').innerText =
-    (totalPnL >= 0 ? '+' : '') +
-    totalPnL.toLocaleString(undefined, {
-        minimumFractionDigits: 2
-    });
+    setElementText('dashTotalValue', totalPortfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+    setElementText('dashTotalPnL', (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+    setElementText('dashUnrealizedPnL', (totalUnrealized >= 0 ? '+' : '') + totalUnrealized.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+    setElementText('dashTotalStocks', activeStocksCount);
+    setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+    setElementText('dashCashBalance', cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+    setElementText('dashNetWorth', netWorth.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
-    // สี Total P/L
-const pnlElement = document.getElementById('dashTotalPnL');
+    // ปรับสีข้อความ PnL
+    const setElementColor = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.style.color = val >= 0 ? "#4faba2" : "#e56b6f";
+    };
+    setElementColor('dashTotalPnL', totalPnL);
+    setElementColor('dashUnrealizedPnL', totalUnrealized);
 
-if (pnlElement) {
-    pnlElement.style.color = totalPnL >= 0
-        ? "#4faba2"
-        : "#e56b6f";
-}
-
-
-// Unrealized P/L
-let totalUnrealized = Object.values(unrealizedPnL)
-    .reduce((sum,val)=>sum + val,0);
-
-
-const unrealizedElement =
-document.getElementById('dashUnrealizedPnL');
-
-
-if (unrealizedElement) {
-
-    unrealizedElement.innerText =
-    (totalUnrealized >= 0 ? '+' : '') +
-    totalUnrealized.toLocaleString(undefined,{
-        minimumFractionDigits:2
-    });
-
-
-    unrealizedElement.style.color =
-    totalUnrealized >= 0
-    ? "#4faba2"
-    : "#e56b6f";
-}
-
-document.getElementById('dashTotalStocks').innerText =
-    activeStocksCount;
-
-
-
-if(document.getElementById('dashUnrealizedPnL')){
-
-    document.getElementById('dashUnrealizedPnL').innerText =
-        (totalUnrealized >= 0 ? '+' : '') +
-        totalUnrealized.toLocaleString(undefined,{
-            minimumFractionDigits:2
-        });
-
-}
-
-
-
-// ===============================
-// Dividend Total
-// ===============================
-let totalDividend = 0;
-
-globalTradesData.forEach(t=>{
-
-    if(t.type === "ปันผล"){
-        totalDividend += Number(t.netAmount || 0);
-    }
-
-});
-
-
-if(document.getElementById('dashDividend')){
-
-    document.getElementById('dashDividend').innerText =
-        totalDividend.toLocaleString(undefined,{
-            minimumFractionDigits:2
-        });
-
-}
-
-const cashBalance = netDeposited;
-
-const netWorth = totalPortfolioValue + cashBalance;
-
-
-document.getElementById('dashNetWorth').innerText =
-netWorth.toLocaleString(undefined,{
-    minimumFractionDigits:2
-});
-
-
-document.getElementById('dashCashBalance').innerText =
-cashBalance.toLocaleString(undefined,{
-    minimumFractionDigits:2
-});
-    
-    
-
-    // 3. Render ตารางประวัติ
+    // 6. Render ตารางประวัติการเทรด (แสดงจากล่าสุดไปเก่าสุด)
     globalTradesData.slice(-displayCount).reverse().forEach(trade => {
         const gross = Number(trade.grossAmount) || 0;
-const fee = Number(trade.feeTax) || 0;
+        const fee = Number(trade.feeTax) || 0;
+        const feeRate = gross > 0 ? (fee / gross) * 100 : 0;
 
-const feeRate = gross > 0
-    ? (fee / gross) * 100
-    : 0;
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${new Date(trade.date).toLocaleDateString('en-CA')}</td><td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td><td class="fw-bold">${trade.symbol}</td><td>${trade.sector || '-'}</td><td>${trade.broker || '-'}</td>
-        <td>${parseFloat(trade.price).toLocaleString()}</td><td>${parseInt(trade.units).toLocaleString()}</td>
-        <td>${parseFloat(trade.grossAmount).toLocaleString()}</td>
-        <td>${fee.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}
-    <br>
-    <small class="text-muted">${feeRate.toFixed(4)}%</small>
-</td><td class="fw-bold">${parseFloat(trade.netAmount).toLocaleString()}</td><td>-</td><td><button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button> <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button></td>`;
+        row.innerHTML = `
+            <td>${new Date(trade.date).toLocaleDateString('en-CA')}</td>
+            <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
+            <td class="fw-bold">${trade.symbol || '-'}</td>
+            <td>${trade.sector || '-'}</td>
+            <td>${trade.broker || '-'}</td>
+            <td>${parseFloat(trade.price || 0).toLocaleString()}</td>
+            <td>${parseInt(trade.units || 0).toLocaleString()}</td>
+            <td>${parseFloat(trade.grossAmount || 0).toLocaleString()}</td>
+            <td>
+                ${fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br>
+                <small class="text-muted">${feeRate.toFixed(4)}%</small>
+            </td>
+            <td class="fw-bold">${parseFloat(trade.netAmount || 0).toLocaleString()}</td>
+            <td>-</td>
+            <td>
+                <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
+                <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
+            </td>`;
         tbodyRecord.appendChild(row);
     });
 
@@ -844,41 +724,7 @@ const feeRate = gross > 0
         tbodyRecord.appendChild(loadMoreRow);
     }
 
-// ===============================
-// สรุป Dividend ตาม Sector
-// ===============================
-
-sectorDividendData = {};
-
-globalTradesData.forEach(trade => {
-
-    if (trade.type !== "ปันผล") return;
-
-    const sym = String(trade.symbol || "")
-        .trim()
-        .toUpperCase();
-
-    const stock = globalTradesData.find(t =>
-        String(t.symbol || "")
-        .trim()
-        .toUpperCase() === sym &&
-        t.sector
-    );
-
-    if (!stock) return;
-
-    const sector = stock.sector || "อื่นๆ";
-
-    if (!sectorDividendData[sector]) {
-        sectorDividendData[sector] = 0;
-    }
-
-    sectorDividendData[sector] += Number(trade.netAmount || 0);
-
-});
-
-    
-    // 4. Render Monitor Table ตาม View ที่เลือก (stock หรือ sector)
+    // 7. Render ตารางและกราฟอื่นๆ
     const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
     const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
 
@@ -887,7 +733,6 @@ globalTradesData.forEach(trade => {
     renderDividendTable();
     renderDividendHistory();
     renderDividendKPI();
-    
 }
 
 function loadMore() {
