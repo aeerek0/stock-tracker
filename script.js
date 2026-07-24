@@ -668,6 +668,16 @@ if (trade.type === 'ปันผล') {
     // 5. อัปเดตข้อมูลบน Dashboard UI
     const totalUnrealized = Object.values(unrealizedPnL).reduce((sum, val) => sum + val, 0);
     const netWorth = totalPortfolioValue + cashBalance;
+    // คำนวณต้นทุนหุ้นทั้งหมด
+const totalCost = Object.values(portfolio)
+    .reduce((sum, stock) => sum + stock.totalCost, 0);
+
+// % Growth รวม
+let growthPercent = 0;
+
+if (totalCost > 0) {
+    growthPercent = (totalPnL / totalCost) * 100;
+}
 
     const setElementText = (id, text) => {
         const el = document.getElementById(id);
@@ -676,6 +686,10 @@ if (trade.type === 'ปันผล') {
 
     setElementText('dashTotalValue', totalPortfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2 }));
     setElementText('dashTotalPnL', (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+    setElementText(
+    'dashGrowth',
+    `Growth ${(growthPercent >= 0 ? '+' : '')}${growthPercent.toFixed(2)}%`
+);
     setElementText('dashUnrealizedPnL', (totalUnrealized >= 0 ? '+' : '') + totalUnrealized.toLocaleString(undefined, { minimumFractionDigits: 2 }));
     setElementText('dashTotalStocks', activeStocksCount);
     setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
