@@ -25,28 +25,11 @@ let sectorDividendData = {};
 
 // --- Master Data ---
 const masterSectorMap = {
-    "BA": "Transport",
-    "BCH": "Health Care",
-    "BDMS": "Health Care",
-    "BGRIM": "Energy",
-    "CENTEL": "Tourism",
-    "CPALL": "Commerce",
-    "CPN": "Property",
-    "EPG": "Property & Construction",
-    "EA": "Energy",
-    "HMPRO": "Commerce",
-    "LH": "Property",
-    "MC": "Fashion",
-    "MINT": "Tourism",
-    "SABINA": "Fashion",
-    "SAT": "Automotive",
-    "SPALI": "Property",
-    "TIPH": "Insurance",
-    "TISCO": "Banking",
-    "TLI": "Insurance",
-    "TU": "Food & Bev",
-    "WHA": "Property (Indus)",
-    "TRUE": "Telecommunications"
+    "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
+    "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
+    "EA": "Energy", "HMPRO": "Commerce", "LH": "Property", "MC": "Fashion", "MINT": "Tourism",
+    "SABINA": "Fashion", "SAT": "Automotive", "SPALI": "Property", "TIPH": "Insurance",
+    "TISCO": "Banking", "TLI": "Insurance", "TU": "Food & Bev", "WHA": "Property (Indus)","TRUE": "Telecommunications"
 };
 
 const masterBrokerList = ["Finansia", "Yuanta", "Pi"];
@@ -127,7 +110,7 @@ if (typeElement) {
         const unitsGroup = document.getElementById('units')?.parentElement;
         const feeGroup = document.getElementById('feeRate')?.parentElement;
 
-        if (!symbolGroup) return;
+        if(!symbolGroup) return;
 
         // Reset visibility
         symbolGroup.style.display = "";
@@ -214,7 +197,7 @@ function sortMonitorBy() {
 
     const sorted = Object.keys(dataMap)
         .filter(k => dataMap[k].totalUnits > 0)
-        .sort((a, b) => {
+        .sort((a,b) => {
             const roiA = dataMap[a].totalCost === 0 ? 0 : pnLMap[a] / dataMap[a].totalCost;
             const roiB = dataMap[b].totalCost === 0 ? 0 : pnLMap[b] / dataMap[b].totalCost;
             return (roiA - roiB) * sortDirection;
@@ -261,7 +244,6 @@ function fetchAndRenderData() {
 }
 
 // --- Main Core: Portfolio Calculation & Render ---
-
 function renderPortfolioAndRecords(trades = globalTradesData) {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) searchInput.value = "";
@@ -284,31 +266,11 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
     let cashBalance = 0;
     totalDividend = 0;
 
-    // Safe Guard: ตรวจสอบข้อมูลก่อน Sort วันที่
-    const safeTrades = Array.isArray(trades) ? trades : [];
-    const sortedTrades = [...safeTrades].sort((a, b) => {
-        const dateA = a && a.date ? new Date(a.date).getTime() : 0;
-        const dateB = b && b.date ? new Date(b.date).getTime() : 0;
-        return dateA - dateB;
-    });
+    // 1. Sort Trades Chronologically
+    const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    // Helper สร้างโครงสร้างมาตรฐานของ Sector ป้องกัน Error เวลาเรนเดอร์ UI
-    const initSector = (sec) => {
-        if (!sectorPortfolio[sec]) {
-            sectorPortfolio[sec] = { 
-                totalUnits: 0, 
-                totalCost: 0, 
-                avgPrice: 0, 
-                totalMarketValue: 0 
-            };
-            sectorPnL[sec] = 0;
-        }
-    };
-
-    // 1. Pass 1: Process All Cashflow & Trades
+    // 2. Pass 1: Process All Cashflow & Trades
     sortedTrades.forEach(trade => {
-        if (!trade) return;
-        
         const sym = String(trade.symbol || "").trim().toUpperCase();
         const sector = String(trade.sector || "อื่นๆ").trim();
         const amount = Number(trade.netAmount) || 0;
@@ -351,12 +313,14 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
             return;
         }
 
-        // Initialize Objects
         if (!portfolio[sym]) {
             portfolio[sym] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
             realizedPnL[sym] = 0;
         }
-        initSector(sector);
+        if (!sectorPortfolio[sector]) {
+            sectorPortfolio[sector] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
+            sectorPnL[sector] = 0;
+        }
 
         if (trade.type === 'ซื้อ') {
             cashBalance -= amount;
@@ -366,59 +330,41 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
 
             sectorPortfolio[sector].totalUnits += units;
             sectorPortfolio[sector].totalCost += amount;
-
+            sectorPortfolio[sector].avgPrice = sectorPortfolio[sector].totalUnits > 0 ? sectorPortfolio[sector].totalCost / sectorPortfolio[sector].totalUnits : 0;
         } else if (trade.type === 'ขาย') {
             cashBalance += amount;
-            
-            // ต้นทุนของหุ้นที่ขายออก คิดตามราคาเฉลี่ย ณ ตอนนั้น
-            const costOfSoldShares = units * (portfolio[sym].avgPrice || 0);
+            const costOfSoldShares = units * portfolio[sym].avgPrice;
+            const sectorCostOfSold = units * sectorPortfolio[sector].avgPrice;
 
             realizedPnL[sym] += (amount - costOfSoldShares);
-            sectorPnL[sector] += (amount - costOfSoldShares);
+            sectorPnL[sector] += (amount - sectorCostOfSold);
 
             portfolio[sym].totalUnits -= units;
             portfolio[sym].totalCost -= costOfSoldShares;
 
             sectorPortfolio[sector].totalUnits -= units;
-            sectorPortfolio[sector].totalCost -= costOfSoldShares;
-
-            // เคลียร์ค่าป้องกันเศษทศนิยมค้างเมื่อขายหมดพอร์ต
-            if (portfolio[sym].totalUnits <= 0) {
-                portfolio[sym].totalUnits = 0;
-                portfolio[sym].totalCost = 0;
-                portfolio[sym].avgPrice = 0;
-            } else {
-                portfolio[sym].avgPrice = portfolio[sym].totalCost / portfolio[sym].totalUnits;
-            }
+            sectorPortfolio[sector].totalCost -= sectorCostOfSold;
         }
     });
 
-    // 2. Pass 2: Calculate Market Value & Unrealized PnL
+    // 3. Pass 2: Calculate Market Value & Unrealized PnL
     Object.keys(portfolio).forEach(sym => {
         if (portfolio[sym].totalUnits > 0) {
             const currentPrice = (window.currentPrices && window.currentPrices[sym]) ? Number(window.currentPrices[sym]) : portfolio[sym].avgPrice;
             const marketValue = portfolio[sym].totalUnits * currentPrice;
-            
-            // ดึงกลุ่มอุตสาหกรรม (ประกาศตัวแปร sec เพียงครั้งเดียว)
-            const sec = symbolSectorMap[sym] || "อื่นๆ";
-
-            initSector(sec);
-
-            // บวกสะสมมูลค่าตลาด (Market Value)
-            sectorPortfolio[sec].totalMarketValue += marketValue;
-            
-            // คำนวณ Unrealized PnL
             const unPnL = marketValue - portfolio[sym].totalCost;
+
             unrealizedPnL[sym] = unPnL;
+            const sec = symbolSectorMap[sym] || "อื่นๆ";
             sectorUnrealizedPnL[sec] = (sectorUnrealizedPnL[sec] || 0) + unPnL;
 
             activeStocksCount++;
             totalPortfolioValue += marketValue;
         }
-        totalRealizedPnL += (realizedPnL[sym] || 0);
+        totalRealizedPnL += realizedPnL[sym];
     });
 
-    // 3. Update Dashboard Cards UI
+    // 4. Update Dashboard Cards UI
     const totalUnrealized = Object.values(unrealizedPnL).reduce((sum, val) => sum + val, 0);
     const totalHoldingCost = Object.values(portfolio).reduce((sum, stock) => sum + (stock.totalUnits > 0 ? stock.totalCost : 0), 0);
     const totalPnL = totalRealizedPnL + totalUnrealized;
@@ -447,17 +393,15 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
     setElementColor('dashTotalPnL', totalPnL);
     setElementColor('dashUnrealizedPnL', totalUnrealized);
 
-    // 4. Render Trade History Table
+    // 5. Render Trade History Table
     const tbodyRecord = document.getElementById('tradeTableBody');
     if (tbodyRecord) {
         tbodyRecord.innerHTML = '';
-        const limit = (typeof displayCount !== 'undefined') ? displayCount : safeTrades.length;
-
-        safeTrades.slice(-limit).reverse().forEach(trade => {
+        trades.slice(-displayCount).reverse().forEach(trade => {
             const gross = Number(trade.grossAmount) || 0;
             const fee = Number(trade.feeTax) || 0;
             const feeRate = gross > 0 ? (fee / gross) * 100 : 0;
-            const dateStr = trade.date ? String(trade.date).split("T")[0] : "-";
+            const dateStr = trade.date ? trade.date.split("T")[0] : "-";
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -482,20 +426,19 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
             tbodyRecord.appendChild(row);
         });
 
-        if (limit < safeTrades.length) {
+        if (displayCount < trades.length) {
             const loadMoreRow = document.createElement('tr');
             loadMoreRow.innerHTML = `<td colspan="12"><button class="btn btn-light w-100 fw-bold" onclick="loadMore()">ดูรายการก่อนหน้าเพิ่มเติม...</button></td>`;
             tbodyRecord.appendChild(loadMoreRow);
         }
     }
 
-    // 5. Sub-components Render
-    const activeView = (typeof currentMonitorView !== 'undefined') ? currentMonitorView : 'stock';
-    const dataMap = (activeView === 'stock') ? portfolio : sectorPortfolio;
-    const pnLMap = (activeView === 'stock') ? realizedPnL : sectorPnL;
+    // 6. Sub-components Render
+    const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
+    const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
 
-    // if (typeof renderMonitorTable === 'function') renderMonitorTable(dataMap, pnLMap);
-    // if (typeof drawAllocationChart === 'function') drawAllocationChart(activeView);
+    renderMonitorTable(dataMap, pnLMap);
+    if (typeof drawAllocationChart === 'function') drawAllocationChart(currentMonitorView);
     if (typeof renderDividendTable === 'function') renderDividendTable();
     if (typeof renderDividendHistory === 'function') renderDividendHistory();
     if (typeof renderDividendKPI === 'function') renderDividendKPI();
@@ -504,7 +447,7 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
 function loadMore() {
     displayCount += 20;
     renderPortfolioAndRecords(globalTradesData);
-} 
+}
 
 // --- Search Handler ---
 function searchTrades() {
@@ -597,25 +540,6 @@ function startEditMode(rowIndex) {
     document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
 }
 
-function cancelEditMode() {
-    document.getElementById('editRowIndex').value = "";
-    document.getElementById('tradeForm').reset();
-    document.getElementById('date').valueAsDate = new Date();
-    document.getElementById('feeRate').value = "0.0";
-
-    document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
-    const alertEl = document.getElementById('editAlert');
-    if (alertEl) alertEl.style.display = "none";
-
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = false;
-    btn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
-    btn.style.backgroundColor = "var(--pastel-orange-dark, #fb8500)";
-
-    // Trigger form visibility reset
-    const typeEl = document.getElementById('type');
-    if (typeEl) typeEl.dispatchEvent(new Event('change'));
-}
 // --- Render Monitor Table ---
 
 function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
@@ -767,6 +691,26 @@ function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
     });
 }
 
+function cancelEditMode() {
+    document.getElementById('editRowIndex').value = "";
+    document.getElementById('tradeForm').reset();
+    document.getElementById('date').valueAsDate = new Date();
+    document.getElementById('feeRate').value = "0.0";
+
+    document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
+    const alertEl = document.getElementById('editAlert');
+    if (alertEl) alertEl.style.display = "none";
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = false;
+    btn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+    btn.style.backgroundColor = "var(--pastel-orange-dark, #fb8500)";
+
+    // Trigger form visibility reset
+    const typeEl = document.getElementById('type');
+    if (typeEl) typeEl.dispatchEvent(new Event('change'));
+}
+
 function deleteRecord(rowIndex, symbol, units) {
     if (!confirm(`คุณต้องการลบรายการหุ้น ${symbol || ''} จำนวน ${(units || 0).toLocaleString()} หุ้น ใช่หรือไม่?`)) {
         return;
@@ -868,34 +812,26 @@ if (tradeForm) {
     });
 }
 
-
 // --- 1. Draw Allocation Chart (Doughnut) ---
-
-// --- Draw Allocation Chart (Doughnut) ---
-
 function drawAllocationChart(view = "stock") {
-    // 1. ตรวจสอบ Canvas ป้องกัน Error กรณีไม่พบ Element ในหน้า HTML นั้น
-    const canvas = document.getElementById("allocationChart");
-    if (!canvas) return;
-
-    // 2. กำหนดแหล่งข้อมูลพร้อมป้องกันกรณีตัวแปรเป็น undefined
-    const dataMap = view === "stock" ? (window.portfolio || {}) : (window.sectorPortfolio || {});
+    const dataMap = view === "stock" ? portfolio : sectorPortfolio;
     const labels = [];
     const values = [];
 
-    // 3. วนลูปดึงข้อมูลและคำนวณค่า
+    if (!dataMap) return;
+
     Object.keys(dataMap).forEach(key => {
         const item = dataMap[key];
-        
-        if (item && item.totalUnits > 0) {
+        const hasUnits = item.totalUnits > 0;
+        const hasValue = view === "sector" && (item.totalMarketValue > 0 || item.totalCost > 0);
+
+        if (hasUnits || hasValue) {
             let value = 0;
-            
             if (view === "stock") {
-                const currentPrices = window.currentPrices || {};
-                let price = currentPrices[key] || 0;
+                let price = window.currentPrices?.[key] || 0;
                 value = item.totalUnits * price;
             } else {
-                value = item.totalCost || 0;
+                value = item.totalMarketValue || item.totalCost || 0;
             }
 
             if (value > 0) {
@@ -905,18 +841,31 @@ function drawAllocationChart(view = "stock") {
         }
     });
 
-    // 4. ทำลายกราฟเก่าทิ้งก่อนสร้างใหม่ (ป้องกัน Chart.js ซ้อนทับ)
+    const canvas = document.getElementById("allocationChart");
+    if (!canvas) return;
+
     if (window.allocationChart && typeof window.allocationChart.destroy === "function") {
         window.allocationChart.destroy();
     }
 
-    // 5. สร้างกราฟ Chart.js ใหม่
+    if (values.length === 0) return;
+
+    const totalSum = values.reduce((a, b) => a + b, 0);
+
+    const chartColors = [
+        "#4faba2", "#e56b6f", "#f7b801", "#3a86ff", "#8338ec", 
+        "#ff006e", "#fb5607", "#06d6a0", "#118ab2", "#073b4c"
+    ];
+
+    const pluginsList = (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : [];
+
     window.allocationChart = new Chart(canvas, {
         type: "doughnut",
         data: {
             labels: labels,
             datasets: [{
-                data: values
+                data: values,
+                backgroundColor: chartColors.slice(0, labels.length)
             }]
         },
         options: {
@@ -924,24 +873,57 @@ function drawAllocationChart(view = "stock") {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: "bottom"
+                    position: "bottom",
+                    labels: {
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            const dataset = data.datasets[0];
+
+                            return data.labels.map((label, i) => {
+                                const value = dataset.data[i] || 0;
+                                const percent = totalSum > 0 ? (value / totalSum * 100).toFixed(1) : "0.0";
+                                const color = dataset.backgroundColor[i] || "#ccc";
+
+                                return {
+                                    text: `${label} (${percent}%)`,
+                                    fillStyle: color,
+                                    strokeStyle: color,
+                                    lineWidth: 0,
+                                    index: i
+                                };
+                            });
+                        }
+                    }
+                },
+                datalabels: {
+                    color: "#ffffff",
+                    font: {
+                        weight: "bold",
+                        size: 12
+                    },
+                    formatter: function(value) {
+                        if (!totalSum || totalSum === 0) return "";
+                        const pct = (value / totalSum * 100).toFixed(1);
+                        return pct > 3 ? pct + "%" : "";
+                    }
                 },
                 tooltip: {
                     callbacks: {
-                        label: function (ctx) {
-                            let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            let percent = total > 0 ? (ctx.raw / total * 100).toFixed(2) : "0.00";
-                            return `${ctx.label}: ${percent}%`;
+                        label: function(ctx) {
+                            const val = ctx.raw || 0;
+                            const percent = totalSum > 0 ? (val / totalSum * 100).toFixed(2) : "0.00";
+                            const formattedVal = val.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                            return ` ${ctx.label}: ฿${formattedVal} (${percent}%)`;
                         }
                     }
                 }
             }
-        }
+        },
+        plugins: pluginsList
     });
 }
 
 // --- 2. Build Dropdown Years for Dividends ---
-
 function buildDividendYear() {
     const yearSelect = document.getElementById("dividendYear");
     if (!yearSelect) return;
@@ -1000,7 +982,6 @@ function buildCalendarYear() {
 }
 
 // --- 3. Dividend Calculation Helpers ---
-
 function getDividendSummary(sym, year = 0, month = 0) {
     if (!dividendData || !dividendData[sym]) {
         return { count: 0, amount: 0, dpu: 0, cost: 0, yield: 0 };
@@ -1037,17 +1018,14 @@ function getDividendSummary(sym, year = 0, month = 0) {
 function calculateDividendGrowth() {
     return 0.0; 
 }
-
 function calculateAverageDividendMonth() {
     return 0.0;
 }
-
 function calculateTopDividendStock() {
     return { symbol: "-", amount: 0, percent: 0 };
 }
 
 // --- 4. Render Dividend Summary Table ---
-
 function renderDividendTable() {
     const tbody = document.getElementById("dividendTableBody");
     if (!tbody) return;
@@ -1170,7 +1148,6 @@ function renderDividendTable() {
     if (typeof renderDividendStockChart === 'function') renderDividendStockChart();
     if (typeof renderDividendYearChart === 'function') renderDividendYearChart();
 }
-
 // --- Global State Variables for Dividend History ---
 let dividendHistoryLimit = 10;
 let showAllDividend = false;
@@ -1270,8 +1247,8 @@ function renderDividendKPI() {
     const yieldTotal = totalCost > 0 ? (totalAmount / totalCost) * 100 : 0;
     setSafeText("dividendTotalYield", yieldTotal.toFixed(2) + "%");
 }
-// --- 2. Tab Navigation System ---
 
+// --- 2. Tab Navigation System ---
 function switchTab(tab) {
     const tabs = ["portfolio", "dividend", "settings", "analytics"];
 
@@ -1304,7 +1281,6 @@ function switchTab(tab) {
 }
 
 // --- 3. Dividend History Table & Toggle ---
-
 function renderDividendHistory() {
     const historyTbody = document.getElementById("dividendHistoryBody");
     if (!historyTbody) return;
@@ -1360,7 +1336,6 @@ function toggleDividendHistory() {
 }
 
 // --- 4. Dividend Calendar & Detail Toggle ---
-
 function toggleDividendDetail(monthIndex) {
     const previewEl = document.getElementById(`dividend-preview-${monthIndex}`);
     const detailEl = document.getElementById(`dividend-detail-${monthIndex}`);
@@ -1485,9 +1460,7 @@ function renderDividendCalendar() {
         container.innerHTML += html;
     }
 }
-
 // --- 1. Bootstrap Modal Handler ---
-
 function showDividendDetail(month, items = [], total = 0) {
     const titleEl = document.getElementById("dividendModalTitle");
     const bodyEl = document.getElementById("dividendModalBody");
@@ -1520,11 +1493,9 @@ function showDividendDetail(month, items = [], total = 0) {
     }
 }
 
-
 // --- 2. Dividend Charts (Chart.js) ---
 
 // 2.1 Monthly Dividend Chart (Bar)
-
 function renderDividendMonthlyChart() {
     const yearEl = document.getElementById("dividendYear");
     const year = yearEl ? Number(yearEl.value) : 0;
@@ -1576,7 +1547,6 @@ function renderDividendMonthlyChart() {
 }
 
 // 2.2 Stock Dividend Distribution Chart (Doughnut)
-
 function renderDividendStockChart() {
     const yearEl = document.getElementById("dividendYear");
     const year = yearEl ? Number(yearEl.value) : 0;
@@ -1626,7 +1596,6 @@ function renderDividendStockChart() {
 }
 
 // 2.3 Yearly Dividend Chart (Bar - พ.ศ.)
-
 function renderDividendYearChart() {
     let yearData = {};
 
@@ -1764,7 +1733,6 @@ function toggleDividendDetail(month) {
 }
 
 // --- 4. Entry Point & Initialization ---
-
 window.onload = function() {
     const dateInput = document.getElementById('date');
     if (dateInput) {
