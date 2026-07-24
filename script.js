@@ -22,7 +22,7 @@ let dividendStockChart = null;
 let dividendYearChart = null;
 let dynamicSectorMap = {}; 
 let sectorDividendData = {};
-
+let isLoadingData = false;
 // --- Master Data ---
 const masterSectorMap = {
     "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
@@ -267,7 +267,11 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
     totalDividend = 0;
 
     // 1. Sort Trades Chronologically
-    const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const safeTrades = Array.isArray(trades) ? trades : [];
+
+const sortedTrades = [...safeTrades].sort((a,b)=>{
+    return new Date(a.date) - new Date(b.date);
+});
 
     // 2. Pass 1: Process All Cashflow & Trades
     sortedTrades.forEach(trade => {
@@ -993,9 +997,9 @@ function renderDividendTable() {
     });
 
     // เรียก Render Chart ย่อยตามเงื่อนไขความพร้อมของฟังก์ชัน
-    if (typeof renderDividendMonthlyChart === 'function') renderDividendMonthlyChart();
-    if (typeof renderDividendStockChart === 'function') renderDividendStockChart();
-    if (typeof renderDividendYearChart === 'function') renderDividendYearChart();
+    //if (typeof renderDividendMonthlyChart === 'function') renderDividendMonthlyChart();
+   // if (typeof renderDividendStockChart === 'function') renderDividendStockChart();
+    //if (typeof renderDividendYearChart === 'function') renderDividendYearChart();
 }
 
 // --- Global State Variables for Dividend History ---
@@ -1584,12 +1588,16 @@ function toggleDividendDetail(month) {
 }
 
 // --- 4. Entry Point & Initialization ---
-window.onload = function() {
+window.addEventListener("load", function () {
+
     const dateInput = document.getElementById('date');
+
     if (dateInput) {
         dateInput.valueAsDate = new Date();
     }
+
     if (typeof initConnection === 'function') {
         initConnection();
     }
-};
+
+});
