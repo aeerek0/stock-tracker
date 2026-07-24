@@ -324,6 +324,13 @@ function cancelEditMode() {
 function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
     const mBody = document.getElementById('monitorTableBody');
     mBody.innerHTML = '';
+    const header = document.getElementById('monitorSymbolHeader');
+
+if (header) {
+    header.innerText = currentMonitorView === "stock"
+        ? "Symbol"
+        : "Sector";
+}
     let totalValue = 0;
     const keys = sortedKeys || Object.keys(dataMap);
 
