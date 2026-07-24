@@ -966,7 +966,8 @@ function drawAllocationChart(view = "stock") {
     if (window.allocationChart && typeof window.allocationChart.destroy === "function") {
         window.allocationChart.destroy();
     }
-
+    
+    Chart.register(ChartDataLabels);
     window.allocationChart = new Chart(canvas, {
         type: "doughnut",
         data: {
@@ -976,11 +977,24 @@ function drawAllocationChart(view = "stock") {
             }]
         },
         options: {
-            plugins: {
-                legend: {
-                    position: "bottom"
+        plugins: {
+        legend: {
+                position: "bottom"
                 },
-                tooltip: {
+
+                datalabels: {
+        color: "#fff",
+        font: {
+            weight: "bold",
+            size: 12
+        },
+        formatter: function(value, ctx) {
+            let total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            return (value / total * 100).toFixed(1) + "%";
+        }
+    },
+
+    tooltip: {
                     callbacks: {
                         label: function (ctx) {
                             let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
