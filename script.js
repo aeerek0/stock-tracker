@@ -709,11 +709,11 @@ if (tradeForm) {
 
         const price = parseFloat(document.getElementById('price').value) || 0;
         const units = parseInt(document.getElementById('units').value) || 0;
-        const feeRate = parseFloat(document.getElementById('feeRate').value) / 100;
+        const feeTax = parseFloat(document.getElementById('feeRate').value) || 0;
         const type = document.getElementById('type').value;
 
         const grossAmount = price * units;
-        const feeTax = grossAmount * feeRate;
+        
 
         // แก้ไขตรงนี้: คำนวณ netAmount ให้จบในที่เดียว
         let netAmount = 0;
