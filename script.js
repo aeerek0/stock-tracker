@@ -696,6 +696,20 @@ if (totalCost > 0) {
     setElementText('dashCashBalance', cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }));
     setElementText('dashNetWorth', netWorth.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
+    setElementText(
+    'dashGrowth',
+    `Growth ${growthPercent >= 0 ? '+' : ''}${growthPercent.toFixed(2)}%`
+);
+
+// สี Growth
+const growthEl = document.getElementById('dashGrowth');
+
+if (growthEl) {
+    growthEl.style.color = growthPercent >= 0 
+        ? "#4faba2"
+        : "#e56b6f";
+}
+
     // ปรับสีข้อความ PnL
     const setElementColor = (id, val) => {
         const el = document.getElementById(id);
