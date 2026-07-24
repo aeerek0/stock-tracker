@@ -697,10 +697,96 @@ Object.keys(portfolio).forEach(sym => {
         totalPnL += realizedPnL[sym] + (unrealizedPnL[sym] || 0);
     });
 
-    document.getElementById('dashTotalValue').innerText = totalPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    document.getElementById('dashTotalPnL').innerText = (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2 });
-    document.getElementById('dashTotalStocks').innerText = activeStocksCount;
-    document.getElementById('dashTotalTrades').innerText = globalTradesData.length;
+ document.getElementById('dashTotalValue').innerText =
+    totalPortfolioValue.toLocaleString(undefined, {
+        minimumFractionDigits: 2
+    });
+
+
+document.getElementById('dashTotalPnL').innerText =
+    (totalPnL >= 0 ? '+' : '') +
+    totalPnL.toLocaleString(undefined, {
+        minimumFractionDigits: 2
+    });
+
+
+document.getElementById('dashTotalStocks').innerText =
+    activeStocksCount;
+
+
+// ===============================
+// Cash Balance
+// ===============================
+let cashBalance = 0;
+
+globalTradesData.forEach(t => {
+
+    if (t.type === "ฝากเงิน") {
+        cashBalance += Number(t.netAmount || 0);
+    }
+
+    if (t.type === "ถอนเงิน") {
+        cashBalance -= Number(t.netAmount || 0);
+    }
+
+});
+
+
+if(document.getElementById('dashCashBalance')){
+    document.getElementById('dashCashBalance').innerText =
+        cashBalance.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        });
+}
+
+
+
+// ===============================
+// Unrealized P/L
+// ===============================
+let totalUnrealized = 0;
+
+Object.values(unrealizedPnL).forEach(v=>{
+    totalUnrealized += Number(v || 0);
+});
+
+
+if(document.getElementById('dashUnrealizedPnL')){
+
+    document.getElementById('dashUnrealizedPnL').innerText =
+        (totalUnrealized >= 0 ? '+' : '') +
+        totalUnrealized.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        });
+
+}
+
+
+
+// ===============================
+// Dividend Total
+// ===============================
+let totalDividend = 0;
+
+globalTradesData.forEach(t=>{
+
+    if(t.type === "ปันผล"){
+        totalDividend += Number(t.netAmount || 0);
+    }
+
+});
+
+
+if(document.getElementById('dashDividend')){
+
+    document.getElementById('dashDividend').innerText =
+        totalDividend.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        });
+
+}
+
+    
 
     // 3. Render ตารางประวัติ
     globalTradesData.slice(-displayCount).reverse().forEach(trade => {
