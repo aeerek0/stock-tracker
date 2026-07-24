@@ -814,112 +814,60 @@ if (tradeForm) {
 
 // --- 1. Draw Allocation Chart (Doughnut) ---
 function drawAllocationChart(view = "stock") {
-    const dataMap = view === "stock" ? portfolio : sectorPortfolio;
+    // 1. เช็คว่ามี element และข้อมูลหรือไม่ ป้องกัน Error ตั้งแต่ต้น
+    const canvas = document.getElementById("allocationChart");
+    if (!canvas) return;
+
+    const dataMap = view === "stock" ? (window.portfolio || {}) : (window.sectorPortfolio || {});
     const labels = [];
     const values = [];
 
-    if (!dataMap) return;
-
     Object.keys(dataMap).forEach(key => {
         const item = dataMap[key];
-        const hasUnits = item.totalUnits > 0;
-        const hasValue = view === "sector" && (item.totalMarketValue > 0 || item.totalCost > 0);
-
-        if (hasUnits || hasValue) {
+        // ป้องกันกรณี item เป็น null หรือ undefined
+        if (item && item.totalUnits > 0) {
             let value = 0;
             if (view === "stock") {
-                let price = window.currentPrices?.[key] || 0;
+                // ป้องกัน window.currentPrices เป็น undefined
+                const currentPrices = window.currentPrices || {};
+                let price = currentPrices[key] || 0;
                 value = item.totalUnits * price;
             } else {
-                value = item.totalMarketValue || item.totalCost || 0;
+                value = item.totalCost || 0;
             }
-
-            if (value > 0) {
-                labels.push(key);
-                values.push(value);
-            }
+            labels.push(key);
+            values.push(value);
         }
     });
-
-    const canvas = document.getElementById("allocationChart");
-    if (!canvas) return;
 
     if (window.allocationChart && typeof window.allocationChart.destroy === "function") {
         window.allocationChart.destroy();
     }
-
-    if (values.length === 0) return;
-
-    const totalSum = values.reduce((a, b) => a + b, 0);
-
-    const chartColors = [
-        "#4faba2", "#e56b6f", "#f7b801", "#3a86ff", "#8338ec", 
-        "#ff006e", "#fb5607", "#06d6a0", "#118ab2", "#073b4c"
-    ];
-
-    const pluginsList = (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : [];
 
     window.allocationChart = new Chart(canvas, {
         type: "doughnut",
         data: {
             labels: labels,
             datasets: [{
-                data: values,
-                backgroundColor: chartColors.slice(0, labels.length)
+                data: values
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: "bottom",
-                    labels: {
-                        generateLabels: function(chart) {
-                            const data = chart.data;
-                            const dataset = data.datasets[0];
-
-                            return data.labels.map((label, i) => {
-                                const value = dataset.data[i] || 0;
-                                const percent = totalSum > 0 ? (value / totalSum * 100).toFixed(1) : "0.0";
-                                const color = dataset.backgroundColor[i] || "#ccc";
-
-                                return {
-                                    text: `${label} (${percent}%)`,
-                                    fillStyle: color,
-                                    strokeStyle: color,
-                                    lineWidth: 0,
-                                    index: i
-                                };
-                            });
-                        }
-                    }
-                },
-                datalabels: {
-                    color: "#ffffff",
-                    font: {
-                        weight: "bold",
-                        size: 12
-                    },
-                    formatter: function(value) {
-                        if (!totalSum || totalSum === 0) return "";
-                        const pct = (value / totalSum * 100).toFixed(1);
-                        return pct > 3 ? pct + "%" : "";
-                    }
+                    position: "bottom"
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(ctx) {
-                            const val = ctx.raw || 0;
-                            const percent = totalSum > 0 ? (val / totalSum * 100).toFixed(2) : "0.00";
-                            const formattedVal = val.toLocaleString(undefined, { minimumFractionDigits: 2 });
-                            return ` ${ctx.label}: ฿${formattedVal} (${percent}%)`;
+                        label: function (ctx) {
+                            let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            let percent = total > 0 ? (ctx.raw / total * 100).toFixed(2) : 0;
+                            return ctx.label + " " + percent + "%";
                         }
                     }
                 }
             }
-        },
-        plugins: pluginsList
+        }
     });
 }
 
