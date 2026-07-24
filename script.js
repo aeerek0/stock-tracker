@@ -269,6 +269,19 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
     // 1. Sort Trades Chronologically
     const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
 
+    // Helper สร้างโครงสร้าง Sector ป้องกัน Bug เวลาเรียกดู
+    const initSector = (sec) => {
+        if (!sectorPortfolio[sec]) {
+            sectorPortfolio[sec] = { 
+                totalUnits: 0, 
+                totalCost: 0, 
+                avgPrice: 0, 
+                totalMarketValue: 0 
+            };
+            sectorPnL[sec] = 0;
+        }
+    };
+
     // 2. Pass 1: Process All Cashflow & Trades
     sortedTrades.forEach(trade => {
         const sym = String(trade.symbol || "").trim().toUpperCase();
@@ -318,10 +331,7 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
             portfolio[sym] = { totalUnits: 0, totalCost: 0, avgPrice: 0 };
             realizedPnL[sym] = 0;
         }
-        if (!sectorPortfolio[sector]) {
-            sectorPortfolio[sector] = { totalCost: 0, totalMarketValue: 0 };
-            sectorPnL[sector] = 0;
-        }
+        initSector(sector);
 
         if (trade.type === 'ซื้อ') {
             cashBalance -= amount;
@@ -329,12 +339,12 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
             portfolio[sym].totalCost += amount;
             portfolio[sym].avgPrice = portfolio[sym].totalUnits > 0 ? portfolio[sym].totalCost / portfolio[sym].totalUnits : 0;
 
+            sectorPortfolio[sector].totalUnits += units;
             sectorPortfolio[sector].totalCost += amount;
 
         } else if (trade.type === 'ขาย') {
             cashBalance += amount;
             
-            // คำนวณต้นทุนของหุ้นที่ขายออกตามราคาเฉลี่ย
             const costOfSoldShares = units * portfolio[sym].avgPrice;
 
             realizedPnL[sym] += (amount - costOfSoldShares);
@@ -342,6 +352,8 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
 
             portfolio[sym].totalUnits -= units;
             portfolio[sym].totalCost -= costOfSoldShares;
+
+            sectorPortfolio[sector].totalUnits -= units;
             sectorPortfolio[sector].totalCost -= costOfSoldShares;
 
             // ป้องกันเศษทศนิยมค้าง หรือขายหมดพอร์ต
@@ -362,9 +374,7 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
             const marketValue = portfolio[sym].totalUnits * currentPrice;
             const sec = symbolSectorMap[sym] || "อื่นๆ";
 
-            if (!sectorPortfolio[sec]) {
-                sectorPortfolio[sec] = { totalCost: 0, totalMarketValue: 0 };
-            }
+            initSector(sec);
 
             // สะสม Market Value ให้ Sector
             sectorPortfolio[sec].totalMarketValue += marketValue;
@@ -413,7 +423,9 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
     const tbodyRecord = document.getElementById('tradeTableBody');
     if (tbodyRecord) {
         tbodyRecord.innerHTML = '';
-        trades.slice(-displayCount).reverse().forEach(trade => {
+        const displayLimit = (typeof displayCount !== 'undefined') ? displayCount : trades.length;
+        
+        trades.slice(-displayLimit).reverse().forEach(trade => {
             const gross = Number(trade.grossAmount) || 0;
             const fee = Number(trade.feeTax) || 0;
             const feeRate = gross > 0 ? (fee / gross) * 100 : 0;
@@ -442,19 +454,20 @@ function renderPortfolioAndRecords(trades = globalTradesData) {
             tbodyRecord.appendChild(row);
         });
 
-        if (displayCount < trades.length) {
+        if (displayLimit < trades.length) {
             const loadMoreRow = document.createElement('tr');
             loadMoreRow.innerHTML = `<td colspan="12"><button class="btn btn-light w-100 fw-bold" onclick="loadMore()">ดูรายการก่อนหน้าเพิ่มเติม...</button></td>`;
             tbodyRecord.appendChild(loadMoreRow);
         }
     }
 
-    // 6. Sub-components Render
-    const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
-    const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
+    // 6. Sub-components Render Safely
+    const currentView = (typeof currentMonitorView !== 'undefined') ? currentMonitorView : 'stock';
+    const dataMap = (currentView === 'stock') ? portfolio : sectorPortfolio;
+    const pnLMap = (currentView === 'stock') ? realizedPnL : sectorPnL;
 
-    renderMonitorTable(dataMap, pnLMap);
-    if (typeof drawAllocationChart === 'function') drawAllocationChart(currentMonitorView);
+    if (typeof renderMonitorTable === 'function') renderMonitorTable(dataMap, pnLMap);
+    if (typeof drawAllocationChart === 'function') drawAllocationChart(currentView);
     if (typeof renderDividendTable === 'function') renderDividendTable();
     if (typeof renderDividendHistory === 'function') renderDividendHistory();
     if (typeof renderDividendKPI === 'function') renderDividendKPI();
