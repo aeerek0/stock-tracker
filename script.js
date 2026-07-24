@@ -762,42 +762,6 @@ document.getElementById('dashTotalStocks').innerText =
     activeStocksCount;
 
 
-// ===============================
-// Cash Balance
-// ===============================
-let cashBalance = 0;
-
-globalTradesData.forEach(t => {
-
-    if (t.type === "ฝากเงิน") {
-        cashBalance += Number(t.netAmount || 0);
-    }
-
-    if (t.type === "ถอนเงิน") {
-        cashBalance -= Number(t.netAmount || 0);
-    }
-
-});
-
-
-if(document.getElementById('dashCashBalance')){
-    document.getElementById('dashCashBalance').innerText =
-        cashBalance.toLocaleString(undefined,{
-            minimumFractionDigits:2
-        });
-}
-
-
-
-// ===============================
-// Unrealized P/L
-// ===============================
-let totalUnrealized = 0;
-
-Object.values(unrealizedPnL).forEach(v=>{
-    totalUnrealized += Number(v || 0);
-});
-
 
 if(document.getElementById('dashUnrealizedPnL')){
 
@@ -834,9 +798,9 @@ if(document.getElementById('dashDividend')){
 
 }
 
-    let cashBalance = netDeposited;
+const cashBalance = netDeposited;
 
-let netWorth = totalPortfolioValue + cashBalance;
+const netWorth = totalPortfolioValue + cashBalance;
 
 
 document.getElementById('dashNetWorth').innerText =
