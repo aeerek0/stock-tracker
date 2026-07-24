@@ -681,6 +681,8 @@ Object.keys(portfolio).forEach(sym => {
 });
 
     let netDeposited = 0;
+
+    
     globalTradesData.forEach(t => {
         if (t.type === 'ฝากเงิน') netDeposited += parseFloat(t.netAmount);
         else if (t.type === 'ถอนเงิน') netDeposited -= parseFloat(t.netAmount);
@@ -709,6 +711,39 @@ document.getElementById('dashTotalPnL').innerText =
         minimumFractionDigits: 2
     });
 
+    // สี Total P/L
+const pnlElement = document.getElementById('dashTotalPnL');
+
+if (pnlElement) {
+    pnlElement.style.color = totalPnL >= 0
+        ? "#4faba2"
+        : "#e56b6f";
+}
+
+
+// Unrealized P/L
+let totalUnrealized = Object.values(unrealizedPnL)
+    .reduce((sum,val)=>sum + val,0);
+
+
+const unrealizedElement =
+document.getElementById('dashUnrealizedPnL');
+
+
+if (unrealizedElement) {
+
+    unrealizedElement.innerText =
+    (totalUnrealized >= 0 ? '+' : '') +
+    totalUnrealized.toLocaleString(undefined,{
+        minimumFractionDigits:2
+    });
+
+
+    unrealizedElement.style.color =
+    totalUnrealized >= 0
+    ? "#4faba2"
+    : "#e56b6f";
+}
 
 document.getElementById('dashTotalStocks').innerText =
     activeStocksCount;
@@ -786,6 +821,22 @@ if(document.getElementById('dashDividend')){
 
 }
 
+    let cashBalance = netDeposited;
+
+let netWorth = totalPortfolioValue + cashBalance;
+
+
+document.getElementById('dashNetWorth').innerText =
+netWorth.toLocaleString(undefined,{
+    minimumFractionDigits:2
+});
+
+
+document.getElementById('dashCashBalance').innerText =
+cashBalance.toLocaleString(undefined,{
+    minimumFractionDigits:2
+});
+    
     
 
     // 3. Render ตารางประวัติ
