@@ -335,12 +335,38 @@ function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
         let marketPrice = data.avgPrice;
         let marketValue;
 
-        if (currentMonitorView === "stock") {
-            marketPrice = Number(window.currentPrices?.[key]) || data.avgPrice;
-            marketValue = data.totalUnits * marketPrice;
-        } else {
-            marketValue = data.totalCost;
+       if (currentMonitorView === "stock") {
+
+    marketPrice = Number(window.currentPrices?.[key]) || data.avgPrice;
+    marketValue = data.totalUnits * marketPrice;
+
+} else {
+
+    marketValue = 0;
+
+    Object.keys(portfolio).forEach(sym => {
+
+        const trade = globalTradesData.find(
+            t => String(t.symbol).trim().toUpperCase() === sym
+        );
+
+        if (!trade) return;
+
+        const sec = trade.sector || "อื่นๆ";
+
+        if (sec === key) {
+
+            const price =
+                Number(window.currentPrices?.[sym]) ||
+                portfolio[sym].avgPrice;
+
+            marketValue += portfolio[sym].totalUnits * price;
+
         }
+
+    });
+
+}
 
         totalValue += marketValue;
     });
@@ -357,9 +383,33 @@ function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
             marketPrice = Number(window.currentPrices?.[key]) || data.avgPrice;
             marketValue = data.totalUnits * marketPrice;
         } else {
-            marketPrice = data.avgPrice;
-            marketValue = data.totalCost;
+
+    marketPrice = 0;
+    marketValue = 0;
+
+    Object.keys(portfolio).forEach(sym => {
+
+        const trade = globalTradesData.find(
+            t => String(t.symbol).trim().toUpperCase() === sym
+        );
+
+        if (!trade) return;
+
+        const sec = trade.sector || "อื่นๆ";
+
+        if (sec === key) {
+
+            const price =
+                Number(window.currentPrices?.[sym]) ||
+                portfolio[sym].avgPrice;
+
+            marketValue += portfolio[sym].totalUnits * price;
+
         }
+
+    });
+
+}
 
 let totalPnL;
 
