@@ -948,19 +948,20 @@ function drawAllocationChart(view = "stock") {
     const labels = [];
     const values = [];
 
+    if (!dataMap) return;
+
     Object.keys(dataMap).forEach(key => {
-        // เช็กทั้งจำนวนหุ้น หรือถ้าเป็น sector ให้เช็กมูลค่ารวม
-        const hasUnits = dataMap[key].totalUnits > 0;
-        const hasValue = view === "sector" && (dataMap[key].totalMarketValue > 0 || dataMap[key].totalCost > 0);
+        const item = dataMap[key];
+        const hasUnits = item.totalUnits > 0;
+        const hasValue = view === "sector" && (item.totalMarketValue > 0 || item.totalCost > 0);
 
         if (hasUnits || hasValue) {
             let value = 0;
             if (view === "stock") {
                 let price = window.currentPrices?.[key] || 0;
-                value = dataMap[key].totalUnits * price;
+                value = item.totalUnits * price;
             } else {
-                // คำนวณตาม Market Value ของ Sector (หรือใช้ totalCost ถ้ายังไม่ได้รวมราคาตลาด)
-                value = dataMap[key].totalMarketValue || dataMap[key].totalCost || 0;
+                value = item.totalMarketValue || item.totalCost || 0;
             }
 
             if (value > 0) {
@@ -971,15 +972,23 @@ function drawAllocationChart(view = "stock") {
     });
 
     const canvas = document.getElementById("allocationChart");
+    if (!canvas) return;
+
     if (window.allocationChart && typeof window.allocationChart.destroy === "function") {
         window.allocationChart.destroy();
     }
-    
-    // ชุดสีมาตรฐานสวยๆ สำหรับกราฟ
+
+    if (values.length === 0) return;
+
+    // คำนวณยอดรวมไว้ล่วงหน้าเพื่อประสิทธิภาพสูงสุด
+    const totalSum = values.reduce((a, b) => a + b, 0);
+
     const chartColors = [
         "#4faba2", "#e56b6f", "#f7b801", "#3a86ff", "#8338ec", 
         "#ff006e", "#fb5607", "#06d6a0", "#118ab2", "#073b4c"
     ];
+
+    const pluginsList = (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : [];
 
     window.allocationChart = new Chart(canvas, {
         type: "doughnut",
@@ -987,11 +996,12 @@ function drawAllocationChart(view = "stock") {
             labels: labels,
             datasets: [{
                 data: values,
-                backgroundColor: chartColors.slice(0, labels.length) // ใส่ชุดสีป้องกันกล่อง Legend ดำ
+                backgroundColor: chartColors.slice(0, labels.length)
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: "bottom",
@@ -999,19 +1009,17 @@ function drawAllocationChart(view = "stock") {
                         generateLabels: function(chart) {
                             const data = chart.data;
                             const dataset = data.datasets[0];
-                            const total = dataset.data.reduce((a, b) => a + b, 0);
 
                             return data.labels.map((label, i) => {
-                                const value = dataset.data[i];
-                                const percent = total > 0 
-                                    ? (value / total * 100).toFixed(1) 
-                                    : "0.0";
+                                const value = dataset.data[i] || 0;
+                                const percent = totalSum > 0 ? (value / totalSum * 100).toFixed(1) : "0.0";
+                                const color = dataset.backgroundColor[i] || "#ccc";
 
                                 return {
                                     text: `${label} (${percent}%)`,
-                                    fillStyle: dataset.backgroundColor[i], // ดึงสีจาก dataset มาแสดงใน Legend
-                                    strokeStyle: dataset.backgroundColor[i],
-                                    hidden: chart.getDatasetMeta(0).data[i]?.hidden || false,
+                                    fillStyle: color,
+                                    strokeStyle: color,
+                                    lineWidth: 0,
                                     index: i
                                 };
                             });
@@ -1019,42 +1027,31 @@ function drawAllocationChart(view = "stock") {
                     }
                 },
                 datalabels: {
-                    formatter: (value, ctx) => {
-                        let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                        let percentage = (value * 100 / sum).toFixed(1) + "%";
-                        return percentage;
+                    color: "#ffffff",
+                    font: {
+                        weight: "bold",
+                        size: 12
                     },
-                    color: '#fff'
-                }
-            }
-        },
-        plugins: [ChartDataLabels] // ใส่ Plugin เฉพาะ Instance นี้อย่างปลอดภัย
-    });
-}
-
-                datalabels: {
-        color: "#fff",
-        font: {
-            weight: "bold",
-            size: 12
-        },
-        formatter: function(value, ctx) {
-            let total = ctx.dataset.data.reduce((a,b)=>a+b,0);
-            return (value / total * 100).toFixed(1) + "%";
-        }
-    },
-
-    tooltip: {
+                    formatter: function(value) {
+                        if (!totalSum || totalSum === 0) return "";
+                        const pct = (value / totalSum * 100).toFixed(1);
+                        // แสดงตัวเลขเฉพาะชิ้นที่ใหญ่กว่า 3% ขึ้นไป ป้องกันตัวอักษรเบียดกัน
+                        return pct > 3 ? pct + "%" : "";
+                    }
+                },
+                tooltip: {
                     callbacks: {
-                        label: function (ctx) {
-                            let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            let percent = total > 0 ? (ctx.raw / total * 100).toFixed(2) : 0;
-                            return ctx.label + " " + percent + "%";
+                        label: function(ctx) {
+                            const val = ctx.raw || 0;
+                            const percent = totalSum > 0 ? (val / totalSum * 100).toFixed(2) : "0.00";
+                            const formattedVal = val.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                            return ` ${ctx.label}: ฿${formattedVal} (${percent}%)`;
                         }
                     }
                 }
             }
-        }
+        },
+        plugins: pluginsList
     });
 }
 
