@@ -702,13 +702,7 @@ if (totalCost > 0) {
 );
 
 // สี Growth
-const growthEl = document.getElementById('dashGrowth');
-
-if (growthEl) {
-    growthEl.style.color = growthPercent >= 0 
-        ? "#4faba2"
-        : "#e56b6f";
-}
+setElementColor('dashGrowth', growthPercent);
 
     // ปรับสีข้อความ PnL
     const setElementColor = (id, val) => {
