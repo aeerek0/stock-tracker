@@ -294,27 +294,32 @@ function startEditMode(rowIndex) {
     const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
     if (!trade) return;
 
-    // 🛠 วิธีแก้: แปลงค่าให้เป็น Object Date ของเบราว์เซอร์แล้วดึงค่า Local Date ออกมาตรงๆ
+    // 🛠 วิธีที่ง่ายและเสถียรที่สุด: ดึงสตริง 10 ตัวแรกตรงๆ โดยไม่เอาผ่าน Date Object มาคำนวณซ้ำซ้อน
     let dateVal = "";
     if (trade.date) {
-        // ตัดเอาเฉพาะ 10 ตัวอักษรแรกที่เป็น YYYY-MM-DD จากข้อมูลที่ส่งมาจาก Apps Script
-        const rawDateStr = String(trade.date).substring(0, 10);
-        const parts = rawDateStr.split("-");
+        const rawStr = String(trade.date).trim();
         
-        if (parts.length === 3) {
-            // สร้าง Date Object โดยระบุ ปี, เดือน (index 0-11), วัน ตามเวลาท้องถิ่นเครื่องผู้ใช้
-            const localDate = new Date(parts[0], parts[1] - 1, parts[2]);
-            const year = localDate.getFullYear();
-            const month = String(localDate.getMonth() + 1).padStart(2, "0");
-            const day = String(localDate.getDate()).padStart(2, "0");
-            dateVal = `${year}-${month}-${day}`;
+        // ถ้าข้อมูลมาจาก Apps Script ในรูปแบบ "YYYY-MM-DD..." ตัดเอาเฉพาะ 10 ตัวแรก
+        if (rawStr.length >= 10 && rawStr.includes("-")) {
+            dateVal = rawStr.substring(0, 10);
+        } 
+        // เผื่อกรณีที่มันดันหลุดมาเป็นแบบ "M/D/YYYY" หรือรูปแบบอื่น ให้แปลงกลับมาเป็น "YYYY-MM-DD" ให้ปลอดภัย
+        else if (rawStr.includes("/")) {
+            const p = rawStr.split("/");
+            if (p.length === 3) {
+                // สมมติกรณี M/D/YYYY หรือ D/M/YYYY (ปรับตามความเหมาะสมของโครงสร้างเดิม)
+                let m = p[0].padStart(2, "0");
+                let d = p[1].padStart(2, "0");
+                let y = p[2];
+                dateVal = `${y}-${m}-${d}`;
+            }
         } else {
-            dateVal = rawDateStr;
+            dateVal = rawStr;
         }
     }
 
     document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal; // คราวนี้วันที่ในฟอร์มจะตรงเป๊ะ
+    document.getElementById('date').value = dateVal; // จะได้รูปแบบ YYYY-MM-DD ตรงเป๊ะกับหน้าตาราง
     document.getElementById('type').value = trade.type;
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
