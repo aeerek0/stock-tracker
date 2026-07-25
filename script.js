@@ -762,10 +762,10 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
         row.innerHTML = `
             <td>${String(trade.date).substring(0,10)}</td>
             <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
-            <td class="fw-bold" title="${trade.remark || ''}">
-            ${trade.symbol || '-'}
-            ${trade.remark ? ' 📝' : ''}
-            </td>
+<td class="fw-bold" title="${trade.remark || ''}">
+    ${trade.symbol || '-'}
+    ${trade.remark ? ' 📝' : ''}
+</td>
             <td>${trade.sector || '-'}</td>
             <td>${trade.broker || '-'}</td>
             <td>${parseFloat(trade.price || 0).toLocaleString()}</td>
