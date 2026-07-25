@@ -563,7 +563,9 @@ function renderPortfolioAndRecords(trades) {
     let totalDividend = 0;
 
     // 2. เรียงลำดับรายการตามวันที่ (จากอดีตไปปัจจุบัน)
-    const sortedTrades = [...globalTradesData].sort((a, b) => new Date(a.date) - new Date(b.date));
+   const sortedTrades = [...globalTradesData].sort((a, b) =>
+    String(a.date).localeCompare(String(b.date))
+);
 
     // 3. ลูปประมวลผลการเทรดแบบ Single-Pass
     sortedTrades.forEach(trade => {
@@ -725,7 +727,7 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${new Date(trade.date).toLocaleDateString('en-CA')}</td>
+            <td>${String(trade.date).substring(0,10)}</td>
             <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
             <td class="fw-bold">${trade.symbol || '-'}</td>
             <td>${trade.sector || '-'}</td>
