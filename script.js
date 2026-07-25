@@ -2192,6 +2192,7 @@ function toggleDividendDetail(month){
     }
 
 }
+
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
     const dateInput = document.getElementById('date');
