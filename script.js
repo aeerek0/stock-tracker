@@ -251,7 +251,22 @@ function fetchAndRenderData() {
         .then(response => response.json())
         .then(data => {
             console.log("Refresh Data:", data);
-            globalTradesData = data.trades || [];
+            globalTradesData = (data.trades || []).map(t => {
+
+    if (t.date instanceof Date) {
+        t.date =
+            t.date.getFullYear() + "-" +
+            String(t.date.getMonth()+1).padStart(2,"0") + "-" +
+            String(t.date.getDate()).padStart(2,"0");
+    }
+
+    if (typeof t.date === "string" && t.date.includes("T")) {
+        t.date = t.date.substring(0,10);
+    }
+
+    return t;
+
+});
             window.currentPrices = data.prices || {};
             dynamicSectorMap = {};
 
