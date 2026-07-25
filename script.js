@@ -1001,8 +1001,19 @@ window.allocationChart = new Chart(canvas, {
         }]
     },
 
-    options: {
-        plugins: {
+options: {
+
+    onClick: function(evt, elements) {
+
+        if (!elements.length) return;
+
+        const index = elements[0].index;
+        const label = labels[index];
+
+        filterMonitorTable(label);
+    },
+
+    plugins: {
             legend: {
                 position: "bottom"
             },
@@ -1108,6 +1119,35 @@ function buildCalendarYear(){
 
     });
 
+}
+
+function filterMonitorTable(label) {
+
+    if (currentMonitorView === "stock") {
+
+        const data = {};
+        data[label] = portfolio[label];
+
+        renderMonitorTable(data, realizedPnL);
+
+    } else {
+
+        const data = {};
+
+        Object.keys(portfolio).forEach(sym => {
+
+            const trade = globalTradesData.find(
+                t => String(t.symbol).trim().toUpperCase() === sym
+            );
+
+            if (trade && trade.sector === label) {
+                data[sym] = portfolio[sym];
+            }
+
+        });
+
+        renderMonitorTable(data, realizedPnL);
+    }
 }
 
 function getDividendSummary(sym, year = 0, month = 0) {
