@@ -306,6 +306,8 @@ function startEditMode(rowIndex) {
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
     document.getElementById('broker').value = trade.broker || '';
+    document.getElementById('xdDate').value = trade.xdDate || '';
+    document.getElementById('remark').value = trade.remark || '';
     document.getElementById('price').value = trade.price;
     document.getElementById('units').value = trade.units;
     document.getElementById('feeRate').value = Number(trade.feeTax || 0).toFixed(2);
@@ -915,6 +917,8 @@ const tradeData = {
     symbol: document.getElementById('symbol').value.trim().toUpperCase(),
     sector: isCash ? 'Cash Management' : document.getElementById('sector').value,
     broker: document.getElementById('broker').value.trim(),
+    xdDate: document.getElementById('xdDate').value,
+    remark: document.getElementById('remark').value.trim(),
 
     // ซื้อ / ขาย / ปันผล เก็บราคาและจำนวนหุ้น
     price: (type === 'ซื้อ' || type === 'ขาย' || type === 'ปันผล') ? price : 0,
