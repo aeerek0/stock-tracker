@@ -176,15 +176,23 @@ Sector
         <!-- SECTION 2: RECORD FORM -->
         <div class="card mb-3">
             <h5 class="card-title mb-2" id="formTitle">➕ บันทึกรายการใหม่</h5>
+
             <div id="editAlert" class="edit-mode-alert" style="display:none;">
-                ⚠️ คุณกำลังอยู่ใน <b>"โหมดแก้ไขข้อมูล"</b> <button type="button" class="btn btn-sm btn-secondary float-end" style="font-size: 0.7rem; padding: 2px 6px;" onclick="cancelEditMode()">ยกเลิก</button>
+                ⚠️ คุณกำลังอยู่ใน <b>"โหมดแก้ไขข้อมูล"</b> 
+                <button type="button" class="btn btn-sm btn-secondary float-end" 
+                style="font-size: 0.7rem; padding: 2px 6px;" 
+                onclick="cancelEditMode()">ยกเลิก</button>
             </div>
+
             <form id="tradeForm" class="row g-3">
+
                 <input type="hidden" id="editRowIndex" value="">
+
                 <div class="col-6">
                     <label class="form-label">วันที่ซื้อ-ขาย</label>
                     <input type="date" id="date" class="form-control" required>
                 </div>
+
                 <div class="col-6">
                     <label class="form-label">ซื้อ หรือ ขาย</label>
                     <select id="type" class="form-select" required>
@@ -195,47 +203,110 @@ Sector
                         <option value="ปันผล">ปันผล (Dividend)</option>
                     </select>
                 </div>
+
+
                 <div class="col-6">
                     <label class="form-label">Symbol ชื่อหุ้น</label>
-                    <input type="text" id="symbol" class="form-control" placeholder="เช่น PTT" autocomplete="off" list="stockOptions" onchange="autoFillSector(this.value)" onblur="autoFillSector(this.value)">
+                    <input type="text" 
+                           id="symbol" 
+                           class="form-control" 
+                           placeholder="เช่น PTT"
+                           autocomplete="off"
+                           list="stockOptions"
+                           onchange="autoFillSector(this.value)"
+                           onblur="autoFillSector(this.value)">
                     <datalist id="stockOptions"></datalist>
                 </div>
+
+
                 <div class="col-6">
                     <label class="form-label">Sector (กลุ่มอุตสาหกรรม)</label>
-                    <input type="text" id="sector" class="form-control" placeholder="เช่น Commerce">
+                    <input type="text" 
+                           id="sector" 
+                           class="form-control" 
+                           placeholder="เช่น Commerce">
                 </div>
-               <div class="col-12">
-    <label class="form-label">โบรคเกอร์ (Broker)</label>
 
-    <input 
-        type="text" 
-        id="broker" 
-        class="form-control" 
-        list="brokerOptions"
-        placeholder="เลือก Broker">
 
-    <datalist id="brokerOptions"></datalist>
+                <div class="col-12">
+                    <label class="form-label">โบรคเกอร์ (Broker)</label>
 
-</div>
+                    <input 
+                        type="text" 
+                        id="broker" 
+                        class="form-control" 
+                        list="brokerOptions"
+                        placeholder="เลือก Broker">
+
+                    <datalist id="brokerOptions"></datalist>
+                </div>
+
+
+                <!-- เพิ่ม XD Date -->
+                <div class="col-12">
+                    <label class="form-label">XD Date</label>
+                    <input type="date" id="xdDate" class="form-control">
+                </div>
+
+
                 <div class="col-6">
                     <label class="form-label">Price / DPU</label>
-                    <input type="number" step="any" id="price" class="form-control" placeholder="0.00">
+                    <input type="number" 
+                           step="any" 
+                           id="price" 
+                           class="form-control" 
+                           placeholder="0.00">
                 </div>
+
+
                 <div class="col-6">
-                    <label class="form-label">จำนวนหุ้น (Units) </label>
-                    <input type="number" id="units" class="form-control" placeholder="0">
+                    <label class="form-label">จำนวนหุ้น (Units)</label>
+                    <input type="number" 
+                           id="units" 
+                           class="form-control" 
+                           placeholder="0">
                 </div>
-                <div class="col-12" id="amountContainer" style="display: none;">
+
+
+                <div class="col-12" id="amountContainer" style="display:none;">
                     <label class="form-label">จำนวนเงิน (สำหรับฝาก/ถอน)</label>
-                    <input type="number" step="any" id="amount" class="form-control" placeholder="0.00">
-                </div>   
+                    <input type="number" 
+                           step="any" 
+                           id="amount" 
+                           class="form-control" 
+                           placeholder="0.00">
+                </div>
+
+
                 <div class="col-12">
                     <label class="form-label">ค่าธรรมเนียม + VAT (บาท)</label>
-                    <input type="number" step="any" id="feeRate" class="form-control" value="0.0">
+                    <input type="number" 
+                           step="any" 
+                           id="feeRate" 
+                           class="form-control" 
+                           value="0.0">
                 </div>
+
+
+                <!-- เพิ่ม Remark -->
+                <div class="col-12">
+                    <label class="form-label">หมายเหตุ</label>
+                    <input type="text" 
+                           id="remark" 
+                           class="form-control"
+                           placeholder="เช่น ซื้อก่อน XD / ปันผล Q1">
+                </div>
+
+
                 <div class="col-12 mt-4">
-                    <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold">💾 บันทึกส่งไปยัง Google Sheets</button>
+                    <button type="submit" 
+                            id="submitBtn" 
+                            class="btn btn-primary w-100 fw-bold">
+                        💾 บันทึกส่งไปยัง Google Sheets
+                    </button>
                 </div>
+
+
             </form>
         </div>
 
