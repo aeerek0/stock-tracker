@@ -984,7 +984,23 @@ function drawAllocationChart(view = "stock") {
             values.push(value);
         }
     });
+if (chartFilter === "top10") {
 
+    const arr = labels.map((label, i) => ({
+        label,
+        value: values[i]
+    }));
+
+    arr.sort((a, b) => b.value - a.value);
+
+    labels.length = 0;
+    values.length = 0;
+
+    arr.slice(0, 10).forEach(item => {
+        labels.push(item.label);
+        values.push(item.value);
+    });
+}
     const canvas = document.getElementById("allocationChart");
     if (!canvas) return;
 
@@ -1051,6 +1067,15 @@ options: {
 });
 }
 
+function toggleChartFilter() {
+
+    chartFilter = chartFilter === "all" ? "top10" : "all";
+
+    document.getElementById("chartFilterBtn").innerText =
+        chartFilter === "all" ? "Top 10" : "แสดงทั้งหมด";
+
+    drawAllocationChart(currentMonitorView);
+}
 function buildDividendYear() {
     const yearSelect = document.getElementById("dividendYear");
     if (!yearSelect) return;
