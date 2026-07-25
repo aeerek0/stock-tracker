@@ -949,9 +949,12 @@ function drawAllocationChart(view = "stock") {
     const labels = [];
     const values = [];
 
-    Object.keys(dataMap).forEach(key => {
-        const item = dataMap[key];
-        if (!item || item.totalUnits <= 0) return;
+Object.keys(dataMap).forEach(key => {
+    const item = dataMap[key];
+    if (!item) return;
+
+    // กรองเฉพาะ Stock
+    if (view === "stock" && item.totalUnits <= 0) return;
 
         let value = 0;
 
@@ -1074,7 +1077,7 @@ function toggleChartFilter() {
     document.getElementById("chartFilterBtn").innerText =
         chartFilter === "all" ? "Top 10" : "แสดงทั้งหมด";
 
-    drawAllocationChart(currentMonitorView);
+    drawAllocationChart(currentMonitorView || "stock");
 }
 function buildDividendYear() {
     const yearSelect = document.getElementById("dividendYear");
