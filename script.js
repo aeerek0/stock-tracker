@@ -563,9 +563,11 @@ function renderPortfolioAndRecords(trades) {
     let totalDividend = 0;
 
     // 2. เรียงลำดับรายการตามวันที่ (จากอดีตไปปัจจุบัน)
-   const sortedTrades = [...globalTradesData].sort((a, b) =>
-    String(a.date).localeCompare(String(b.date))
-);
+const sortedTrades = [...globalTradesData].sort((a, b) => {
+    const dateA = String(a.date || "").substring(0, 10);
+    const dateB = String(b.date || "").substring(0, 10);
+    return dateA.localeCompare(dateB);
+});
 
     // 3. ลูปประมวลผลการเทรดแบบ Single-Pass
     sortedTrades.forEach(trade => {
