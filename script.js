@@ -306,6 +306,8 @@ function startEditMode(rowIndex) {
     document.getElementById('editRowIndex').value = trade.rowIndex;
     document.getElementById('date').value = dateVal;
     document.getElementById('type').value = trade.type;
+    document.getElementById('type').dispatchEvent(new Event('change'));
+    
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
     document.getElementById('broker').value = trade.broker || '';
