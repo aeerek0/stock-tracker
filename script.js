@@ -290,29 +290,31 @@ function fetchAndRenderData() {
 }
 
 // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
-// ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
 function startEditMode(rowIndex) {
     const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
     if (!trade) return;
 
-    // 🛠 แก้ไขการจัดการวันที่ให้แม่นยำ ไม่ติดปัญหา Timezone
-    let dateVal = trade.date;
-    if (dateVal) {
-        // ถ้าข้อมูลมาจาก Google Sheets แล้วติดเป็น Date Object
-        if (dateVal instanceof Date) {
-            const year = dateVal.getFullYear();
-            const month = String(dateVal.getMonth() + 1).padStart(2, "0");
-            const day = String(dateVal.getDate()).padStart(2, "0");
+    // 🛠 วิธีแก้: แปลงค่าให้เป็น Object Date ของเบราว์เซอร์แล้วดึงค่า Local Date ออกมาตรงๆ
+    let dateVal = "";
+    if (trade.date) {
+        // ตัดเอาเฉพาะ 10 ตัวอักษรแรกที่เป็น YYYY-MM-DD จากข้อมูลที่ส่งมาจาก Apps Script
+        const rawDateStr = String(trade.date).substring(0, 10);
+        const parts = rawDateStr.split("-");
+        
+        if (parts.length === 3) {
+            // สร้าง Date Object โดยระบุ ปี, เดือน (index 0-11), วัน ตามเวลาท้องถิ่นเครื่องผู้ใช้
+            const localDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            const year = localDate.getFullYear();
+            const month = String(localDate.getMonth() + 1).padStart(2, "0");
+            const day = String(localDate.getDate()).padStart(2, "0");
             dateVal = `${year}-${month}-${day}`;
-        } 
-        // ถ้าเป็น String ให้ตัดเอาเฉพาะ 10 ตัวแรก (YYYY-MM-DD) ทันทีโดยไม่สน Timezone
-        else {
-            dateVal = String(dateVal).substring(0, 10);
+        } else {
+            dateVal = rawDateStr;
         }
     }
 
     document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal; // กำหนดค่าวันที่ที่ถูกต้องลงฟอร์ม
+    document.getElementById('date').value = dateVal; // คราวนี้วันที่ในฟอร์มจะตรงเป๊ะ
     document.getElementById('type').value = trade.type;
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
@@ -332,7 +334,6 @@ function startEditMode(rowIndex) {
     // เลื่อนหน้าจอขึ้นไปที่ฟอร์มคีย์อัตโนมัติ
     document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
 }
-
 // ฟังก์ชันยกเลิกโหมดแก้ไข
 function cancelEditMode() {
     document.getElementById('editRowIndex').value = "";
