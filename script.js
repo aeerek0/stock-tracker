@@ -991,31 +991,52 @@ function drawAllocationChart(view = "stock") {
         window.allocationChart.destroy();
     }
 
-    window.allocationChart = new Chart(canvas, {
-        type: "doughnut",
-        data: {
-            labels: labels,
-            datasets: [{
-                data: values
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    position: "bottom"
+window.allocationChart = new Chart(canvas, {
+    type: "doughnut",
+
+    data: {
+        labels: labels,
+        datasets: [{
+            data: values
+        }]
+    },
+
+    options: {
+        plugins: {
+            legend: {
+                position: "bottom"
+            },
+
+            datalabels: {
+                color: "#fff",
+                font: {
+                    weight: "bold",
+                    size: 12
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function (ctx) {
-                            let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            let percent = total > 0 ? (ctx.raw / total * 100).toFixed(2) : 0;
-                            return " " + ctx.label + ": " + ctx.raw.toLocaleString(undefined, {maximumFractionDigits: 2}) + " บาท (" + percent + "%)";
-                        }
+                formatter: function(value, ctx) {
+                    const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                    const percent = total > 0 ? value / total * 100 : 0;
+                    return percent >= 3 ? percent.toFixed(1) + "%" : "";
+                }
+            },
+
+            tooltip: {
+                callbacks: {
+                    label: function (ctx) {
+                        let total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                        let percent = total > 0 ? (ctx.raw / total * 100).toFixed(2) : 0;
+
+                        return " " + ctx.label + ": " +
+                               ctx.raw.toLocaleString(undefined,{maximumFractionDigits:2}) +
+                               " บาท (" + percent + "%)";
                     }
                 }
             }
         }
-    });
+    },
+
+    plugins: [ChartDataLabels]
+});
 }
 
 function buildDividendYear() {
