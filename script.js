@@ -290,19 +290,42 @@ function fetchAndRenderData() {
 }
 
 
-// ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
+// ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล (เวอร์ชันเสถียร กลับมาใช้ง่ายเหมือนเดิม)
 function startEditMode(rowIndex) {
     const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
     if (!trade) return;
 
-    // ตัดเอาเฉพาะ 10 ตัวอักษรแรกที่เป็น YYYY-MM-DD ตรงๆ 
+    // จัดการแปลงวันที่ให้ปลอดภัยที่สุด ไม่ให้เพี้ยนเป็น 2001 หรือช่องว่าง
     let dateVal = "";
     if (trade.date) {
-        dateVal = String(trade.date).substring(0, 10);
+        let rawStr = String(trade.date).trim();
+        
+        // ถ้าเป็นรูปแบบ YYYY-MM-DD (ตัดเอา 10 ตัวแรก)
+        if (rawStr.length >= 10 && rawStr.includes("-")) {
+            dateVal = rawStr.substring(0, 10);
+        } 
+        // ถ้าเป็นรูปแบบอื่น ให้ลองดึงตัวเลขปี เดือน วัน ออกมาตรงๆ เพื่อกันเหนียว
+        else {
+            let d = new Date(rawStr);
+            if (!isNaN(d.getTime()) && d.getFullYear() > 2010) {
+                let y = d.getFullYear();
+                let m = String(d.getMonth() + 1).padStart(2, "0");
+                let day = String(d.getDate()).padStart(2, "0");
+                dateVal = `${y}-${m}-${day}`;
+            }
+        }
+    }
+
+    // ถ้าตรวจสอบแล้วยังหลุดเป็นปี 2001 หรือค่าว่าง ให้ใช้วันที่ปัจจุบันแทนชั่วคราวเพื่อไม่ให้ฟอร์มพัง
+    if (!dateVal || dateVal.startsWith("2001") || dateVal.includes("NaN")) {
+        const today = new Date();
+        dateVal = today.getFullYear() + "-" + 
+                  String(today.getMonth() + 1).padStart(2, "0") + "-" + 
+                  String(today.getDate()).padStart(2, "0");
     }
 
     document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal; // ลงล็อกกับฟอร์ม Date พอดีเป๊ะ ไม่เพี้ยน
+    document.getElementById('date').value = dateVal; // ลงล็อกกับฟอร์ม Date พอดีเป๊ะ
     document.getElementById('type').value = trade.type;
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
@@ -310,16 +333,13 @@ function startEditMode(rowIndex) {
     document.getElementById('price').value = trade.price;
     document.getElementById('units').value = trade.units;
     
-    // แสดงค่าธรรมเนียมจริง (บาท)
     document.getElementById('feeRate').value = Number(trade.feeTax || 0).toFixed(2);
 
-    // เปลี่ยนดีไซน์หน้าตาฟอร์มให้รู้ว่ากำลังแก้ไข
     document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
     document.getElementById('editAlert').style.display = "block";
     document.getElementById('submitBtn').innerText = "🆙 อัปเดตข้อมูลไปยัง Google Sheets";
     document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-edit)";
     
-    // เลื่อนหน้าจอขึ้นไปที่ฟอร์มคีย์อัตโนมัติ
     document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
 }
 
