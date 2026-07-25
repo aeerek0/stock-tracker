@@ -949,20 +949,44 @@ function drawAllocationChart(view = "stock") {
     const values = [];
 
     Object.keys(dataMap).forEach(key => {
-        if (dataMap[key].totalUnits > 0) {
-            let value = 0;
-            if (view === "stock") {
-                let price = window.currentPrices[key] || 0;
-                value = dataMap[key].totalUnits * price;
-            } else {
-                value = dataMap[key].totalCost;
-            }
+        const item = dataMap[key];
+        if (!item || item.totalUnits <= 0) return;
+
+        let value = 0;
+
+        if (view === "stock") {
+            // คำนวณมูลค่าตามรายหุ้น
+            const price = Number(window.currentPrices && window.currentPrices[key]) || item.avgPrice;
+            value = item.totalUnits * price;
+        } else {
+            // คำนวณมูลค่ารวมตาม Sector (ใช้มูลค่าตลาดปัจจุบันของหุ้นแต่ละตัวใน Sector นั้น)
+            Object.keys(portfolio).forEach(sym => {
+                const portfolioItem = portfolio[sym];
+                if (!portfolioItem || portfolioItem.totalUnits <= 0) return;
+
+                // ค้นหา Sector ของหุ้นตัวนี้จากข้อมูลการซื้อขายล่าสุด
+                const trade = globalTradesData.find(
+                    t => String(t.symbol || "").trim().toUpperCase() === sym
+                );
+
+                const stockSector = trade ? (trade.sector || "อื่นๆ") : "อื่นๆ";
+
+                if (stockSector === key) {
+                    const price = Number(window.currentPrices && window.currentPrices[sym]) || portfolioItem.avgPrice;
+                    value += portfolioItem.totalUnits * price;
+                }
+            });
+        }
+
+        if (value > 0) {
             labels.push(key);
             values.push(value);
         }
     });
 
     const canvas = document.getElementById("allocationChart");
+    if (!canvas) return;
+
     if (window.allocationChart && typeof window.allocationChart.destroy === "function") {
         window.allocationChart.destroy();
     }
@@ -985,7 +1009,7 @@ function drawAllocationChart(view = "stock") {
                         label: function (ctx) {
                             let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                             let percent = total > 0 ? (ctx.raw / total * 100).toFixed(2) : 0;
-                            return ctx.label + " " + percent + "%";
+                            return " " + ctx.label + ": " + ctx.raw.toLocaleString(undefined, {maximumFractionDigits: 2}) + " บาท (" + percent + "%)";
                         }
                     }
                 }
