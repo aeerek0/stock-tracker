@@ -152,8 +152,14 @@
     <h5 class="card-title mb-0">🥧 Current Portfolio Allocation</h5>
 
     <div class="btn-group btn-group-sm">
-        <button class="btn btn-outline-primary" onclick="drawAllocationChart('stock')">หุ้น</button>
-        <button class="btn btn-outline-success" onclick="drawAllocationChart('sector')">Sector</button>
+       <button class="btn btn-outline-primary" 
+onclick="currentMonitorView='stock'; drawAllocationChart('stock')">
+หุ้น
+</button>
+        <button class="btn btn-outline-success" 
+onclick="currentMonitorView='sector'; drawAllocationChart('sector')">
+Sector
+</button>
         <button class="btn btn-outline-secondary" onclick="toggleChartFilter()" id="chartFilterBtn">Top 10</button>
     </div>
 </div>
