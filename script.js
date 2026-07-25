@@ -290,33 +290,29 @@ function fetchAndRenderData() {
 }
 
 // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
+// ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
 function startEditMode(rowIndex) {
     const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
     if (!trade) return;
 
-    // ดึงข้อมูลเก่าลงฟอร์มคีย์
- let dateVal = trade.date;
-
-if (dateVal) {
-
-    // กรณีเป็น ISO datetime
-    if (String(dateVal).includes("T")) {
-        dateVal = String(dateVal).substring(0, 10);
+    // 🛠 แก้ไขการจัดการวันที่ให้แม่นยำ ไม่ติดปัญหา Timezone
+    let dateVal = trade.date;
+    if (dateVal) {
+        // ถ้าข้อมูลมาจาก Google Sheets แล้วติดเป็น Date Object
+        if (dateVal instanceof Date) {
+            const year = dateVal.getFullYear();
+            const month = String(dateVal.getMonth() + 1).padStart(2, "0");
+            const day = String(dateVal.getDate()).padStart(2, "0");
+            dateVal = `${year}-${month}-${day}`;
+        } 
+        // ถ้าเป็น String ให้ตัดเอาเฉพาะ 10 ตัวแรก (YYYY-MM-DD) ทันทีโดยไม่สน Timezone
+        else {
+            dateVal = String(dateVal).substring(0, 10);
+        }
     }
 
-    // กรณีเป็น Date object
-    if (dateVal instanceof Date) {
-        dateVal =
-            dateVal.getFullYear() + "-" +
-            String(dateVal.getMonth() + 1).padStart(2, "0") + "-" +
-            String(dateVal.getDate()).padStart(2, "0");
-    }
-}
-
-document.getElementById('date').value = dateVal;
-    
     document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal;
+    document.getElementById('date').value = dateVal; // กำหนดค่าวันที่ที่ถูกต้องลงฟอร์ม
     document.getElementById('type').value = trade.type;
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
@@ -324,9 +320,8 @@ document.getElementById('date').value = dateVal;
     document.getElementById('price').value = trade.price;
     document.getElementById('units').value = trade.units;
     
-// แสดงค่าธรรมเนียมจริง (บาท)
-document.getElementById('feeRate').value =
-    Number(trade.feeTax || 0).toFixed(2);
+    // แสดงค่าธรรมเนียมจริง (บาท)
+    document.getElementById('feeRate').value = Number(trade.feeTax || 0).toFixed(2);
 
     // เปลี่ยนดีไซน์หน้าตาฟอร์มให้รู้ว่ากำลังแก้ไข
     document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
