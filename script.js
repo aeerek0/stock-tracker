@@ -325,10 +325,23 @@ function startEditMode(rowIndex) {
 
 // ฟังก์ชันยกเลิกโหมดแก้ไข
 function cancelEditMode() {
+
     document.getElementById('editRowIndex').value = "";
+
     document.getElementById('tradeForm').reset();
+
+    // reset ค่าเริ่มต้น
+    document.getElementById('type').value = "ซื้อ";
     document.getElementById('date').valueAsDate = new Date();
     document.getElementById('feeRate').value = "0.0";
+
+    // ล้างช่องเพิ่มเติม
+    document.getElementById('xdDate').value = "";
+    document.getElementById('remark').value = "";
+    document.getElementById('amount').value = "";
+
+    // บังคับให้เปลี่ยน layout ตาม TYPE ใหม่
+    document.getElementById('type').dispatchEvent(new Event('change'));
 
     document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
     document.getElementById('editAlert').style.display = "none";
