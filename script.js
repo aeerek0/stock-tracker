@@ -303,19 +303,27 @@ function startEditMode(rowIndex) {
         dateVal = dateVal.split("T")[0];
     }
 
-    document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal;
-    document.getElementById('type').value = trade.type;
-    document.getElementById('type').dispatchEvent(new Event('change'));
-    
-    document.getElementById('symbol').value = trade.symbol;
-    document.getElementById('sector').value = trade.sector || '';
-    document.getElementById('broker').value = trade.broker || '';
-    document.getElementById('xdDate').value = trade.xdDate || '';
-    document.getElementById('remark').value = trade.remark || '';
-    document.getElementById('price').value = trade.price;
-    document.getElementById('units').value = trade.units;
-    document.getElementById('feeRate').value = Number(trade.feeTax || 0).toFixed(2);
+ document.getElementById('editRowIndex').value = trade.rowIndex;
+document.getElementById('date').value = dateVal;
+
+document.getElementById('type').value = trade.type;
+
+document.getElementById('symbol').value = trade.symbol;
+document.getElementById('sector').value = trade.sector || '';
+document.getElementById('broker').value = trade.broker || '';
+
+document.getElementById('xdDate').value = trade.xdDate || '';
+document.getElementById('remark').value = trade.remark || '';
+
+document.getElementById('price').value = trade.price;
+document.getElementById('units').value = trade.units;
+document.getElementById('feeRate').value = Number(trade.feeTax || 0).toFixed(2);
+
+document.getElementById('amount').value = trade.netAmount || '';
+
+
+// ค่อยสั่งให้ระบบจัดช่องแสดง/ซ่อน
+document.getElementById('type').dispatchEvent(new Event('change'));
 
     document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
     document.getElementById('editAlert').style.display = "block";
