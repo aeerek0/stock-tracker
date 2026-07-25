@@ -295,27 +295,14 @@ function startEditMode(rowIndex) {
     const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
     if (!trade) return;
 
-    // 🛠 ดึงค่าวันที่ตรงๆ และป้องกันปีเพี้ยนเป็น 2001
+    // ตัดเอาเฉพาะ 10 ตัวอักษรแรกที่เป็น YYYY-MM-DD ตรงๆ 
     let dateVal = "";
     if (trade.date) {
-        let rawStr = String(trade.date).trim();
-        
-        // ถ้ามีเครื่องหมายขีด ให้เอา 10 ตัวแรก (เช่น "2026-07-25")
-        if (rawStr.includes("-") && rawStr.length >= 10) {
-            dateVal = rawStr.substring(0, 10);
-        } else {
-            // ถ้าไม่ใช่ ให้ใช้ค่าปัจจุบันของเครื่องหรือปล่อยค่าดิบที่ปลอดภัย
-            dateVal = rawStr;
-        }
-    }
-
-    // เช็คป้องกันปี 2001 หรือค่าหลุดรอด
-    if (!dateVal || dateVal.startsWith("2001") || dateVal.includes("NaN")) {
-        dateVal = ""; // ถ้าผิดปกติให้เคลียร์เป็นว่างเพื่อให้ผู้ใช้เลือกใหม่ได้ถูกต้อง
+        dateVal = String(trade.date).substring(0, 10);
     }
 
     document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal; 
+    document.getElementById('date').value = dateVal; // ลงล็อกกับฟอร์ม Date พอดีเป๊ะ ไม่เพี้ยน
     document.getElementById('type').value = trade.type;
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
