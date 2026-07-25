@@ -762,7 +762,10 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
         row.innerHTML = `
             <td>${String(trade.date).substring(0,10)}</td>
             <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
-            <td class="fw-bold">${trade.symbol || '-'}</td>
+            <td class="fw-bold" title="${trade.remark || ''}">
+            ${trade.symbol || '-'}
+            ${trade.remark ? ' 📝' : ''}
+            </td>
             <td>${trade.sector || '-'}</td>
             <td>${trade.broker || '-'}</td>
             <td>${parseFloat(trade.price || 0).toLocaleString()}</td>
@@ -773,7 +776,6 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
                 <small class="text-muted">${feeRate.toFixed(4)}%</small>
             </td>
             <td class="fw-bold">${parseFloat(trade.netAmount || 0).toLocaleString()}</td>
-            <td>-</td>
             <td>
                 <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
                 <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
@@ -783,7 +785,7 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
 
     if (displayCount < globalTradesData.length) {
         const loadMoreRow = document.createElement('tr');
-        loadMoreRow.innerHTML = `<td colspan="12"><button class="btn w-100" onclick="loadMore()">ดูรายการก่อนหน้าเพิ่มเติม...</button></td>`;
+        loadMoreRow.innerHTML = `<td colspan="11"><button class="btn w-100" onclick="loadMore()">ดูรายการก่อนหน้าเพิ่มเติม...</button></td>`;
         tbodyRecord.appendChild(loadMoreRow);
     }
 
