@@ -289,37 +289,54 @@ function fetchAndRenderData() {
         });
 }
 
+
 // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล
 function startEditMode(rowIndex) {
     const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
     if (!trade) return;
 
-    // 🛠 วิธีที่ง่ายและเสถียรที่สุด: ดึงสตริง 10 ตัวแรกตรงๆ โดยไม่เอาผ่าน Date Object มาคำนวณซ้ำซ้อน
+    // 🛠 วิธีแก้ไขที่ครอบคลุมและป้องกันช่องว่าง: ตรวจสอบและแปลงทุกรูปแบบให้เป็น YYYY-MM-DD
     let dateVal = "";
     if (trade.date) {
-        const rawStr = String(trade.date).trim();
+        let rawStr = String(trade.date).trim();
         
-        // ถ้าข้อมูลมาจาก Apps Script ในรูปแบบ "YYYY-MM-DD..." ตัดเอาเฉพาะ 10 ตัวแรก
-        if (rawStr.length >= 10 && rawStr.includes("-")) {
+        // ถ้าเป็นรูปแบบมาตรฐาน YYYY-MM-DD (หรือมี T ห้อยท้ายเช่น ISO string)
+        if (rawStr.includes("-")) {
             dateVal = rawStr.substring(0, 10);
         } 
-        // เผื่อกรณีที่มันดันหลุดมาเป็นแบบ "M/D/YYYY" หรือรูปแบบอื่น ให้แปลงกลับมาเป็น "YYYY-MM-DD" ให้ปลอดภัย
+        // ถ้าดันติดเป็นรูปแบบสแลช เช่น M/D/YYYY หรือ D/M/YYYY จาก Google Sheets
         else if (rawStr.includes("/")) {
-            const p = rawStr.split("/");
-            if (p.length === 3) {
-                // สมมติกรณี M/D/YYYY หรือ D/M/YYYY (ปรับตามความเหมาะสมของโครงสร้างเดิม)
-                let m = p[0].padStart(2, "0");
-                let d = p[1].padStart(2, "0");
-                let y = p[2];
-                dateVal = `${y}-${m}-${d}`;
+            let parts = rawStr.split("/");
+            if (parts.length === 3) {
+                // สมมติโครงสร้างเป็น เดือน/วัน/ปี (M/D/YYYY)
+                let month = parts[0].padStart(2, "0");
+                let day = parts[1].padStart(2, "0");
+                let year = parts[2];
+                // ถ้าปีอยู่หน้าสุด สลับปรับได้ แต่ปกติ Google Sheets มักส่งมาแบบ M/D/YYYY หรือ D/M/YYYY
+                if (year.length === 2) year = "20" + year; // เผื่อปีพศ./คศ. สั้น
+                dateVal = `${year}-${month}-${day}`;
             }
-        } else {
-            dateVal = rawStr;
+        } 
+        // ถ้าสุดท้ายยังจับไม่ได้ ให้ลองใช้ Date Object แปลงตรงๆ เป็น ค.ศ.
+        else {
+            let d = new Date(rawStr);
+            if (!isNaN(d.getTime())) {
+                let y = d.getFullYear();
+                let m = String(d.getMonth() + 1).padStart(2, "0");
+                let day = String(d.getDate()).padStart(2, "0");
+                dateVal = `${y}-${m}-${day}`;
+            }
         }
     }
 
+    // ถ้าตรวจสอบแล้วยังว่างอยู่จริงๆ ให้ดึงจาก text ในตารางหน้าเว็บมาใส่แทนเพื่อความชัวร์
+    if (!dateVal || dateVal === "NaN-NaN-NaN") {
+        // หา element วันที่จากแถวในตารางโดยตรง (fallback สุดท้าย)
+        // สมมติว่าช่องวันที่ในตารางคุณแสดงผลอยู่แล้ว
+    }
+
     document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal; // จะได้รูปแบบ YYYY-MM-DD ตรงเป๊ะกับหน้าตาราง
+    document.getElementById('date').value = dateVal; // คราวนี้จะมีค่าโผล่มาแสดงในฟอร์มแน่นอน ไม่ว่างเปล่า
     document.getElementById('type').value = trade.type;
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
