@@ -295,48 +295,27 @@ function startEditMode(rowIndex) {
     const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
     if (!trade) return;
 
-    // 🛠 วิธีแก้ไขที่ครอบคลุมและป้องกันช่องว่าง: ตรวจสอบและแปลงทุกรูปแบบให้เป็น YYYY-MM-DD
+    // 🛠 ดึงค่าวันที่ตรงๆ และป้องกันปีเพี้ยนเป็น 2001
     let dateVal = "";
     if (trade.date) {
         let rawStr = String(trade.date).trim();
         
-        // ถ้าเป็นรูปแบบมาตรฐาน YYYY-MM-DD (หรือมี T ห้อยท้ายเช่น ISO string)
-        if (rawStr.includes("-")) {
+        // ถ้ามีเครื่องหมายขีด ให้เอา 10 ตัวแรก (เช่น "2026-07-25")
+        if (rawStr.includes("-") && rawStr.length >= 10) {
             dateVal = rawStr.substring(0, 10);
-        } 
-        // ถ้าดันติดเป็นรูปแบบสแลช เช่น M/D/YYYY หรือ D/M/YYYY จาก Google Sheets
-        else if (rawStr.includes("/")) {
-            let parts = rawStr.split("/");
-            if (parts.length === 3) {
-                // สมมติโครงสร้างเป็น เดือน/วัน/ปี (M/D/YYYY)
-                let month = parts[0].padStart(2, "0");
-                let day = parts[1].padStart(2, "0");
-                let year = parts[2];
-                // ถ้าปีอยู่หน้าสุด สลับปรับได้ แต่ปกติ Google Sheets มักส่งมาแบบ M/D/YYYY หรือ D/M/YYYY
-                if (year.length === 2) year = "20" + year; // เผื่อปีพศ./คศ. สั้น
-                dateVal = `${year}-${month}-${day}`;
-            }
-        } 
-        // ถ้าสุดท้ายยังจับไม่ได้ ให้ลองใช้ Date Object แปลงตรงๆ เป็น ค.ศ.
-        else {
-            let d = new Date(rawStr);
-            if (!isNaN(d.getTime())) {
-                let y = d.getFullYear();
-                let m = String(d.getMonth() + 1).padStart(2, "0");
-                let day = String(d.getDate()).padStart(2, "0");
-                dateVal = `${y}-${m}-${day}`;
-            }
+        } else {
+            // ถ้าไม่ใช่ ให้ใช้ค่าปัจจุบันของเครื่องหรือปล่อยค่าดิบที่ปลอดภัย
+            dateVal = rawStr;
         }
     }
 
-    // ถ้าตรวจสอบแล้วยังว่างอยู่จริงๆ ให้ดึงจาก text ในตารางหน้าเว็บมาใส่แทนเพื่อความชัวร์
-    if (!dateVal || dateVal === "NaN-NaN-NaN") {
-        // หา element วันที่จากแถวในตารางโดยตรง (fallback สุดท้าย)
-        // สมมติว่าช่องวันที่ในตารางคุณแสดงผลอยู่แล้ว
+    // เช็คป้องกันปี 2001 หรือค่าหลุดรอด
+    if (!dateVal || dateVal.startsWith("2001") || dateVal.includes("NaN")) {
+        dateVal = ""; // ถ้าผิดปกติให้เคลียร์เป็นว่างเพื่อให้ผู้ใช้เลือกใหม่ได้ถูกต้อง
     }
 
     document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal; // คราวนี้จะมีค่าโผล่มาแสดงในฟอร์มแน่นอน ไม่ว่างเปล่า
+    document.getElementById('date').value = dateVal; 
     document.getElementById('type').value = trade.type;
     document.getElementById('symbol').value = trade.symbol;
     document.getElementById('sector').value = trade.sector || '';
@@ -356,6 +335,7 @@ function startEditMode(rowIndex) {
     // เลื่อนหน้าจอขึ้นไปที่ฟอร์มคีย์อัตโนมัติ
     document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
 }
+
 // ฟังก์ชันยกเลิกโหมดแก้ไข
 function cancelEditMode() {
     document.getElementById('editRowIndex').value = "";
