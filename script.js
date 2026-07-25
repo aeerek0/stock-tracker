@@ -280,8 +280,25 @@ function startEditMode(rowIndex) {
     if (!trade) return;
 
     // ดึงข้อมูลเก่าลงฟอร์มคีย์
-    let dateVal = trade.date;
-    if (dateVal.includes("T")) dateVal = dateVal.split("T")[0];
+ let dateVal = trade.date;
+
+if (dateVal) {
+
+    // กรณีเป็น ISO datetime
+    if (String(dateVal).includes("T")) {
+        dateVal = String(dateVal).substring(0, 10);
+    }
+
+    // กรณีเป็น Date object
+    if (dateVal instanceof Date) {
+        dateVal =
+            dateVal.getFullYear() + "-" +
+            String(dateVal.getMonth() + 1).padStart(2, "0") + "-" +
+            String(dateVal.getDate()).padStart(2, "0");
+    }
+}
+
+document.getElementById('date').value = dateVal;
     
     document.getElementById('editRowIndex').value = trade.rowIndex;
     document.getElementById('date').value = dateVal;
