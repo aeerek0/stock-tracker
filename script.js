@@ -607,13 +607,16 @@ if (trade.type === 'ปันผล') {
             const costAtDividend = portfolio[sym] ? portfolio[sym].totalCost : 0;
             dividendData[sym].totalCost += costAtDividend;
 
-            dividendData[sym].items.push({
-                date: trade.date,
-                amount: amount,
-                dpu: Number(trade.price) || 0,
-                units: units,
-                cost: costAtDividend
-            });
+          dividendData[sym].items.push({
+    date: trade.date,
+    amount: amount,
+    dpu: Number(trade.price) || 0,
+    units: units,
+
+    // เก็บข้อมูลตอนรับปันผลจริง
+    cost: costAtDividend,
+    holdingUnits: portfolio[sym] ? portfolio[sym].totalUnits : 0
+});
 
             // สะสมปันผลตาม Sector
             const symSector = symbolSectorMap[sym] || sector;
