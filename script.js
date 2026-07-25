@@ -109,6 +109,7 @@ if (typeElement) {
         const priceGroup = document.getElementById('price').parentElement;
         const unitsGroup = document.getElementById('units').parentElement;
         const feeGroup = document.getElementById('feeRate').parentElement;
+        const xdDateContainer = document.getElementById('xdDateContainer');
 
         // แสดงทุกอย่างก่อน
         symbolGroup.style.display = "";
@@ -118,6 +119,7 @@ if (typeElement) {
         unitsGroup.style.display = "";
         feeGroup.style.display = "";
         amountContainer.style.display = "none";
+        xdDateContainer.style.display = "none";
 
         if (type === "ฝากเงิน" || type === "ถอนเงิน") {
             amountContainer.style.display = "block";
@@ -131,6 +133,7 @@ if (typeElement) {
 
 if (type === "ปันผล") {
     amountContainer.style.display = "block";
+    xdDateContainer.style.display = "block";
 
     // ปันผลใช้ Symbol + Sector + Price(DPU) + Units
     symbolGroup.style.display = "";
