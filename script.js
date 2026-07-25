@@ -20,6 +20,7 @@ let dividendCostBasis = {};
 let dividendMonthlyChart = null;
 let dividendStockChart = null;
 let dividendYearChart = null;
+let chartFilter = "all";   // all | top10
 
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
