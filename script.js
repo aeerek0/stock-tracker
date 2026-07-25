@@ -147,7 +147,7 @@ if (type === "ปันผล") {
     feeGroup.style.display = "none";
 }
 });
-    
+     typeElement.dispatchEvent(new Event('change'));
 }
 
 const masterSectorMap = {
