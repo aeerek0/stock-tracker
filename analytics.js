@@ -124,6 +124,8 @@ function drawMonthlyPnL() {
         console.warn("drawMonthlyPnL: trades ไม่ใช่ Array", trades);
         return;
     }
+    const selectedYear =
+    document.getElementById("pnlYearSelect")?.value;
 
     let portfolio = {};
     let result = {};
@@ -132,6 +134,11 @@ function drawMonthlyPnL() {
         if (t.type === "ฝากเงิน" || t.type === "ถอนเงิน") return;
 
         const sym = t.symbol;
+
+        if (selectedYear &&
+    t.date &&
+    t.date.substring(0,4) !== selectedYear)
+    return;
         const month = t.date ? t.date.substring(0, 7) : "";
         if (!month) return;
 
@@ -456,10 +463,18 @@ function renderSummary() {
 // Buy / Sell Volume Monthly
 //==========================
 function drawBuySellMonthly() {
+const selectedYear =
+    document.getElementById("buySellYearSelect")?.value;
+    
     let monthly = {};
 
     trades.forEach(t => {
         if (t.type !== "ซื้อ" && t.type !== "ขาย") return;
+
+        if (selectedYear &&
+    t.date &&
+    t.date.substring(0,4) !== selectedYear)
+    return;
 
         let month = t.date ? t.date.substring(0, 7) : "";
         if (!month) return;
