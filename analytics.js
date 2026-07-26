@@ -39,7 +39,7 @@ window.addEventListener("pageshow", function () {
             console.error(err);
             alert("โหลดข้อมูลไม่สำเร็จ");
         });
-};
+});
 
 //==========================
 // กำไร/ขาดทุนรายเดือน
