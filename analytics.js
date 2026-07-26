@@ -15,7 +15,8 @@ function loadAnalytics() {
         .then(response => response.json())
         .then(data => {
 
-            // รองรับ Array และ Object
+            console.log(data);
+
             if (Array.isArray(data)) {
                 trades = data;
 
@@ -39,12 +40,10 @@ function loadAnalytics() {
             renderHoldingPeriod();
             renderSectorPerformance();
 
-
-            alert("โหลดข้อมูลสำเร็จ");
-
         })
         .catch(err => {
 
+            console.log(err);
             alert("โหลดข้อมูลไม่สำเร็จ");
 
         });
@@ -547,4 +546,6 @@ function renderSectorPerformance() {
     if (tableElement) tableElement.innerHTML = html;
 }
 
-window.onload = loadAnalytics;
+window.onload = function () {
+    loadAnalytics();
+};
