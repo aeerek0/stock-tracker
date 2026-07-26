@@ -759,25 +759,44 @@ setElementText('dashTotalStocks', activeStocksCount);
 setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
 // Total Return
+// ==========================
+// Total Return
+// ==========================
+
 const totalReturn = totalPnL + totalDividend;
+
 
 setElementText(
     'totalReturn',
     (totalReturn >= 0 ? '+' : '') +
-    totalReturn.toLocaleString(undefined, { minimumFractionDigits: 2 })
+    totalReturn.toLocaleString(undefined, {
+        minimumFractionDigits: 2
+    })
 );
 
 
 setElementText(
     'totalCapitalGain',
     (totalPnL >= 0 ? '+' : '') +
-    totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2 })
+    totalPnL.toLocaleString(undefined, {
+        minimumFractionDigits: 2
+    })
 );
 
 
 setElementText(
     'totalDividend',
-    totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 })
+    totalDividend.toLocaleString(undefined, {
+        minimumFractionDigits: 2
+    })
+);
+
+
+// ใช้ Growth เดิม
+setElementText(
+    'totalReturnPercent',
+    (growthPercent >= 0 ? '+' : '') +
+    growthPercent.toFixed(2) + '%'
 );
     
 setElementText('dashCashBalance', cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }));
