@@ -177,8 +177,14 @@ function drawMonthlyPnL() {
 // วาดกราฟ PnL รายเดือน
 //==========================
 function createChart(data) {
+
     const chartElement = document.getElementById("monthChart");
     if (!chartElement) return;
+
+    // ลบกราฟเก่าก่อน
+    if (monthChart) {
+        monthChart.destroy();
+    }
 
     monthChart = new Chart(chartElement, {
         type: "bar",
@@ -498,6 +504,11 @@ const selectedYear =
     let labels = Object.keys(monthly);
     let chartElement = document.getElementById("buySellChart");
     if (!chartElement) return;
+
+    if (buySellChart) {
+    buySellChart.destroy();
+}
+
 
     buySellChart = new Chart(chartElement, {
         type: "bar",
