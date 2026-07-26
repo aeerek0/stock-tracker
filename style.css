@@ -695,4 +695,45 @@
     color:#15803d;
 
 }
+
+/* ===========================
+   Return Percent Card
+=========================== */
+
+.return-percent-card{
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#fff3cd;
+
+    box-shadow:0 3px 8px rgba(0,0,0,.08);
+
+    padding:10px;
+
+}
+
+
+.return-percent-card small{
+
+    font-size:.72rem;
+
+    color:#856404;
+
+    font-weight:600;
+
+}
+
+
+.return-percent-card div{
+
+    font-size:1.25rem;
+
+    font-weight:800;
+
+    color:#b7791f;
+
+}
+
     </style>
