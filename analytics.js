@@ -10,18 +10,22 @@ function loadAnalytics() {
         return;
     }
 
+
     fetch(WEB_APP_URL)
-        .then(r => r.json())
+        .then(response => response.json())
         .then(data => {
 
-            console.log("API DATA:", data);
-
+            // รองรับ Array และ Object
             if (Array.isArray(data)) {
                 trades = data;
+
             } else if (data.trades && Array.isArray(data.trades)) {
                 trades = data.trades;
+
             } else {
+                alert("รูปแบบข้อมูลไม่ถูกต้อง");
                 trades = [];
+                return;
             }
 
 
@@ -35,11 +39,16 @@ function loadAnalytics() {
             renderHoldingPeriod();
             renderSectorPerformance();
 
+
+            alert("โหลดข้อมูลสำเร็จ");
+
         })
         .catch(err => {
-            console.error(err);
+
             alert("โหลดข้อมูลไม่สำเร็จ");
+
         });
+
 }
 //==========================
 // กำไร/ขาดทุนรายเดือน
