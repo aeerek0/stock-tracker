@@ -217,24 +217,21 @@ function renderMostTrade() {
 // Summary ภาพรวม
 //==========================
 function renderSummary() {
+
     let portfolio = {};
-    let netDeposit = 0;
     let realized = 0;
     let win = 0;
     let loss = 0;
 
     trades.forEach(t => {
-        if (t.type === "ฝากเงิน") {
-            netDeposit += Number(t.netAmount) || 0;
+
+        const sym = String(t.symbol).trim().toUpperCase();
+
+        if (t.type === "ฝากเงิน" || t.type === "ถอนเงิน") {
             return;
         }
 
-        if (t.type === "ถอนเงิน") {
-            netDeposit -= Number(t.netAmount) || 0;
-            return;
-        }
 
-        let sym = t.symbol;
         if (!portfolio[sym]) {
             portfolio[sym] = {
                 units: 0,
@@ -242,53 +239,100 @@ function renderSummary() {
             };
         }
 
-        let units = Number(t.units) || 0;
-        let net = Number(t.netAmount) || 0;
 
+        const units = Number(t.units) || 0;
+        const net = Number(t.netAmount) || 0;
+
+
+        // ซื้อ
         if (t.type === "ซื้อ") {
+
             portfolio[sym].units += units;
             portfolio[sym].cost += net;
-        } else if (t.type === "ขาย") {
-            if (portfolio[sym].units > 0) {
-                let avg = portfolio[sym].cost / portfolio[sym].units;
-                let pnl = net - (avg * units);
+
+        }
+
+
+        // ขาย
+        if (t.type === "ขาย") {
+
+
+            const p = portfolio[sym];
+
+
+            if (p.units > 0) {
+
+                const avgCost = p.cost / p.units;
+
+                const sellCost = avgCost * units;
+
+                const pnl = net - sellCost;
+
 
                 realized += pnl;
-                if (pnl > 0) win++;
-                else if (pnl < 0) loss++;
 
-                portfolio[sym].units -= units;
-                portfolio[sym].cost -= avg * units;
+
+                if (pnl > 0)
+                    win++;
+                else if (pnl < 0)
+                    loss++;
+
+
+                p.units -= units;
+                p.cost -= sellCost;
+
             }
+
         }
+
     });
 
-    let totalTrade = win + loss;
+
+
+    // ต้นทุนหุ้นที่ยังถือ
     let currentCost = 0;
 
+
     Object.values(portfolio).forEach(p => {
-        currentCost += p.cost;
+
+        if (p.units > 0) {
+            currentCost += p.cost;
+        }
+
     });
 
-    if (document.getElementById("currentCost")) {
+
+
+    if(document.getElementById("currentCost")){
         document.getElementById("currentCost").innerHTML =
-            currentCost.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            currentCost.toLocaleString(undefined,{
+                maximumFractionDigits:2
+            });
     }
 
-    if (document.getElementById("netDeposit")) {
-        document.getElementById("netDeposit").innerHTML =
-            netDeposit.toLocaleString(undefined, { maximumFractionDigits: 2 });
-    }
 
-    if (document.getElementById("realizedPnL")) {
+
+    if(document.getElementById("realizedPnL")){
         document.getElementById("realizedPnL").innerHTML =
-            realized.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            realized.toLocaleString(undefined,{
+                maximumFractionDigits:2
+            });
     }
 
-    let rate = totalTrade ? (win / totalTrade * 100) : 0;
-    if (document.getElementById("winRate")) {
-        document.getElementById("winRate").innerHTML = rate.toFixed(2) + "%";
+
+
+    const totalTrade = win + loss;
+
+    const rate = totalTrade > 0
+        ? (win / totalTrade * 100)
+        : 0;
+
+
+    if(document.getElementById("winRate")){
+        document.getElementById("winRate").innerHTML =
+            rate.toFixed(2)+"%";
     }
+
 }
 
 //==========================
