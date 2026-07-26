@@ -223,14 +223,24 @@ function renderMostTrade() {
 // Summary ภาพรวม
 //==========================
 function renderSummary() {
-    let portfolio = {};
-    let cost = 0;
-    let realized = 0;
-    let win = 0;
-    let loss = 0;
+let portfolio = {};
+let netDeposit = 0;
+let realized = 0;
+let win = 0;
+let loss = 0;
 
     trades.forEach(t => {
-        if (t.type === "ฝากเงิน" || t.type === "ถอนเงิน") return;
+        trades.forEach(t => {
+
+    if (t.type === "ฝากเงิน") {
+        netDeposit += Number(t.netAmount) || 0;
+        return;
+    }
+
+    if (t.type === "ถอนเงิน") {
+        netDeposit -= Number(t.netAmount) || 0;
+        return;
+    }
 
         let sym = t.symbol;
         if (!portfolio[sym]) {
@@ -253,7 +263,7 @@ if (t.type === "ซื้อ") {
 
                 realized += pnl;
                 if (pnl > 0) win++;
-                else loss++;
+                else if (pnl < 0) loss++;
 
                 portfolio[sym].units -= units;
                 portfolio[sym].cost -= avg * units;
@@ -269,12 +279,20 @@ Object.values(portfolio).forEach(p => {
     currentCost += p.cost;
 });
 
-if (document.getElementById("totalCost")) {
-    document.getElementById("totalCost").innerHTML =
+if (document.getElementById("currentCost")) {
+    document.getElementById("currentCost").innerHTML =
         currentCost.toLocaleString(undefined, {
             maximumFractionDigits: 2
         });
 }
+
+        if (document.getElementById("netDeposit")) {
+    document.getElementById("netDeposit").innerHTML =
+        netDeposit.toLocaleString(undefined, {
+            maximumFractionDigits: 2
+        });
+}
+        
     if (document.getElementById("realizedPnL")) {
         document.getElementById("realizedPnL").innerHTML = realized.toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
