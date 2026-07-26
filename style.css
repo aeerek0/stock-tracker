@@ -620,4 +620,40 @@
     color:#b7791f;
 
 }
+.analytics-highlight{
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#fffaf5;
+
+    box-shadow:0 3px 8px rgba(0,0,0,.08);
+
+}
+
+
+.analytics-highlight h6{
+
+    font-size:.8rem;
+
+    font-weight:700;
+
+    color:#6e3b23;
+
+}
+
+
+.analytics-highlight .small{
+
+    font-size:.7rem;
+
+}
+
+
+.analytics-highlight .fw-bold{
+
+    font-size:1rem;
+
+}
     </style>
