@@ -1671,39 +1671,47 @@ function renderDividendHistory() {
     if (!historyTbody) return;
 
     let html = "";
-    const historyData = globalTradesData.filter(t => String(t.type).trim() === "ปันผล");
+    const historyData = globalTradesData.filter(
+        t => String(t.type).trim() === "ปันผล"
+    );
 
     historyData
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, dividendHistoryLimit)
-    .forEach(t => {
-        html += `
-        <tr>
-            <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
-            <td>${t.symbol}</td>
-            <td>${t.sector}</td>
-            <td class="text-end">
-                ${Number(t.netAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            </td>
-        </tr>
-        `;
-    });
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, dividendHistoryLimit)
+        .forEach(t => {
+
+            const dpu = Number(t.price || 0);
+            const units = Number(t.units || 0);
+            const gross = Number(t.grossAmount || 0);
+            const net = Number(t.netAmount || 0);
+            const tax = Math.max(0, gross - net);
+
+            html += `
+            <tr>
+                <td>${new Date(t.date).toLocaleDateString("th-TH")}</td>
+                <td>${t.symbol}</td>
+                <td class="text-end">${dpu.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+                <td class="text-end">${units.toLocaleString()}</td>
+                <td class="text-end">${gross.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+                <td class="text-end">${tax.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+                <td class="text-end fw-bold">${net.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+            </tr>
+            `;
+        });
 
     historyTbody.innerHTML = html;
-    
+
     const btn = document.getElementById("btnShowAllDividend");
 
-if(btn){
-
-    btn.style.display =
-        historyData.length > 10
-        ? "inline-block"
-        : "none";
-
-}
+    if (btn) {
+        btn.style.display =
+            historyData.length > 10
+                ? "inline-block"
+                : "none";
+    }
 }
 
-function showAllDividendHistory(){
+function showAllDividendHistory() {
 
     dividendHistoryLimit = 999999;
 
