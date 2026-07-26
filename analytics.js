@@ -283,6 +283,7 @@ function renderSummary() {
     let win = 0;
     let loss = 0;
     let netDeposit = 0;
+    let stockResult = {};
 
     trades.forEach(t => {
 
@@ -292,11 +293,18 @@ function renderSummary() {
     return;
 }
 
+        
+
 if (t.type === "ถอนเงิน") {
     netDeposit -= Number(t.netAmount) || 0;
     return;
 }
 
+        if (t.type === "ปันผล") {
+    return;
+}
+        
+        
 
         if (!portfolio[sym]) {
             portfolio[sym] = {
@@ -335,13 +343,22 @@ if (t.type === "ถอนเงิน") {
                 const pnl = net - sellCost;
 
 
-                realized += pnl;
+realized += pnl;
 
 
-                if (pnl > 0)
-                    win++;
-                else if (pnl < 0)
-                    loss++;
+// Trade Win Rate
+if (pnl > 0)
+    win++;
+else if (pnl < 0)
+    loss++;
+
+
+// Stock Win Rate
+if (!stockResult[sym]) {
+    stockResult[sym] = 0;
+}
+
+stockResult[sym] += pnl;
 
 
                 p.units -= units;
@@ -410,7 +427,63 @@ if(document.getElementById("winDetail")){
             maximumFractionDigits:2
         });
 }
+// ======================
+// Stock Win Rate
+// ======================
 
+let stockWin = 0;
+let stockLoss = 0;
+
+Object.values(stockResult).forEach(pnl => {
+
+    if (pnl > 0)
+        stockWin++;
+
+    else if (pnl < 0)
+        stockLoss++;
+
+});
+
+
+let stockTotal = stockWin + stockLoss;
+
+let stockRate = stockTotal > 0
+    ? (stockWin / stockTotal * 100)
+    : 0;
+
+
+if(document.getElementById("stockWinRate")){
+
+    document.getElementById("stockWinRate").innerHTML =
+        stockRate.toFixed(2) + "%";
+
+}
+
+
+if(document.getElementById("stockWinDetail")){
+
+    document.getElementById("stockWinDetail").innerHTML =
+        `${stockWin} หุ้นชนะ / ${stockLoss} หุ้นแพ้`;
+
+}
+
+
+
+// ======================
+// Realized Return
+// ======================
+
+let returnPercent = netDeposit > 0
+    ? (realized / netDeposit * 100)
+    : 0;
+
+
+if(document.getElementById("realizedReturn")){
+
+    document.getElementById("realizedReturn").innerHTML =
+        returnPercent.toFixed(2) + "%";
+
+}
 }
 
 //==========================
