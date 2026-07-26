@@ -1643,11 +1643,13 @@ document.getElementById("dividendTotalYield").innerText =
 }
 
 function switchTab(tab) {
+
     // ซ่อนทุกหน้า
     document.getElementById("portfolioTab").style.display = "none";
     document.getElementById("dividendTab").style.display = "none";
     document.getElementById("settingsTab").style.display = "none";
     document.getElementById("analyticsTab").style.display = "none";
+
 
     // รีเซ็ตสีปุ่ม
     document.getElementById("tabPortfolioBtn").classList.remove("active");
@@ -1655,37 +1657,59 @@ function switchTab(tab) {
     document.getElementById("tabSettingsBtn").classList.remove("active");
     document.getElementById("tabAnalyticsBtn").classList.remove("active");
 
-    // แสดงหน้าที่เลือก
+
+    // Portfolio
     if (tab === "portfolio") {
+
         document.getElementById("portfolioTab").style.display = "block";
         document.getElementById("tabPortfolioBtn").classList.add("active");
+
     }
 
-if (tab === "dividend") {
 
-    document.getElementById("dividendTab").style.display = "block";
-    document.getElementById("tabDividendBtn").classList.add("active");
+    // Dividend
+    if (tab === "dividend") {
 
-    buildDividendYear();
-    buildCalendarYear();
+        document.getElementById("dividendTab").style.display = "block";
+        document.getElementById("tabDividendBtn").classList.add("active");
 
-    renderDividendTable();
-    renderDividendCalendar();
-    renderDividendKPI();
 
-}
-    
+        buildDividendYear();
+        buildCalendarYear();
+
+        renderDividendTable();
+        renderDividendCalendar();
+        renderDividendKPI();
+
+    }
+
+
+    // Settings
     if (tab === "settings") {
+
         document.getElementById("settingsTab").style.display = "block";
         document.getElementById("tabSettingsBtn").classList.add("active");
+
     }
-    
+
+
+    // Analytics
     if (tab === "analytics") {
+
         document.getElementById("analyticsTab").style.display = "block";
         document.getElementById("tabAnalyticsBtn").classList.add("active");
-    }
-}
 
+
+        // โหลดข้อมูล Analytics ใหม่ทุกครั้งที่เปิด Tab
+        const iframe = document.querySelector("#analyticsTab iframe");
+
+        if (iframe && iframe.contentWindow.loadAnalytics) {
+            iframe.contentWindow.loadAnalytics();
+        }
+
+    }
+
+}
 function renderDividendHistory() {
     const historyTbody = document.getElementById("dividendHistoryBody");
     if (!historyTbody) return;
