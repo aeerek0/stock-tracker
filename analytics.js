@@ -19,19 +19,23 @@ function buildAnalyticsYear() {
     const buySellSelect = document.getElementById("buySellYearSelect");
 
     if (pnlSelect) {
-        pnlSelect.innerHTML = "";
+pnlSelect.innerHTML =
+    `<option value="">ทุกปี</option>`;
 
-        list.forEach(y => {
-            pnlSelect.innerHTML += `<option value="${y}">${y}</option>`;
-        });
+list.forEach(y => {
+    pnlSelect.innerHTML +=
+        `<option value="${y}">${y}</option>`;
+});
     }
 
     if (buySellSelect) {
-        buySellSelect.innerHTML = "";
+buySellSelect.innerHTML =
+    `<option value="">ทุกปี</option>`;
 
-        list.forEach(y => {
-            buySellSelect.innerHTML += `<option value="${y}">${y}</option>`;
-        });
+list.forEach(y => {
+    buySellSelect.innerHTML +=
+        `<option value="${y}">${y}</option>`;
+});
     }
 }
 
@@ -189,11 +193,31 @@ function createChart(data) {
     monthChart = new Chart(chartElement, {
         type: "bar",
         data: {
-            labels: Object.keys(data),
-            datasets: [{
-                label: "กำไร / ขาดทุน",
-                data: Object.values(data)
-            }]
+            labels: Object.keys(data).map(m => {
+
+    const monthNames = [
+        "ม.ค.","ก.พ.","มี.ค.","เม.ย.",
+        "พ.ค.","มิ.ย.","ก.ค.","ส.ค.",
+        "ก.ย.","ต.ค.","พ.ย.","ธ.ค."
+    ];
+
+    return monthNames[Number(m.substring(5,7)) - 1];
+
+}),
+datasets: [{
+    label: "กำไร / ขาดทุน",
+    data: Object.values(data),
+
+    backgroundColor: Object.values(data).map(v =>
+        v >= 0 ? "#4CAF50" : "#E74C3C"
+    ),
+
+    borderColor: Object.values(data).map(v =>
+        v >= 0 ? "#388E3C" : "#C62828"
+    ),
+
+    borderWidth: 1
+}]
         },
         options: {
             responsive: true,
@@ -513,16 +537,32 @@ const selectedYear =
     buySellChart = new Chart(chartElement, {
         type: "bar",
         data: {
-            labels: labels,
+          labels: labels.map(m => {
+
+    const monthNames = [
+        "ม.ค.","ก.พ.","มี.ค.","เม.ย.",
+        "พ.ค.","มิ.ย.","ก.ค.","ส.ค.",
+        "ก.ย.","ต.ค.","พ.ย.","ธ.ค."
+    ];
+
+    return monthNames[Number(m.substring(5,7)) - 1];
+
+}),
             datasets: [
-                {
-                    label: "ซื้อ",
-                    data: labels.map(x => monthly[x].buy)
-                },
-                {
-                    label: "ขาย",
-                    data: labels.map(x => monthly[x].sell)
-                }
+{
+    label: "ซื้อ",
+    data: labels.map(x => monthly[x].buy),
+    backgroundColor: "#4CAF50",
+    borderColor: "#388E3C",
+    borderWidth: 1
+},
+{
+    label: "ขาย",
+    data: labels.map(x => monthly[x].sell),
+    backgroundColor: "#FF9800",
+    borderColor: "#F57C00",
+    borderWidth: 1
+}
             ]
         },
         options: {
