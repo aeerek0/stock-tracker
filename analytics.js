@@ -3,6 +3,38 @@ let trades = [];
 let monthChart = null;
 let buySellChart = null;
 
+function buildAnalyticsYear() {
+
+    let years = new Set();
+
+    trades.forEach(t => {
+        if (t.date) {
+            years.add(t.date.substring(0, 4));
+        }
+    });
+
+    let list = [...years].sort().reverse(); // ปีล่าสุดอยู่บนสุด
+
+    const pnlSelect = document.getElementById("pnlYearSelect");
+    const buySellSelect = document.getElementById("buySellYearSelect");
+
+    if (pnlSelect) {
+        pnlSelect.innerHTML = "";
+
+        list.forEach(y => {
+            pnlSelect.innerHTML += `<option value="${y}">${y}</option>`;
+        });
+    }
+
+    if (buySellSelect) {
+        buySellSelect.innerHTML = "";
+
+        list.forEach(y => {
+            buySellSelect.innerHTML += `<option value="${y}">${y}</option>`;
+        });
+    }
+}
+
 function loadAnalytics() {
 
     WEB_APP_URL = localStorage.getItem("user_google_sheet_url");
@@ -60,6 +92,7 @@ if (Chart.getChart("buySellChart")) {
     Chart.getChart("buySellChart").destroy();
 }
 
+        buildAnalyticsYear();
         drawMonthlyPnL();
         drawBuySellMonthly();
 
