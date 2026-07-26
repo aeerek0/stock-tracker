@@ -975,16 +975,16 @@ function renderClosedPosition(){
 
 
         if(!data[sym]){
+data[sym] = {
 
-            data[sym] = {
+    qty:0,
+    cost:0,
+    totalCost:0,
+    realized:0,
+    dividend:0,
+    lastSell:""
 
-                qty:0,
-                cost:0,
-                realized:0,
-                dividend:0,
-                lastSell:""
-
-            };
+};
 
         }
 
@@ -994,13 +994,15 @@ function renderClosedPosition(){
 
 
         // ซื้อ
-        if(t.type === "ซื้อ"){
+if(t.type === "ซื้อ"){
 
-            data[sym].qty += units;
+    data[sym].qty += units;
 
-            data[sym].cost += amount;
+    data[sym].cost += amount;
 
-        }
+    data[sym].totalCost += amount;
+
+}
 
 
         // ขาย
@@ -1062,10 +1064,10 @@ function renderClosedPosition(){
             s.realized + s.dividend;
 
 
-        let returnPercent =
-            s.cost > 0
-            ? (totalReturn / s.cost) * 100
-            : 0;
+let returnPercent =
+    s.totalCost > 0
+    ? (totalReturn / s.totalCost) * 100
+    : 0;
 
 
         rows.push({
