@@ -2298,6 +2298,64 @@ function toggleDividendDetail(month){
 
 }
 
+function getHoldingAtDate(symbol, targetDate) {
+
+    let units = 0;
+    let cost = 0;
+
+    const dateLimit = new Date(targetDate);
+
+    const history = globalTradesData
+        .filter(t => {
+            return (
+                String(t.symbol).toUpperCase() === String(symbol).toUpperCase() &&
+                new Date(t.date) <= dateLimit &&
+                (t.type === "ซื้อ" || t.type === "ขาย")
+            );
+        })
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+
+    history.forEach(t => {
+
+        const qty = Number(t.units) || 0;
+        const amount = Number(t.grossAmount) || 0;
+
+
+        // ซื้อ
+        if (t.type === "ซื้อ") {
+
+            units += qty;
+            cost += amount;
+
+        }
+
+
+        // ขาย
+        if (t.type === "ขาย") {
+
+            if (units > 0) {
+
+                const avgCost = cost / units;
+
+                units -= qty;
+                cost -= avgCost * qty;
+
+            }
+
+        }
+
+    });
+
+
+    return {
+        units: units,
+        cost: cost,
+        avgPrice: units > 0 ? cost / units : 0
+    };
+
+}
+
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
     const dateInput = document.getElementById('date');
