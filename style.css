@@ -432,4 +432,129 @@
 .dividend-kpi-item:nth-child(6){
     border-left:5px solid #43aa8b;
 }
+
+/* ==========================
+   Analytics Dashboard Cards
+========================== */
+
+.analytics-card {
+
+    border: none;
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.08);
+
+    transition: 0.25s;
+
+}
+
+
+.analytics-card:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 8px 18px rgba(0,0,0,0.12);
+
+}
+
+
+.analytics-card h6 {
+
+    font-size: 0.85rem;
+    color:#6e625b;
+
+}
+
+
+.analytics-card h4 {
+
+    font-weight:800;
+
+}
+
+
+/* เงินต้น */
+.analytics-money {
+
+    background:#fff5ee;
+
+}
+
+.analytics-money h4 {
+
+    color:#d97706;
+
+}
+
+
+/* ต้นทุนหุ้น */
+.analytics-cost {
+
+    background:#fff9db;
+
+}
+
+.analytics-cost h4 {
+
+    color:#8a6d1d;
+
+}
+
+
+/* Realized Profit */
+.analytics-profit {
+
+    background:#eaf8f2;
+
+}
+
+.analytics-profit h4 {
+
+    color:#198754;
+
+}
+
+
+/* Trade Win Rate */
+.analytics-win {
+
+    background:#eef6ff;
+
+}
+
+.analytics-win h4 {
+
+    color:#2563eb;
+
+}
+
+
+/* Stock Win Rate */
+.analytics-stock {
+
+    background:#f4edff;
+
+}
+
+.analytics-stock h4 {
+
+    color:#7c3aed;
+
+}
+
+
+/* Return */
+.analytics-return {
+
+    background:#fff3cd;
+
+}
+
+.analytics-return h4 {
+
+    color:#b7791f;
+
+}
     </style>
