@@ -394,10 +394,15 @@ if (t.type === "ถอนเงิน") {
         : 0;
 
 
-    if(document.getElementById("winRate")){
-        document.getElementById("winRate").innerHTML =
-            rate.toFixed(2)+"%";
-    }
+if(document.getElementById("winRate")){
+    document.getElementById("winRate").innerHTML =
+        rate.toFixed(2) + "%";
+}
+
+if(document.getElementById("winDetail")){
+    document.getElementById("winDetail").innerHTML =
+        `${win} ชนะ / ${loss} แพ้`;
+}
 
     if(document.getElementById("netDeposit")){
     document.getElementById("netDeposit").innerHTML =
