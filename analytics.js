@@ -1,5 +1,7 @@
 let WEB_APP_URL = "";
 let trades = [];
+let monthChart = null;
+let buySellChart = null;
 
 function loadAnalytics() {
 
@@ -12,43 +14,71 @@ function loadAnalytics() {
 
 
     fetch(WEB_APP_URL)
-        .then(response => response.json())
-        .then(data => {
+    .then(response => {
 
-            console.log(data);
+        if (!response.ok) {
+            throw new Error("HTTP Error " + response.status);
+        }
 
-            if (Array.isArray(data)) {
-                trades = data;
+        return response.json();
 
-            } else if (data.trades && Array.isArray(data.trades)) {
-                trades = data.trades;
-
-            } else {
-                alert("รูปแบบข้อมูลไม่ถูกต้อง");
-                trades = [];
-                return;
-            }
+    })
+    .then(data => {
 
 
-            drawMonthlyPnL();
-            drawBuySellMonthly();
+        if (Array.isArray(data)) {
 
-            renderTopProfit();
-            renderTopLoss();
-            renderMostTrade();
-            renderSummary();
-            renderHoldingPeriod();
-            renderSectorPerformance();
+            trades = data;
 
-        })
-        .catch(err => {
+        } else if (data.trades && Array.isArray(data.trades)) {
 
-            console.log(err);
-            alert("โหลดข้อมูลไม่สำเร็จ");
+            trades = data.trades;
 
-        });
+        } else {
+
+            alert("ข้อมูลไม่ถูกต้อง");
+            return;
+
+        }
+
+
+        // เคลียร์ chart เก่า
+        if(monthChart){
+            monthChart.destroy();
+        }
+
+        if(buySellChart){
+            buySellChart.destroy();
+        }
+
+
+        drawMonthlyPnL();
+        drawBuySellMonthly();
+
+        renderTopProfit();
+        renderTopLoss();
+        renderMostTrade();
+        renderSummary();
+        renderHoldingPeriod();
+        renderSectorPerformance();
+
+
+        alert("โหลดข้อมูลสำเร็จ");
+
+    })
+    .catch(err => {
+
+        console.error(err);
+
+        alert("โหลดข้อมูลไม่สำเร็จ");
+
+    });
 
 }
+
+
+// โหลดครั้งแรก
+window.onload = loadAnalytics;
 //==========================
 // กำไร/ขาดทุนรายเดือน
 //==========================
