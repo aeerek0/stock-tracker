@@ -769,12 +769,23 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
             <td>${trade.sector || '-'}</td>
             <td>${trade.broker || '-'}</td>
             <td>${parseFloat(trade.price || 0).toLocaleString()}</td>
-            <td>${parseInt(trade.units || 0).toLocaleString()}</td>
-            <td>${parseFloat(trade.grossAmount || 0).toLocaleString()}</td>
-            <td>
-                ${fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br>
-                <small class="text-muted">${feeRate.toFixed(4)}%</small>
-            </td>
+<td>${(trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน')
+    ? '-'
+    : parseInt(trade.units || 0).toLocaleString()}
+</td>
+
+<td>${(trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน')
+    ? '-'
+    : parseFloat(trade.grossAmount || 0).toLocaleString()}
+</td>
+        <td>
+            ${
+            ['ฝากเงิน','ถอนเงิน','ปันผล'].includes(trade.type)
+            ? '-'
+            : `${fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br>
+               <small class="text-muted">${feeRate.toFixed(4)}%</small>`
+            }
+        </td>
             <td class="fw-bold">${parseFloat(trade.netAmount || 0).toLocaleString()}</td>
             <td>
                 <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
