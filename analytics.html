@@ -73,7 +73,20 @@
 </div>
 
 </div>
-<h5>📈 กำไร / ขาดทุน รายเดือน</h5>
+    
+<div class="d-flex justify-content-between align-items-center mb-2">
+
+    <h5 class="mb-0">
+        📈 กำไร / ขาดทุน รายเดือน
+    </h5>
+
+    <select id="pnlYearSelect"
+            class="form-select form-select-sm"
+            style="width:120px"
+            onchange="drawMonthlyPnL()">
+    </select>
+
+</div>
 
 <div style="height:300px;">
     <canvas id="monthChart"></canvas>
@@ -82,12 +95,25 @@
 </div>
 <div class="card p-3 mb-3">
 
-<h5>💰 มูลค่าซื้อ / ขาย รายเดือน</h5>
+<div class="d-flex justify-content-between align-items-center mb-2">
+
+    <h5 class="mb-0">
+        💰 มูลค่าซื้อ / ขาย รายเดือน
+    </h5>
+
+    <select id="buySellYearSelect"
+            class="form-select form-select-sm"
+            style="width:120px"
+            onchange="drawBuySellMonthly()">
+    </select>
+
+</div>
 
 <div style="height:300px;">
     <canvas id="buySellChart"></canvas>
 </div>
 
+</div>
 </div>
 <!-- Top Profit -->
 <div class="card p-3 mb-3">
