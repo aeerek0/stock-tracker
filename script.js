@@ -643,15 +643,20 @@ const costAtDividend = holdingAtXD.cost;
 const unitsAtXD = holdingAtXD.units;
             dividendData[sym].totalCost += costAtDividend;
 
-          dividendData[sym].items.push({
+dividendData[sym].items.push({
     date: trade.date,
+    xdDate: trade.xdDate || trade.date,
+
     amount: amount,
     dpu: Number(trade.price) || 0,
-    units: units,
 
-    // เก็บข้อมูลตอนรับปันผลจริง
-    cost: costAtDividend,
-    holdingUnits: unitsAtXD
+    units: unitsAtXD,
+
+    costAtXD: costAtDividend,
+
+    yield: costAtDividend > 0
+        ? (amount / costAtDividend) * 100
+        : 0
 });
 
             // สะสมปันผลตาม Sector
