@@ -206,8 +206,26 @@ function renderPnLTable(tableId, order, colorClass) {
         }
     });
 
-    let arr = Object.entries(pnl);
-    arr.sort((a, b) => (order === "desc" ? b[1] - a[1] : a[1] - b[1]));
+let arr = Object.entries(pnl);
+
+
+// Top Profit เอาเฉพาะกำไรจริง
+if (order === "desc") {
+    arr = arr.filter(item => item[1] > 0);
+}
+
+
+// Top Loss เอาเฉพาะขาดทุนจริง
+if (order === "asc") {
+    arr = arr.filter(item => item[1] < 0);
+}
+
+
+arr.sort((a, b) => 
+    order === "desc" 
+    ? b[1] - a[1] 
+    : a[1] - b[1]
+);
 
     let html = "";
     arr.slice(0, 10).forEach(item => {
@@ -215,7 +233,7 @@ function renderPnLTable(tableId, order, colorClass) {
         <tr>
             <td>${item[0]}</td>
             <td class="text-end ${colorClass} fw-bold">
-                ${item[1].toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                ${item[1] > 0 ? "+" : ""}${item[1].toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </td>
         </tr>`;
     });
