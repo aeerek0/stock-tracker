@@ -753,7 +753,7 @@ const setElementColor = (id, val) => {
 // 2. อัปเดตข้อความบน Dashboard
 setElementText('dashTotalValue', totalPortfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 setElementText('dashTotalPnL', (totalPnL >= 0 ? '+' : '') + totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2 }));
-setElementText('dashGrowth', `Growth ${growthPercent >= 0 ? '+' : ''}${growthPercent.toFixed(2)}%`);
+//setElementText('dashGrowth', `Growth ${growthPercent >= 0 ? '+' : ''}${growthPercent.toFixed(2)}%`);
 setElementText('dashUnrealizedPnL', (totalUnrealized >= 0 ? '+' : '') + totalUnrealized.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 setElementText('dashTotalStocks', activeStocksCount);
 setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
