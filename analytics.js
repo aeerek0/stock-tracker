@@ -106,6 +106,7 @@ if (Chart.getChart("buySellChart")) {
         renderSummary();
         renderHoldingPeriod();
         renderSectorPerformance();
+        renderTradingHighlights();
 
     })
 .catch(err => {
@@ -706,6 +707,250 @@ function renderSectorPerformance() {
 
     let tableElement = document.getElementById("sectorPerformanceTable");
     if (tableElement) tableElement.innerHTML = html;
+}
+
+// ==========================
+// Trading Highlights
+// ==========================
+
+function renderTradingHighlights(){
+
+    let portfolio = {};
+    let bestTrade = null;
+    let worstTrade = null;
+
+    let holdingData = {};
+
+
+    trades.forEach(t=>{
+
+        const sym = String(t.symbol || "").trim().toUpperCase();
+
+        if(!sym) return;
+
+
+        const units = Number(t.units) || 0;
+        const net = Number(t.netAmount) || 0;
+
+
+        // =================
+        // ซื้อ
+        // =================
+
+        if(t.type === "ซื้อ"){
+
+            if(!portfolio[sym]){
+                portfolio[sym] = [];
+            }
+
+
+            portfolio[sym].push({
+
+                date:new Date(t.date),
+                units:units,
+                cost:net
+
+            });
+
+
+        }
+
+
+        // =================
+        // ขาย
+        // =================
+
+        if(t.type === "ขาย"){
+
+            if(!portfolio[sym]) return;
+
+
+            let sellUnits = units;
+
+
+            while(sellUnits > 0 && portfolio[sym].length){
+
+                let buy = portfolio[sym][0];
+
+
+                let useUnits = Math.min(
+                    sellUnits,
+                    buy.units
+                );
+
+
+                let avgCost =
+                    buy.cost / buy.units;
+
+
+                let pnl =
+                    (net / units * useUnits)
+                    -
+                    (avgCost * useUnits);
+
+
+
+                // Best Trade
+
+                if(!bestTrade || pnl > bestTrade.pnl){
+
+                    bestTrade = {
+                        symbol:sym,
+                        pnl:pnl
+                    };
+
+                }
+
+
+                // Worst Trade
+
+                if(!worstTrade || pnl < worstTrade.pnl){
+
+                    worstTrade = {
+                        symbol:sym,
+                        pnl:pnl
+                    };
+
+                }
+
+
+                // Holding Day
+
+                let sellDate = new Date(t.date);
+
+                let days =
+                    Math.floor(
+                        (sellDate - buy.date)
+                        /
+                        (1000*60*60*24)
+                    );
+
+
+                if(!holdingData[sym]){
+                    holdingData[sym]={
+                        total:0,
+                        count:0
+                    };
+                }
+
+
+                holdingData[sym].total += days;
+                holdingData[sym].count++;
+
+
+                buy.units -= useUnits;
+                sellUnits -= useUnits;
+
+
+                if(buy.units <=0){
+
+                    portfolio[sym].shift();
+
+                }
+
+            }
+
+        }
+
+
+    });
+
+
+
+    // =====================
+    // Average Holding
+    // =====================
+
+    let totalDays = 0;
+    let totalCount = 0;
+
+
+    Object.values(holdingData)
+    .forEach(x=>{
+
+        totalDays += x.total;
+        totalCount += x.count;
+
+    });
+
+
+    let avgHolding =
+        totalCount > 0
+        ?
+        totalDays / totalCount
+        :
+        0;
+
+
+
+    // =====================
+    // Update HTML
+    // =====================
+
+
+    if(document.getElementById("bestTradeSymbol")){
+
+        document.getElementById("bestTradeSymbol").innerHTML =
+            bestTrade
+            ?
+            bestTrade.symbol
+            :
+            "-";
+
+    }
+
+
+    if(document.getElementById("bestTradeValue")){
+
+        document.getElementById("bestTradeValue").innerHTML =
+            bestTrade
+            ?
+            "+"+
+            bestTrade.pnl.toLocaleString(undefined,{
+                maximumFractionDigits:2
+            })
+            :
+            "-";
+
+    }
+
+
+
+    if(document.getElementById("worstTradeSymbol")){
+
+        document.getElementById("worstTradeSymbol").innerHTML =
+            worstTrade
+            ?
+            worstTrade.symbol
+            :
+            "-";
+
+    }
+
+
+    if(document.getElementById("worstTradeValue")){
+
+        document.getElementById("worstTradeValue").innerHTML =
+            worstTrade
+            ?
+            worstTrade.pnl.toLocaleString(undefined,{
+                maximumFractionDigits:2
+            })
+            :
+            "-";
+
+    }
+
+
+
+    if(document.getElementById("avgHoldingDays")){
+
+        document.getElementById("avgHoldingDays").innerHTML =
+            avgHolding.toFixed(0);
+
+    }
+
+
 }
 
 window.onload = function () {
