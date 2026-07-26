@@ -957,172 +957,14 @@ function renderTradingHighlights(){
 
 function renderClosedPosition(){
 
-    const tbody = document.getElementById(
-        "closedPositionTableBody"
-    );
+    const tbody = document.getElementById("closedPositionTableBody");
 
     if(!tbody) return;
-
 
     tbody.innerHTML = "";
 
 
-    let result = {};
-
-
-    trades.forEach(t=>{
-
-        if(!t.symbol) return;
-
-        if(t.type !== "ซื้อ" && t.type !== "ขาย" && t.type !== "ปันผล")
-            return;
-
-
-        if(!result[t.symbol]){
-
-            result[t.symbol] = {
-
-                buy:0,
-                sell:0,
-                dividend:0,
-                lastDate:"",
-                qty:0
-
-            };
-
-        }
-
-
-        if(t.type==="ซื้อ"){
-
-            result[t.symbol].buy += Number(t.netAmount)||0;
-            result[t.symbol].qty += Number(t.units)||0;
-
-        }
-
-
-        if(t.type==="ขาย"){
-
-            result[t.symbol].sell += Number(t.netAmount)||0;
-            result[t.symbol].qty -= Number(t.units)||0;
-
-            result[t.symbol].lastDate = t.date;
-
-        }
-
-
-        if(t.type==="ปันผล"){
-
-            result[t.symbol].dividend += Number(t.netAmount)||0;
-
-        }
-
-
-    });
-
-
-    let rows=[];
-
-
-    Object.keys(result).forEach(sym=>{
-
-        let s=result[sym];
-
-
-        // เหลือหุ้นอยู่ ไม่ใช่ Closed
-        if(s.qty>0) return;
-
-
-        let realized =
-            s.sell - s.buy;
-
-
-        let totalReturn =
-            realized + s.dividend;
-
-
-        rows.push({
-
-            sym,
-            date:s.lastDate,
-            realized,
-            dividend:s.dividend,
-            totalReturn
-
-        });
-
-    });
-
-
-
-    rows.sort((a,b)=>
-        b.totalReturn-a.totalReturn
-    );
-
-
-    rows.slice(0,10).forEach(r=>{
-
-
-        tbody.innerHTML += `
-
-        <tr>
-
-        <td>${r.sym}</td>
-
-        <td>${r.date || "-"}</td>
-
-        <td class="${r.realized>=0?'text-success':'text-danger'}">
-
-        ${r.realized.toLocaleString(undefined,{
-            minimumFractionDigits:2
-        })}
-
-        </td>
-
-
-        <td>
-        ${r.dividend.toLocaleString(undefined,{
-            minimumFractionDigits:2
-        })}
-        </td>
-
-
-        <td class="${r.totalReturn>=0?'text-success':'text-danger'}">
-
-        ${r.totalReturn.toLocaleString(undefined,{
-            minimumFractionDigits:2
-        })}
-
-        </td>
-
-
-        <td>-</td>
-
-
-        </tr>
-
-        `;
-
-
-    });
-
-
-}
-
-function renderClosedPosition(){
-
-    const tbody = document.getElementById(
-        "closedPositionTableBody"
-    );
-
-    if(!tbody) return;
-
-
-    tbody.innerHTML = "";
-
-
-    let portfolio = {};
-    let closed = {};
+    let data = {};
 
 
     trades.forEach(t=>{
@@ -1132,9 +974,9 @@ function renderClosedPosition(){
         if(!sym) return;
 
 
-        if(!portfolio[sym]){
+        if(!data[sym]){
 
-            portfolio[sym] = {
+            data[sym] = {
 
                 qty:0,
                 cost:0,
@@ -1147,53 +989,55 @@ function renderClosedPosition(){
         }
 
 
-        let units = Number(t.units)||0;
-        let amount = Number(t.netAmount)||0;
+        const units = Number(t.units) || 0;
+        const amount = Number(t.netAmount) || 0;
 
 
         // ซื้อ
-        if(t.type==="ซื้อ"){
+        if(t.type === "ซื้อ"){
 
-            portfolio[sym].qty += units;
-            portfolio[sym].cost += amount;
+            data[sym].qty += units;
+
+            data[sym].cost += amount;
 
         }
 
 
         // ขาย
-        if(t.type==="ขาย"){
+        if(t.type === "ขาย"){
 
             let avgCost =
-                portfolio[sym].qty > 0
-                ? portfolio[sym].cost / portfolio[sym].qty
+                data[sym].qty > 0
+                ? data[sym].cost / data[sym].qty
                 : 0;
 
 
-            let sellCost =
+            let soldCost =
                 avgCost * units;
 
 
             let profit =
-                amount - sellCost;
+                amount - soldCost;
 
 
-            portfolio[sym].realized += profit;
+            data[sym].realized += profit;
 
 
-            portfolio[sym].qty -= units;
-
-            portfolio[sym].cost -= sellCost;
+            data[sym].qty -= units;
 
 
-            portfolio[sym].lastSell = t.date;
+            data[sym].cost -= soldCost;
+
+
+            data[sym].lastSell = t.date;
 
         }
 
 
         // ปันผล
-        if(t.type==="ปันผล"){
+        if(t.type === "ปันผล"){
 
-            portfolio[sym].dividend += amount;
+            data[sym].dividend += amount;
 
         }
 
@@ -1202,47 +1046,50 @@ function renderClosedPosition(){
 
 
 
-    Object.keys(portfolio).forEach(sym=>{
-
-        let p = portfolio[sym];
+    let rows = [];
 
 
-        // เหลือหุ้นอยู่ = ไม่ใช่ Closed
-        if(p.qty > 0) return;
+    Object.keys(data).forEach(sym=>{
+
+        let s = data[sym];
 
 
-        closed[sym] = {
+        // ยังถืออยู่ ไม่ใช่ Closed
+        if(s.qty > 0) return;
 
-            realized:p.realized,
-            dividend:p.dividend,
-            total:
-                p.realized + p.dividend,
-            date:p.lastSell
 
-        };
+        let totalReturn =
+            s.realized + s.dividend;
+
+
+        let returnPercent =
+            s.cost > 0
+            ? (totalReturn / s.cost) * 100
+            : 0;
+
+
+        rows.push({
+
+            sym:sym,
+            date:s.lastSell,
+            realized:s.realized,
+            dividend:s.dividend,
+            totalReturn:totalReturn,
+            returnPercent:returnPercent
+
+        });
 
 
     });
 
 
 
-    let rows = Object.keys(closed)
-        .map(sym=>{
-
-            return {
-                sym,
-                ...closed[sym]
-            };
-
-        })
-        .sort((a,b)=>
-            b.total-a.total
-        )
-        .slice(0,10);
+    rows.sort((a,b)=>
+        b.totalReturn - a.totalReturn
+    );
 
 
-
-    rows.forEach(r=>{
+    rows.slice(0,10).forEach(r=>{
 
 
         tbody.innerHTML += `
@@ -1253,25 +1100,41 @@ function renderClosedPosition(){
 
             <td>${r.date || "-"}</td>
 
+
             <td class="${r.realized>=0?'text-success':'text-danger'}">
-                ${r.realized.toLocaleString(undefined,{
-                    minimumFractionDigits:2
-                })}
+
+            ${r.realized.toLocaleString(undefined,{
+                minimumFractionDigits:2
+            })}
+
             </td>
+
 
             <td>
-                ${r.dividend.toLocaleString(undefined,{
-                    minimumFractionDigits:2
-                })}
+
+            ${r.dividend.toLocaleString(undefined,{
+                minimumFractionDigits:2
+            })}
+
             </td>
 
-            <td class="${r.total>=0?'text-success':'text-danger'}">
-                ${r.total.toLocaleString(undefined,{
-                    minimumFractionDigits:2
-                })}
+
+            <td class="${r.totalReturn>=0?'text-success':'text-danger'}">
+
+            ${r.totalReturn.toLocaleString(undefined,{
+                minimumFractionDigits:2
+            })}
+
             </td>
 
-            <td>-</td>
+
+            <td class="${r.returnPercent>=0?'text-success':'text-danger'}">
+
+            ${(r.returnPercent>=0?'+':'')+
+            r.returnPercent.toFixed(2)}%
+
+            </td>
+
 
         </tr>
 
