@@ -70,15 +70,12 @@ if (Chart.getChart("buySellChart")) {
         renderHoldingPeriod();
         renderSectorPerformance();
 
-
-        alert("โหลดข้อมูลสำเร็จ");
-
     })
 .catch(err => {
 
     console.error("FETCH ERROR:", err);
 
-    alert("โหลดข้อมูลไม่สำเร็จFFF : " + err.message);
+    alert("โหลดข้อมูลไม่สำเร็จ : " + err.message);
 
 });
 }
