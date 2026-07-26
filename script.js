@@ -1350,17 +1350,19 @@ function renderDividendTable() {
 
         const sym = String(t.symbol).toUpperCase();
 
-        if (!result[sym]) {
-            result[sym] = {
-                count: 0,
-                amount: 0,
-                dpu: 0
-            };
-        }
+if (!result[sym]) {
+    result[sym] = {
+        count: 0,
+        amount: 0,
+        dpu: 0,
+        units: 0
+    };
+}
 
-        result[sym].count++;
-        result[sym].amount += amount;
-        result[sym].dpu += Number(t.price) || 0;
+      result[sym].count++;
+result[sym].amount += amount;
+result[sym].dpu += Number(t.price) || 0;
+result[sym].units += Number(t.units) || 0;
 
         total += amount;
     });
@@ -1410,14 +1412,15 @@ document.getElementById("dividendTopPercent").innerText =
     let rows = Object.keys(result).map(sym => {
         const info = getDividendSummary(sym, year, month);
 
-        return {
-            symbol: sym,
-            count: info.count,
-            dpu: info.dpu,
-            amount: info.amount,
-            cost: info.cost,
-            yield: info.yield
-        };
+   return {
+    symbol: sym,
+    count: info.count,
+    dpu: info.dpu,
+    units: result[sym].units,
+    amount: info.amount,
+    cost: info.cost,
+    yield: info.yield
+};
     });
 
     // อ่านค่าจาก Dropdown
@@ -1446,12 +1449,13 @@ document.getElementById("dividendTopPercent").innerText =
         const row = document.createElement("tr");
 
         row.innerHTML = `
-            <td>${item.symbol}</td>
-            <td>${item.count}</td>
-            <td>${item.dpu.toFixed(2)}</td>
-            <td>${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-            <td>${item.cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-            <td>${item.yield.toFixed(2)}%</td>
+<td>${item.symbol}</td>
+<td>${item.count}</td>
+<td>${item.dpu.toFixed(2)}</td>
+<td>${item.units.toLocaleString()}</td>
+<td>${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+<td>${item.cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+<td>${item.yield.toFixed(2)}%</td>
         `;
 
         tbody.appendChild(row);
