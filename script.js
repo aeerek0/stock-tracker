@@ -757,6 +757,29 @@ setElementText('dashGrowth', `Growth ${growthPercent >= 0 ? '+' : ''}${growthPer
 setElementText('dashUnrealizedPnL', (totalUnrealized >= 0 ? '+' : '') + totalUnrealized.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 setElementText('dashTotalStocks', activeStocksCount);
 setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+
+// Total Return
+const totalReturn = totalPnL + totalDividend;
+
+setElementText(
+    'totalReturn',
+    (totalReturn >= 0 ? '+' : '') +
+    totalReturn.toLocaleString(undefined, { minimumFractionDigits: 2 })
+);
+
+
+setElementText(
+    'totalCapitalGain',
+    (totalPnL >= 0 ? '+' : '') +
+    totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2 })
+);
+
+
+setElementText(
+    'totalDividend',
+    totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 })
+);
+    
 setElementText('dashCashBalance', cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 setElementText('dashNetWorth', netWorth.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
