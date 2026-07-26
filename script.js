@@ -768,7 +768,11 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
 </td>
             <td>${trade.sector || '-'}</td>
             <td>${trade.broker || '-'}</td>
-            <td>${parseFloat(trade.price || 0).toLocaleString()}</td>
+           <td>
+    ${(trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน')
+        ? '-'
+        : parseFloat(trade.price || 0).toLocaleString()}
+</td>
 <td>${(trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน')
     ? '-'
     : parseInt(trade.units || 0).toLocaleString()}
