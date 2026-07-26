@@ -1,7 +1,8 @@
 let WEB_APP_URL = "";
 let trades = [];
 
-window.onload = function () {
+function loadAnalytics() {
+
     WEB_APP_URL = localStorage.getItem("user_google_sheet_url");
 
     if (!WEB_APP_URL) {
@@ -12,19 +13,18 @@ window.onload = function () {
     fetch(WEB_APP_URL)
         .then(r => r.json())
         .then(data => {
+
             console.log("API DATA:", data);
 
-            // รองรับทั้ง Array และ Object
             if (Array.isArray(data)) {
                 trades = data;
             } else if (data.trades && Array.isArray(data.trades)) {
                 trades = data.trades;
             } else {
-                console.error("รูปแบบข้อมูลไม่ถูกต้อง", data);
                 trades = [];
             }
 
-            // ===== Analytics =====
+
             drawMonthlyPnL();
             drawBuySellMonthly();
 
@@ -34,13 +34,13 @@ window.onload = function () {
             renderSummary();
             renderHoldingPeriod();
             renderSectorPerformance();
+
         })
         .catch(err => {
             console.error(err);
             alert("โหลดข้อมูลไม่สำเร็จ");
         });
-};
-
+}
 //==========================
 // กำไร/ขาดทุนรายเดือน
 //==========================
@@ -537,3 +537,5 @@ function renderSectorPerformance() {
     let tableElement = document.getElementById("sectorPerformanceTable");
     if (tableElement) tableElement.innerHTML = html;
 }
+
+window.onload = loadAnalytics;
