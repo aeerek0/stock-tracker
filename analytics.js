@@ -107,6 +107,7 @@ if (Chart.getChart("buySellChart")) {
         renderHoldingPeriod();
         renderSectorPerformance();
         renderTradingHighlights();
+        renderClosedPosition();
 
     })
 .catch(err => {
@@ -950,6 +951,160 @@ function renderTradingHighlights(){
             avgHolding.toFixed(0);
 
     }
+
+
+}
+
+function renderClosedPosition(){
+
+    const tbody = document.getElementById(
+        "closedPositionTableBody"
+    );
+
+    if(!tbody) return;
+
+
+    tbody.innerHTML = "";
+
+
+    let result = {};
+
+
+    trades.forEach(t=>{
+
+        if(!t.symbol) return;
+
+        if(t.type !== "ซื้อ" && t.type !== "ขาย" && t.type !== "ปันผล")
+            return;
+
+
+        if(!result[t.symbol]){
+
+            result[t.symbol] = {
+
+                buy:0,
+                sell:0,
+                dividend:0,
+                lastDate:"",
+                qty:0
+
+            };
+
+        }
+
+
+        if(t.type==="ซื้อ"){
+
+            result[t.symbol].buy += Number(t.netAmount)||0;
+            result[t.symbol].qty += Number(t.units)||0;
+
+        }
+
+
+        if(t.type==="ขาย"){
+
+            result[t.symbol].sell += Number(t.netAmount)||0;
+            result[t.symbol].qty -= Number(t.units)||0;
+
+            result[t.symbol].lastDate = t.date;
+
+        }
+
+
+        if(t.type==="ปันผล"){
+
+            result[t.symbol].dividend += Number(t.netAmount)||0;
+
+        }
+
+
+    });
+
+
+    let rows=[];
+
+
+    Object.keys(result).forEach(sym=>{
+
+        let s=result[sym];
+
+
+        // เหลือหุ้นอยู่ ไม่ใช่ Closed
+        if(s.qty>0) return;
+
+
+        let realized =
+            s.sell - s.buy;
+
+
+        let totalReturn =
+            realized + s.dividend;
+
+
+        rows.push({
+
+            sym,
+            date:s.lastDate,
+            realized,
+            dividend:s.dividend,
+            totalReturn
+
+        });
+
+    });
+
+
+
+    rows.sort((a,b)=>
+        b.totalReturn-a.totalReturn
+    );
+
+
+    rows.slice(0,10).forEach(r=>{
+
+
+        tbody.innerHTML += `
+
+        <tr>
+
+        <td>${r.sym}</td>
+
+        <td>${r.date || "-"}</td>
+
+        <td class="${r.realized>=0?'text-success':'text-danger'}">
+
+        ${r.realized.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        })}
+
+        </td>
+
+
+        <td>
+        ${r.dividend.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        })}
+        </td>
+
+
+        <td class="${r.totalReturn>=0?'text-success':'text-danger'}">
+
+        ${r.totalReturn.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        })}
+
+        </td>
+
+
+        <td>-</td>
+
+
+        </tr>
+
+        `;
+
+
+    });
 
 
 }
