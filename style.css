@@ -453,9 +453,9 @@
 
     transition:all .2s ease;
 
-    padding:10px !important;
+    padding:8px !important;
 
-    min-height:82px;
+    min-height:68px;
 
     overflow:hidden;
 
@@ -489,7 +489,7 @@
 
 .analytics-card h6{
 
-    font-size:.72rem;
+    font-size:.68rem;
 
     font-weight:600;
 
@@ -503,7 +503,7 @@
 
 .analytics-card h4{
 
-    font-size:1.25rem;
+    font-size:1.1rem;
 
     font-weight:700;
 
