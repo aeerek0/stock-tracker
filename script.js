@@ -760,8 +760,6 @@ setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimum
 
 // Total Return
 // ==========================
-// Total Return
-// ==========================
 
 const totalReturn = totalPnL + totalDividend;
 
@@ -774,13 +772,30 @@ setElementText(
     })
 );
 
+    document.getElementById('totalReturn').style.color =
+    totalReturn >= 0
+    ? "#15803d"
+    : "#dc2626";
+
 
 // ใช้ Growth เดิม
-setElementText(
-    'totalReturnPercent',
+const returnText =
     (growthPercent >= 0 ? '+' : '') +
-    growthPercent.toFixed(2) + '%'
-);
+    growthPercent.toFixed(2) + '%';
+
+
+const returnElement = document.getElementById('totalReturnPercent');
+
+if(returnElement){
+
+    returnElement.innerHTML = returnText;
+
+    returnElement.style.color =
+        growthPercent >= 0
+        ? "#15803d"   // เขียว
+        : "#dc2626";  // แดง
+
+}
     
 setElementText('dashCashBalance', cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 setElementText('dashNetWorth', netWorth.toLocaleString(undefined, { minimumFractionDigits: 2 }));
