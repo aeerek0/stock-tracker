@@ -243,11 +243,10 @@ function renderSummary() {
         let units = Number(t.units) || 0;
         let net = Number(t.netAmount) || 0;
 
-        if (t.type === "ซื้อ") {
-            portfolio[sym].units += units;
-            portfolio[sym].cost += net;
-            cost += net;
-        } else if (t.type === "ขาย") {
+if (t.type === "ซื้อ") {
+    portfolio[sym].units += units;
+    portfolio[sym].cost += net;
+}else if (t.type === "ขาย") {
             if (portfolio[sym].units > 0) {
                 let avg = portfolio[sym].cost / portfolio[sym].units;
                 let pnl = net - (avg * units);
@@ -264,9 +263,18 @@ function renderSummary() {
 
     let totalTrade = win + loss;
 
-    if (document.getElementById("totalCost")) {
-        document.getElementById("totalCost").innerHTML = cost.toLocaleString();
-    }
+let currentCost = 0;
+
+Object.values(portfolio).forEach(p => {
+    currentCost += p.cost;
+});
+
+if (document.getElementById("totalCost")) {
+    document.getElementById("totalCost").innerHTML =
+        currentCost.toLocaleString(undefined, {
+            maximumFractionDigits: 2
+        });
+}
     if (document.getElementById("realizedPnL")) {
         document.getElementById("realizedPnL").innerHTML = realized.toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
