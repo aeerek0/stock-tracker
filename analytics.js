@@ -52,6 +52,13 @@ function loadAnalytics() {
             buySellChart.destroy();
         }
 
+        if (Chart.getChart("monthChart")) {
+    Chart.getChart("monthChart").destroy();
+}
+
+if (Chart.getChart("buySellChart")) {
+    Chart.getChart("buySellChart").destroy();
+}
 
         drawMonthlyPnL();
         drawBuySellMonthly();
@@ -71,7 +78,7 @@ function loadAnalytics() {
 
     console.error("FETCH ERROR:", err);
 
-    alert("โหลดข้อมูลไม่สำเร็จDDDDD : " + err.message);
+    alert("โหลดข้อมูลไม่สำเร็จFFF : " + err.message);
 
 });
 }
@@ -136,7 +143,7 @@ function createChart(data) {
     const chartElement = document.getElementById("monthChart");
     if (!chartElement) return;
 
-    new Chart(chartElement, {
+    monthChart = new Chart(chartElement, {
         type: "bar",
         data: {
             labels: Object.keys(data),
@@ -418,7 +425,7 @@ function drawBuySellMonthly() {
     let chartElement = document.getElementById("buySellChart");
     if (!chartElement) return;
 
-    new Chart(chartElement, {
+    buySellChart = new Chart(chartElement, {
         type: "bar",
         data: {
             labels: labels,
