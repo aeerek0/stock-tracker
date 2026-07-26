@@ -14,7 +14,7 @@ function loadAnalytics() {
         return;
     }
 
-    fetch(WEB_APP_URL)
+    fetch(WEB_APP_URL + "?t=" + Date.now())
     .then(response => {
 
         if (!response.ok) {
@@ -71,7 +71,7 @@ function loadAnalytics() {
 
         console.error(err);
 
-        alert("โหลดข้อมูลไม่สำเร็จXXXXX");
+        alert("โหลดข้อมูลไม่สำเร็จzzz");
 
     });
 
