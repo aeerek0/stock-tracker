@@ -67,13 +67,13 @@ function loadAnalytics() {
         alert("โหลดข้อมูลสำเร็จ");
 
     })
-    .catch(err => {
+.catch(err => {
 
-        console.error(err);
+    console.error("FETCH ERROR =", err);
 
-        alert("โหลดข้อมูลไม่สำเร็จ");
+    alert("โหลดข้อมูลไม่สำเร็จCCC\n" + err.message);
 
-    });
+});
 
 }
 
