@@ -714,7 +714,7 @@ function renderSectorPerformance() {
 // ==========================
 
 function renderTradingHighlights(){
-    alert("Trading Highlights ทำงาน");
+  
 
     let portfolio = {};
     let bestTrade = null;
