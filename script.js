@@ -752,49 +752,77 @@ setElementColor('dashGrowth', growthPercent);
 setElementColor('dashTotalPnL', totalPnL);
 setElementColor('dashUnrealizedPnL', totalUnrealized);
 
-    // 6. Render ตารางประวัติการเทรด (แสดงจากล่าสุดไปเก่าสุด)
+// 6. Render ตารางประวัติการเทรด (แสดงจากล่าสุดไปเก่าสุด)
     globalTradesData.slice(-displayCount).reverse().forEach(trade => {
         const gross = Number(trade.grossAmount) || 0;
         const fee = Number(trade.feeTax) || 0;
         const feeRate = gross > 0 ? (fee / gross) * 100 : 0;
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${String(trade.date).substring(0,10)}</td>
-            <td class="${trade.type === 'ซื้อ' ? 'type-buy' : 'type-sell'}">${trade.type}</td>
-<td class="fw-bold" title="${trade.remark || ''}">
-    ${trade.symbol || '-'}
-    ${trade.remark ? ' 📝' : ''}
-</td>
-            <td>${trade.sector || '-'}</td>
-            <td>${trade.broker || '-'}</td>
-           <td>
-    ${(trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน')
-        ? '-'
-        : parseFloat(trade.price || 0).toLocaleString()}
-</td>
-<td>${(trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน')
-    ? '-'
-    : parseInt(trade.units || 0).toLocaleString()}
-</td>
+        const isDepositOrWithdraw = (trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน');
+        const isExemptFee = ['ฝากเงิน', 'ถอนเงิน', 'ปันผล'].includes(trade.type);
 
-<td>${(trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน')
-    ? '-'
-    : parseFloat(trade.grossAmount || 0).toLocaleString()}
-</td>
-        <td>
-            ${
-            ['ฝากเงิน','ถอนเงิน','ปันผล'].includes(trade.type)
-            ? '-'
-            : `${fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br>
-               <small class="text-muted">${feeRate.toFixed(4)}%</small>`
-            }
-        </td>
-            <td class="fw-bold">${parseFloat(trade.netAmount || 0).toLocaleString()}</td>
-            <td>
-                <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
-                <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
-            </td>`;
+        const row = document.createElement('tr');
+row.innerHTML = `
+    <td>${String(trade.date).substring(0,10)}</td>
+
+    <td class="${trade.type === 'ซื้อ' ? 'type-buy' : trade.type === 'ขาย' ? 'type-sell' : ''}">
+        ${trade.type}
+    </td>
+
+    <td class="fw-bold">
+        ${trade.symbol || '-'}
+        ${trade.xdDate ? ' 📅' : ''}
+        ${trade.remark ? ' 📝' : ''}
+        ${
+            trade.remark
+                ? `<br><small class="text-muted">${trade.remark}</small>`
+                : ''
+        }
+    </td>
+
+    <td>${trade.sector || '-'}</td>
+
+    <td>${trade.broker || '-'}</td>
+
+    <td>
+        ${isDepositOrWithdraw ? '-' : Number(trade.price || 0).toLocaleString()}
+    </td>
+
+    <td>
+        ${isDepositOrWithdraw ? '-' : Number(trade.units || 0).toLocaleString()}
+    </td>
+
+    <td>
+        ${isDepositOrWithdraw ? '-' : Number(trade.grossAmount || 0).toLocaleString()}
+    </td>
+
+    <td>
+        ${
+            isExemptFee
+                ? '-'
+                : `${fee.toLocaleString(undefined,{
+                    minimumFractionDigits:2,
+                    maximumFractionDigits:2
+                })}
+                <br>
+                <small class="text-muted">${feeRate.toFixed(4)}%</small>`
+        }
+    </td>
+
+    <td class="fw-bold">
+        ${Number(trade.netAmount || 0).toLocaleString()}
+        ${
+            trade.xdDate
+                ? `<br><small class="text-primary">XD : ${trade.xdDate}</small>`
+                : ''
+        }
+    </td>
+
+    <td>
+        <button class="btn-action-edit" onclick="startEditMode(${trade.rowIndex})">✏️</button>
+        <button class="btn-delete" onclick="deleteRecord(${trade.rowIndex}, '${trade.symbol}', ${trade.units})">🗑️</button>
+    </td>
+`;
         tbodyRecord.appendChild(row);
     });
 
@@ -803,7 +831,6 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
         loadMoreRow.innerHTML = `<td colspan="11"><button class="btn w-100" onclick="loadMore()">ดูรายการก่อนหน้าเพิ่มเติม...</button></td>`;
         tbodyRecord.appendChild(loadMoreRow);
     }
-
     // 7. Render ตารางและกราฟอื่นๆ
     const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
     const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
