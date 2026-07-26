@@ -11,33 +11,30 @@ window.onload = function () {
 
     fetch(WEB_APP_URL)
         .then(r => r.json())
-.then(data => {
+        .then(data => {
+            console.log("API DATA:", data);
 
-    console.log("API DATA:", data);
+            // รองรับทั้ง Array และ Object
+            if (Array.isArray(data)) {
+                trades = data;
+            } else if (data.trades && Array.isArray(data.trades)) {
+                trades = data.trades;
+            } else {
+                console.error("รูปแบบข้อมูลไม่ถูกต้อง", data);
+                trades = [];
+            }
 
-    // รองรับทั้ง Array และ Object
-    if (Array.isArray(data)) {
-        trades = data;
-    } 
-    else if (data.trades && Array.isArray(data.trades)) {
-        trades = data.trades;
-    }
-    else {
-        console.error("รูปแบบข้อมูลไม่ถูกต้อง", data);
-        trades = [];
-    }
+            // ===== Analytics =====
+            drawMonthlyPnL();
+            drawBuySellMonthly();
 
-    // ===== Analytics =====
-    drawMonthlyPnL();
-    drawBuySellMonthly();
-
-    renderTopProfit();
-    renderTopLoss();
-    renderMostTrade();
-    renderSummary();
-    renderHoldingPeriod();
-    renderSectorPerformance();
-})
+            renderTopProfit();
+            renderTopLoss();
+            renderMostTrade();
+            renderSummary();
+            renderHoldingPeriod();
+            renderSectorPerformance();
+        })
         .catch(err => {
             console.error(err);
             alert("โหลดข้อมูลไม่สำเร็จ");
@@ -48,7 +45,6 @@ window.onload = function () {
 // กำไร/ขาดทุนรายเดือน
 //==========================
 function drawMonthlyPnL() {
-
     if (!Array.isArray(trades)) {
         console.warn("drawMonthlyPnL: trades ไม่ใช่ Array", trades);
         return;
@@ -77,14 +73,10 @@ function drawMonthlyPnL() {
         const net = Number(t.netAmount) || 0;
 
         if (t.type === "ซื้อ") {
-
             portfolio[sym].units += units;
             portfolio[sym].cost += net;
-
         } else if (t.type === "ขาย") {
-
             if (portfolio[sym].units > 0) {
-
                 const avg = portfolio[sym].cost / portfolio[sym].units;
                 const pnl = net - avg * units;
 
@@ -98,6 +90,7 @@ function drawMonthlyPnL() {
 
     createChart(result);
 }
+
 //==========================
 // วาดกราฟ PnL รายเดือน
 //==========================
@@ -115,7 +108,8 @@ function createChart(data) {
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
@@ -223,24 +217,22 @@ function renderMostTrade() {
 // Summary ภาพรวม
 //==========================
 function renderSummary() {
-let portfolio = {};
-let netDeposit = 0;
-let realized = 0;
-let win = 0;
-let loss = 0;
+    let portfolio = {};
+    let netDeposit = 0;
+    let realized = 0;
+    let win = 0;
+    let loss = 0;
 
     trades.forEach(t => {
-        trades.forEach(t => {
+        if (t.type === "ฝากเงิน") {
+            netDeposit += Number(t.netAmount) || 0;
+            return;
+        }
 
-    if (t.type === "ฝากเงิน") {
-        netDeposit += Number(t.netAmount) || 0;
-        return;
-    }
-
-    if (t.type === "ถอนเงิน") {
-        netDeposit -= Number(t.netAmount) || 0;
-        return;
-    }
+        if (t.type === "ถอนเงิน") {
+            netDeposit -= Number(t.netAmount) || 0;
+            return;
+        }
 
         let sym = t.symbol;
         if (!portfolio[sym]) {
@@ -253,10 +245,10 @@ let loss = 0;
         let units = Number(t.units) || 0;
         let net = Number(t.netAmount) || 0;
 
-if (t.type === "ซื้อ") {
-    portfolio[sym].units += units;
-    portfolio[sym].cost += net;
-}else if (t.type === "ขาย") {
+        if (t.type === "ซื้อ") {
+            portfolio[sym].units += units;
+            portfolio[sym].cost += net;
+        } else if (t.type === "ขาย") {
             if (portfolio[sym].units > 0) {
                 let avg = portfolio[sym].cost / portfolio[sym].units;
                 let pnl = net - (avg * units);
@@ -272,29 +264,25 @@ if (t.type === "ซื้อ") {
     });
 
     let totalTrade = win + loss;
+    let currentCost = 0;
 
-let currentCost = 0;
+    Object.values(portfolio).forEach(p => {
+        currentCost += p.cost;
+    });
 
-Object.values(portfolio).forEach(p => {
-    currentCost += p.cost;
-});
+    if (document.getElementById("currentCost")) {
+        document.getElementById("currentCost").innerHTML =
+            currentCost.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
 
-if (document.getElementById("currentCost")) {
-    document.getElementById("currentCost").innerHTML =
-        currentCost.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-        });
-}
+    if (document.getElementById("netDeposit")) {
+        document.getElementById("netDeposit").innerHTML =
+            netDeposit.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
 
-        if (document.getElementById("netDeposit")) {
-    document.getElementById("netDeposit").innerHTML =
-        netDeposit.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-        });
-}
-        
     if (document.getElementById("realizedPnL")) {
-        document.getElementById("realizedPnL").innerHTML = realized.toLocaleString(undefined, { maximumFractionDigits: 2 });
+        document.getElementById("realizedPnL").innerHTML =
+            realized.toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
 
     let rate = totalTrade ? (win / totalTrade * 100) : 0;
@@ -351,7 +339,8 @@ function drawBuySellMonthly() {
             ]
         },
         options: {
-            responsive: true
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
@@ -457,7 +446,6 @@ function renderSectorPerformance() {
                 let avg = portfolio[sym].cost / portfolio[sym].units;
                 let pnl = net - (avg * units);
 
-                // ดึงค่า Sector จากข้อมูลรายการโดยตรง ป้องกันข้อผิดพลาดตัวแปรว่าง
                 let sector = t.sector || "Other";
 
                 if (!sectorPnL[sector]) {
