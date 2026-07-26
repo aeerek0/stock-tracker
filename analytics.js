@@ -222,14 +222,20 @@ function renderSummary() {
     let realized = 0;
     let win = 0;
     let loss = 0;
+    let netDeposit = 0;
 
     trades.forEach(t => {
 
-        const sym = String(t.symbol).trim().toUpperCase();
+       const sym = String(t.symbol || "").trim().toUpperCase();
+        if (t.type === "ฝากเงิน") {
+    netDeposit += Number(t.netAmount) || 0;
+    return;
+}
 
-        if (t.type === "ฝากเงิน" || t.type === "ถอนเงิน") {
-            return;
-        }
+if (t.type === "ถอนเงิน") {
+    netDeposit -= Number(t.netAmount) || 0;
+    return;
+}
 
 
         if (!portfolio[sym]) {
@@ -332,6 +338,13 @@ function renderSummary() {
         document.getElementById("winRate").innerHTML =
             rate.toFixed(2)+"%";
     }
+
+    if(document.getElementById("netDeposit")){
+    document.getElementById("netDeposit").innerHTML =
+        netDeposit.toLocaleString(undefined,{
+            maximumFractionDigits:2
+        });
+}
 
 }
 
