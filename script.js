@@ -2072,12 +2072,54 @@ function renderDividendStockChart() {
                 data: values
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: "right"
+                    position: "bottom"
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const total = context.dataset.data
+                                .reduce((sum, val) => sum + val, 0);
+
+                            const percent = total > 0
+                                ? ((value / total) * 100).toFixed(2)
+                                : 0;
+
+                            return [
+                                context.label,
+                                value.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2
+                                }) + " บาท",
+                                percent + "%"
+                            ];
+                        }
+                    }
+                },
+                datalabels: {
+                    color: "#ffffff",
+                    formatter: function(value, context) {
+                        const total = context.chart.data.datasets[0].data
+                            .reduce((sum, val) => sum + val, 0);
+
+                        const percent = total > 0
+                            ? ((value / total) * 100).toFixed(1)
+                            : 0;
+
+                        return [
+                            context.chart.data.labels[context.dataIndex],
+                            percent + "%"
+                        ];
+                    },
+                    font: {
+                        weight: "bold",
+                        size: 12
+                    }
                 }
             }
         }
