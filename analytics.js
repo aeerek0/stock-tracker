@@ -277,7 +277,6 @@ function renderMostTrade() {
 // Summary ภาพรวม
 //==========================
 function renderSummary() {
-
     let portfolio = {};
     let realized = 0;
     let win = 0;
@@ -286,25 +285,25 @@ function renderSummary() {
     let stockResult = {};
 
     trades.forEach(t => {
+        const sym = String(t.symbol || "").trim().toUpperCase();
+        const units = Number(t.units) || 0;
+        const net = Number(t.netAmount) || 0;
 
-       const sym = String(t.symbol || "").trim().toUpperCase();
         if (t.type === "ฝากเงิน") {
-    netDeposit += Number(t.netAmount) || 0;
-    return;
-}
+            netDeposit += net;
+            return;
+        }
 
-        
-
-if (t.type === "ถอนเงิน") {
-    netDeposit -= Number(t.netAmount) || 0;
-    return;
-}
+        if (t.type === "ถอนเงิน") {
+            netDeposit -= net;
+            return;
+        }
 
         if (t.type === "ปันผล") {
-    return;
-}
-        
-        
+            // ถ้าต้องการรวมปันผลเป็นกำไรด้วย ให้เอาออกหรือบวกเพิ่มเข้า realized
+            realized += net; 
+            return;
+        }
 
         if (!portfolio[sym]) {
             portfolio[sym] = {
@@ -313,179 +312,113 @@ if (t.type === "ถอนเงิน") {
             };
         }
 
-
-        const units = Number(t.units) || 0;
-        const net = Number(t.netAmount) || 0;
-
-
         // ซื้อ
         if (t.type === "ซื้อ") {
-
             portfolio[sym].units += units;
             portfolio[sym].cost += net;
-
         }
-
 
         // ขาย
         if (t.type === "ขาย") {
-
-
             const p = portfolio[sym];
 
-
             if (p.units > 0) {
-
+                // ป้องกันกรณีขายเกินจำนวนที่ถือ หรือปัดเศษ
+                const sellUnits = Math.min(units, p.units);
                 const avgCost = p.cost / p.units;
-
-                const sellCost = avgCost * units;
-
+                const sellCost = avgCost * sellUnits;
                 const pnl = net - sellCost;
 
+                realized += pnl;
 
-realized += pnl;
+                // Trade Win Rate
+                if (pnl > 0) win++;
+                else if (pnl < 0) loss++;
 
+                // Stock Win Rate Accumulation
+                if (!stockResult[sym]) {
+                    stockResult[sym] = 0;
+                }
+                stockResult[sym] += pnl;
 
-// Trade Win Rate
-if (pnl > 0)
-    win++;
-else if (pnl < 0)
-    loss++;
-
-
-// Stock Win Rate
-if (!stockResult[sym]) {
-    stockResult[sym] = 0;
-}
-
-stockResult[sym] += pnl;
-
-
-                p.units -= units;
+                p.units -= sellUnits;
                 p.cost -= sellCost;
 
+                // แก้ไขปัญหาเศษทศนิยมค้างเมื่อขายหมดเกลี้ยง
+                if (Math.abs(p.units) < 1e-6) {
+                    p.units = 0;
+                    p.cost = 0;
+                }
             }
-
         }
-
     });
 
-
-
-    // ต้นทุนหุ้นที่ยังถือ
+    // ต้นทุนหุ้นที่ยังถืออยู่
     let currentCost = 0;
-
-
     Object.values(portfolio).forEach(p => {
-
         if (p.units > 0) {
             currentCost += p.cost;
         }
-
     });
 
-
-
-    if(document.getElementById("currentCost")){
-        document.getElementById("currentCost").innerHTML =
-            currentCost.toLocaleString(undefined,{
-                maximumFractionDigits:2
-            });
+    // อัปเดต DOM
+    if (document.getElementById("currentCost")) {
+        document.getElementById("currentCost").innerHTML = 
+            currentCost.toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
 
-
-
-    if(document.getElementById("realizedPnL")){
-        document.getElementById("realizedPnL").innerHTML =
-            realized.toLocaleString(undefined,{
-                maximumFractionDigits:2
-            });
+    if (document.getElementById("realizedPnL")) {
+        document.getElementById("realizedPnL").innerHTML = 
+            realized.toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
-
-
 
     const totalTrade = win + loss;
+    const rate = totalTrade > 0 ? (win / totalTrade * 100) : 0;
 
-    const rate = totalTrade > 0
-        ? (win / totalTrade * 100)
-        : 0;
+    if (document.getElementById("winRate")) {
+        document.getElementById("winRate").innerHTML = rate.toFixed(2) + "%";
+    }
 
+    if (document.getElementById("winDetail")) {
+        document.getElementById("winDetail").innerHTML = `${win} ชนะ / ${loss} แพ้`;
+    }
 
-if(document.getElementById("winRate")){
-    document.getElementById("winRate").innerHTML =
-        rate.toFixed(2) + "%";
+    if (document.getElementById("netDeposit")) {
+        document.getElementById("netDeposit").innerHTML = 
+            netDeposit.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+
+    // ======================
+    // Stock Win Rate
+    // ======================
+    let stockWin = 0;
+    let stockLoss = 0;
+
+    Object.values(stockResult).forEach(pnl => {
+        if (pnl > 0) stockWin++;
+        else if (pnl < 0) stockLoss++;
+    });
+
+    let stockTotal = stockWin + stockLoss;
+    let stockRate = stockTotal > 0 ? (stockWin / stockTotal * 100) : 0;
+
+    if (document.getElementById("stockWinRate")) {
+        document.getElementById("stockWinRate").innerHTML = stockRate.toFixed(2) + "%";
+    }
+
+    if (document.getElementById("stockWinDetail")) {
+        document.getElementById("stockWinDetail").innerHTML = `${stockWin} หุ้นชนะ / ${stockLoss} หุ้นแพ้`;
+    }
+
+    // ======================
+    // Realized Return (%)
+    // ======================
+    let returnPercent = netDeposit > 0 ? (realized / netDeposit * 100) : 0;
+
+    if (document.getElementById("realizedReturn")) {
+        document.getElementById("realizedReturn").innerHTML = returnPercent.toFixed(2) + "%";
+    }
 }
-
-if(document.getElementById("winDetail")){
-    document.getElementById("winDetail").innerHTML =
-        `${win} ชนะ / ${loss} แพ้`;
-}
-
-    if(document.getElementById("netDeposit")){
-    document.getElementById("netDeposit").innerHTML =
-        netDeposit.toLocaleString(undefined,{
-            maximumFractionDigits:2
-        });
-}
-// ======================
-// Stock Win Rate
-// ======================
-
-let stockWin = 0;
-let stockLoss = 0;
-
-Object.values(stockResult).forEach(pnl => {
-
-    if (pnl > 0)
-        stockWin++;
-
-    else if (pnl < 0)
-        stockLoss++;
-
-});
-
-
-let stockTotal = stockWin + stockLoss;
-
-let stockRate = stockTotal > 0
-    ? (stockWin / stockTotal * 100)
-    : 0;
-
-
-if(document.getElementById("stockWinRate")){
-
-    document.getElementById("stockWinRate").innerHTML =
-        stockRate.toFixed(2) + "%";
-
-}
-
-
-if(document.getElementById("stockWinDetail")){
-
-    document.getElementById("stockWinDetail").innerHTML =
-        `${stockWin} หุ้นชนะ / ${stockLoss} หุ้นแพ้`;
-
-}
-
-
-
-// ======================
-// Realized Return
-// ======================
-
-let returnPercent = netDeposit > 0
-    ? (realized / netDeposit * 100)
-    : 0;
-
-
-if(document.getElementById("realizedReturn")){
-
-    document.getElementById("realizedReturn").innerHTML =
-        returnPercent.toFixed(2) + "%";
-
-}
-}
-
 //==========================
 // Buy / Sell Volume Monthly
 //==========================
