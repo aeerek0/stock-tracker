@@ -632,7 +632,15 @@ if (trade.type === 'ปันผล') {
             dividendData[sym].count++;
             dividendData[sym].amount += amount;
 
-            const costAtDividend = portfolio[sym] ? portfolio[sym].totalCost : 0;
+            const calcDate = trade.xdDate || trade.date;
+
+const holdingAtXD = getHoldingAtDate(
+    sym,
+    calcDate
+);
+
+const costAtDividend = holdingAtXD.cost;
+const unitsAtXD = holdingAtXD.units;
             dividendData[sym].totalCost += costAtDividend;
 
           dividendData[sym].items.push({
@@ -643,7 +651,7 @@ if (trade.type === 'ปันผล') {
 
     // เก็บข้อมูลตอนรับปันผลจริง
     cost: costAtDividend,
-    holdingUnits: portfolio[sym] ? portfolio[sym].totalUnits : 0
+    holdingUnits: unitsAtXD
 });
 
             // สะสมปันผลตาม Sector
@@ -1288,6 +1296,7 @@ function getDividendSummary(sym, year = 0, month = 0) {
     let amount = 0;
     let dpu = 0;
     let cost = 0;
+    let units = 0;
 
     dividendData[sym].items.forEach(item => {
 
@@ -1296,10 +1305,11 @@ function getDividendSummary(sym, year = 0, month = 0) {
         if (year && d.getFullYear() !== year) return;
         if (month && (d.getMonth() + 1) !== month) return;
 
-        count++;
-        amount += item.amount;
-        dpu += item.dpu;
-        cost += item.cost;
+    count++;
+amount += item.amount;
+dpu += item.dpu;
+cost += item.costAtXD || 0;
+units += item.units || 0;
 
     });
 
@@ -1312,6 +1322,7 @@ function getDividendSummary(sym, year = 0, month = 0) {
         dpu: count ? dpu / count : 0,
 
         cost,
+        units,
 
         yield: cost ? (amount / cost) * 100 : 0
 
