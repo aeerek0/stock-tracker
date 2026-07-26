@@ -7,11 +7,12 @@ function loadAnalytics() {
 
     WEB_APP_URL = localStorage.getItem("user_google_sheet_url");
 
+    console.log("URL =", WEB_APP_URL);
+
     if (!WEB_APP_URL) {
         alert("ยังไม่ได้เชื่อม Google Sheet");
         return;
     }
-
 
     fetch(WEB_APP_URL)
     .then(response => {
