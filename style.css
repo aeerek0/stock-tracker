@@ -656,83 +656,43 @@
     font-size:1rem;
 
 }
+/* ===========================
+   Total Return Small Card
+=========================== */
+
 .total-return-card{
 
     border:none;
 
-    border-radius:16px;
+    border-radius:14px;
 
     background:#ecfdf5;
 
-    box-shadow:0 4px 12px rgba(0,0,0,.08);
+    box-shadow:0 3px 8px rgba(0,0,0,.08);
+
+    padding:10px;
 
 }
 
 
-.total-return-card h6{
+.total-return-card small{
+
+    font-size:.72rem;
 
     color:#166534;
 
-    font-weight:700;
+    font-weight:600;
 
 }
 
 
-.total-return-main{
+.total-return-card div{
 
-    display:flex;
+    font-size:1.25rem;
 
-    justify-content:center;
-
-    gap:40px;
-
-    align-items:center;
-
-}
-
-
-.total-return-main h2{
+    font-weight:800;
 
     color:#15803d;
 
-    font-size:1.8rem;
-
-    font-weight:800;
-
 }
-
-
-.total-return-main h3{
-
-    color:#16a34a;
-
-    font-weight:800;
-
-}
-
-
-.total-return-detail{
-
-    display:flex;
-
-    justify-content:center;
-
-    gap:30px;
-
-    margin-top:10px;
-
-    font-size:.85rem;
-
-}
-
-
-.total-return-detail b{
-
-    display:block;
-
-    font-size:1rem;
-
-}
-
-
     </style>
