@@ -1109,6 +1109,180 @@ function renderClosedPosition(){
 
 }
 
+function renderClosedPosition(){
+
+    const tbody = document.getElementById(
+        "closedPositionTableBody"
+    );
+
+    if(!tbody) return;
+
+
+    tbody.innerHTML = "";
+
+
+    let portfolio = {};
+    let closed = {};
+
+
+    trades.forEach(t=>{
+
+        const sym = t.symbol;
+
+        if(!sym) return;
+
+
+        if(!portfolio[sym]){
+
+            portfolio[sym] = {
+
+                qty:0,
+                cost:0,
+                realized:0,
+                dividend:0,
+                lastSell:""
+
+            };
+
+        }
+
+
+        let units = Number(t.units)||0;
+        let amount = Number(t.netAmount)||0;
+
+
+        // ซื้อ
+        if(t.type==="ซื้อ"){
+
+            portfolio[sym].qty += units;
+            portfolio[sym].cost += amount;
+
+        }
+
+
+        // ขาย
+        if(t.type==="ขาย"){
+
+            let avgCost =
+                portfolio[sym].qty > 0
+                ? portfolio[sym].cost / portfolio[sym].qty
+                : 0;
+
+
+            let sellCost =
+                avgCost * units;
+
+
+            let profit =
+                amount - sellCost;
+
+
+            portfolio[sym].realized += profit;
+
+
+            portfolio[sym].qty -= units;
+
+            portfolio[sym].cost -= sellCost;
+
+
+            portfolio[sym].lastSell = t.date;
+
+        }
+
+
+        // ปันผล
+        if(t.type==="ปันผล"){
+
+            portfolio[sym].dividend += amount;
+
+        }
+
+
+    });
+
+
+
+    Object.keys(portfolio).forEach(sym=>{
+
+        let p = portfolio[sym];
+
+
+        // เหลือหุ้นอยู่ = ไม่ใช่ Closed
+        if(p.qty > 0) return;
+
+
+        closed[sym] = {
+
+            realized:p.realized,
+            dividend:p.dividend,
+            total:
+                p.realized + p.dividend,
+            date:p.lastSell
+
+        };
+
+
+    });
+
+
+
+    let rows = Object.keys(closed)
+        .map(sym=>{
+
+            return {
+                sym,
+                ...closed[sym]
+            };
+
+        })
+        .sort((a,b)=>
+            b.total-a.total
+        )
+        .slice(0,10);
+
+
+
+    rows.forEach(r=>{
+
+
+        tbody.innerHTML += `
+
+        <tr>
+
+            <td>${r.sym}</td>
+
+            <td>${r.date || "-"}</td>
+
+            <td class="${r.realized>=0?'text-success':'text-danger'}">
+                ${r.realized.toLocaleString(undefined,{
+                    minimumFractionDigits:2
+                })}
+            </td>
+
+            <td>
+                ${r.dividend.toLocaleString(undefined,{
+                    minimumFractionDigits:2
+                })}
+            </td>
+
+            <td class="${r.total>=0?'text-success':'text-danger'}">
+                ${r.total.toLocaleString(undefined,{
+                    minimumFractionDigits:2
+                })}
+            </td>
+
+            <td>-</td>
+
+        </tr>
+
+        `;
+
+
+    });
+
+
+}
+
 window.onload = function () {
     loadAnalytics();
 };
