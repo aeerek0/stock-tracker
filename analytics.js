@@ -71,7 +71,7 @@ function loadAnalytics() {
 
         console.error(err);
 
-        alert("โหลดข้อมูลไม่สำเร็จ");
+        alert("โหลดข้อมูลไม่สำเร็จXXXXX");
 
     });
 
