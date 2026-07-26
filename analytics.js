@@ -1,7 +1,7 @@
 let WEB_APP_URL = "";
 let trades = [];
 
-window.addEventListener("pageshow", function () {
+window.onload = function () {
     WEB_APP_URL = localStorage.getItem("user_google_sheet_url");
 
     if (!WEB_APP_URL) {
