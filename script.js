@@ -775,23 +775,6 @@ setElementText(
 );
 
 
-setElementText(
-    'totalCapitalGain',
-    (totalPnL >= 0 ? '+' : '') +
-    totalPnL.toLocaleString(undefined, {
-        minimumFractionDigits: 2
-    })
-);
-
-
-setElementText(
-    'totalDividend',
-    totalDividend.toLocaleString(undefined, {
-        minimumFractionDigits: 2
-    })
-);
-
-
 // ใช้ Growth เดิม
 setElementText(
     'totalReturnPercent',
