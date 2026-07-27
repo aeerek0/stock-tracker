@@ -305,94 +305,76 @@
 
         <!-- Closed Summary -->
 
-<div class="row g-2 mt-3">
+<div class="card p-3 mb-3">
 
-    <div class="col-6 col-md-3">
-        <div class="card p-2 text-center analytics-card"
-             style="background:#eef6ff;">
+    <h5>📜 Closed Position</h5>
 
-            <small class="text-muted">
-                🔒 หุ้นที่ปิดแล้ว
-            </small>
+    <!-- Closed Summary -->
 
-            <h4 id="closedSummaryCount">
-                0
-            </h4>
+    <div class="row g-2 mb-3">
 
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center analytics-card"
+                 style="background:#eef6ff;">
+                <small class="text-muted">🔒 หุ้นที่ปิดแล้ว</small>
+                <h4 id="closedSummaryCount">0</h4>
+            </div>
         </div>
-    </div>
 
-
-    <div class="col-6 col-md-3">
-        <div class="card p-2 text-center analytics-card"
-             style="background:#eaf8f2;">
-
-            <small class="text-muted">
-                📈 Realized P/L
-            </small>
-
-            <h4 id="closedSummaryRealized">
-                0.00
-            </h4>
-
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center analytics-card"
+                 style="background:#eaf8f2;">
+                <small class="text-muted">📈 Realized P/L</small>
+                <h4 id="closedSummaryRealized">0.00</h4>
+            </div>
         </div>
-    </div>
 
-
-    <div class="col-6 col-md-3">
-        <div class="card p-2 text-center analytics-card"
-             style="background:#fff5ee;">
-
-            <small class="text-muted">
-                💰 Dividend
-            </small>
-
-            <h4 id="closedSummaryDividend">
-                0.00
-            </h4>
-
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center analytics-card"
+                 style="background:#fff5ee;">
+                <small class="text-muted">💰 Dividend</small>
+                <h4 id="closedSummaryDividend">0.00</h4>
+            </div>
         </div>
-    </div>
 
-
-    <div class="col-6 col-md-3">
-        <div class="card p-2 text-center analytics-card"
-             style="background:#ecfdf5;">
-
-            <small class="text-muted">
-                🌟 Total Return
-            </small>
-
-            <h4 id="closedSummaryTotal">
-                0.00
-            </h4>
-
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center analytics-card"
+                 style="background:#ecfdf5;">
+                <small class="text-muted">🌟 Total Return</small>
+                <h4 id="closedSummaryTotal">0.00</h4>
+            </div>
         </div>
-    </div>
 
-</div>
-
-
-<div class="row g-2 mt-2">
-
-    <div class="col-12 col-md-3">
-
-        <div class="card p-2 text-center analytics-card"
-             style="background:#f5f3ff;">
-
-            <small class="text-muted">
-                📊 Average Return
-            </small>
-
-            <h4 id="closedSummaryAvgReturn">
-                0.00%
-            </h4>
-
+        <div class="col-6 col-md-3">
+            <div class="card p-2 text-center analytics-card"
+                 style="background:#f5f3ff;">
+                <small class="text-muted">📊 Average Return</small>
+                <h4 id="closedSummaryAvgReturn">0.00%</h4>
+            </div>
         </div>
 
     </div>
 
-</div>
+    <!-- ตาราง -->
+
+    <div class="table-responsive">
+
+        <table class="table table-sm">
+
+            <thead>
+                <tr>
+                    <th>หุ้น</th>
+                    <th>วันที่ปิด</th>
+                    <th>Realized</th>
+                    <th>Dividend</th>
+                    <th>Total Return</th>
+                    <th>Return %</th>
+                </tr>
+            </thead>
+
+            <tbody id="closedPositionTableBody"></tbody>
+
+        </table>
 
     </div>
 
