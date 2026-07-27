@@ -1104,9 +1104,10 @@ rows.push({
         
 
 }); 
-    rows.sort((a,b)=>
-        b.totalReturn - a.totalReturn
-    );
+rows.sort((a,b)=>
+    new Date(b.date || "1900-01-01") -
+    new Date(a.date || "1900-01-01")
+);
 
 
     // แสดงปุ่มเฉพาะเมื่อเกิน 10 รายการ
@@ -1157,14 +1158,17 @@ displayRows.forEach(r=>{
 
             </td>
 
+<td>
 
-            <td>
+${
+    r.dividend > 0
+    ? r.dividend.toLocaleString(undefined,{
+        minimumFractionDigits:2
+      })
+    : "-"
+}
 
-            ${r.dividend.toLocaleString(undefined,{
-                minimumFractionDigits:2
-            })}
-
-            </td>
+</td>
 
 
             <td class="${r.totalReturn>=0?'text-success':'text-danger'}">
