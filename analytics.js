@@ -2,6 +2,7 @@ let WEB_APP_URL = "";
 let trades = [];
 let monthChart = null;
 let buySellChart = null;
+let showAllClosed = false;
 
 function buildAnalyticsYear() {
 
@@ -1108,7 +1109,35 @@ rows.push({
     );
 
 
-    rows.slice(0,10).forEach(r=>{
+    // แสดงปุ่มเฉพาะเมื่อเกิน 10 รายการ
+const toggleBtn = document.getElementById("toggleClosedBtn");
+
+if(toggleBtn){
+
+    if(rows.length > 10){
+
+        toggleBtn.style.display = "inline-block";
+
+        toggleBtn.innerHTML = showAllClosed
+            ? "▲ ซ่อน"
+            : "▼ ดูทั้งหมด (" + rows.length + ")";
+
+    }else{
+
+        toggleBtn.style.display = "none";
+
+    }
+
+}
+
+
+// จำนวนที่จะแสดง
+const displayRows = showAllClosed
+    ? rows
+    : rows.slice(0,10);
+
+
+displayRows.forEach(r=>{
 
 
         tbody.innerHTML += `
@@ -1206,6 +1235,14 @@ if(closedTotalEl)
 if(closedAvgReturnEl)
     closedAvgReturnEl.innerText =
         "+" + avgReturn.toFixed(2) + "%";
+}
+
+function toggleClosedTable(){
+
+    showAllClosed = !showAllClosed;
+
+    renderClosedPosition();
+
 }
 
 window.onload = function () {
