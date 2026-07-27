@@ -524,7 +524,7 @@ if (currentMonitorView === "stock") {
 const dividendYield = data.totalCost > 0
     ? (dividendReceived / data.totalCost) * 100
     : 0;
-
+const totalReturn = totalPnL + dividendReceived;
         
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -552,6 +552,15 @@ ${
     currentMonitorView === "sector" && dividendReceived === 0
     ? "-"
     : dividendYield.toFixed(2) + "%"
+}
+</td>
+
+<td class="${totalReturn >= 0 ? 'text-success' : 'text-danger'} fw-bold">
+${
+    (totalReturn >= 0 ? "+" : "") +
+    totalReturn.toLocaleString(undefined, {
+        maximumFractionDigits: 2
+    })
 }
 </td>
         `;
