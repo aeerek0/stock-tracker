@@ -758,12 +758,13 @@ setElementText('dashUnrealizedPnL', (totalUnrealized >= 0 ? '+' : '') + totalUnr
 setElementText('dashTotalStocks', activeStocksCount);
 setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
+// ==========================
 // Total Return
 // ==========================
 
 const totalReturn = totalPnL + totalDividend;
 
-
+// แสดงมูลค่า Total Return
 setElementText(
     'totalReturn',
     (totalReturn >= 0 ? '+' : '') +
@@ -772,35 +773,42 @@ setElementText(
     })
 );
 
-    document.getElementById('totalReturn').style.color =
-    totalReturn >= 0
-    ? "#15803d"
-    : "#dc2626";
+// สี Total Return
+const totalReturnElement = document.getElementById('totalReturn');
 
+if (totalReturnElement) {
 
-// ใช้ Growth เดิม
-const totalReturnPercent =
-    netDeposit > 0
-        ? (totalReturn / netDeposit) * 100
-        : 0;
-
-const returnText =
-    (totalReturnPercent >= 0 ? '+' : '') +
-    totalReturnPercent.toFixed(2) + '%';
-
-const returnElement = document.getElementById('totalReturnPercent');
-
-if(returnElement){
-
-    returnElement.innerHTML = returnText;
-
-returnElement.style.color =
-    totalReturnPercent >= 0
-        ? "#15803d"
-        : "#dc2626";
+    totalReturnElement.style.color =
+        totalReturn >= 0
+            ? "#15803d"
+            : "#dc2626";
 
 }
-    
+
+// ==========================
+// Total Return %
+// ==========================
+
+const totalReturnPercent =
+    totalCost > 0
+        ? (totalReturn / totalCost) * 100
+        : 0;
+
+const returnElement =
+    document.getElementById('totalReturnPercent');
+
+if (returnElement) {
+
+    returnElement.innerHTML =
+        (totalReturnPercent >= 0 ? '+' : '') +
+        totalReturnPercent.toFixed(2) + '%';
+
+    returnElement.style.color =
+        totalReturnPercent >= 0
+            ? "#15803d"
+            : "#dc2626";
+
+}
 setElementText('dashCashBalance', cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 setElementText('dashNetWorth', netWorth.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
