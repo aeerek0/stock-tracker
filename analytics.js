@@ -1171,41 +1171,41 @@ const avgReturn =
     : 0;
 
 
-setElementText(
-    "closedSummaryCount",
-    closedSummary.count
-);
+const closedCountEl = document.getElementById("closedSummaryCount");
+const closedRealizedEl = document.getElementById("closedSummaryRealized");
+const closedDividendEl = document.getElementById("closedSummaryDividend");
+const closedTotalEl = document.getElementById("closedSummaryTotal");
+const closedAvgReturnEl = document.getElementById("closedSummaryAvgReturn");
 
 
-setElementText(
-    "closedSummaryRealized",
-    "+" + closedSummary.realized.toLocaleString(undefined,{
-        minimumFractionDigits:2
-    })
-);
+if(closedCountEl)
+    closedCountEl.innerText = closedSummary.count;
 
 
-setElementText(
-    "closedSummaryDividend",
-    "+" + closedSummary.dividend.toLocaleString(undefined,{
-        minimumFractionDigits:2
-    })
-);
+if(closedRealizedEl)
+    closedRealizedEl.innerText =
+        "+" + closedSummary.realized.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        });
 
 
-setElementText(
-    "closedSummaryTotal",
-    "+" + closedSummary.total.toLocaleString(undefined,{
-        minimumFractionDigits:2
-    })
-);
+if(closedDividendEl)
+    closedDividendEl.innerText =
+        "+" + closedSummary.dividend.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        });
 
 
-setElementText(
-    "closedSummaryAvgReturn",
-    "+" + avgReturn.toFixed(2) + "%"
-);
+if(closedTotalEl)
+    closedTotalEl.innerText =
+        "+" + closedSummary.total.toLocaleString(undefined,{
+            minimumFractionDigits:2
+        });
 
+
+if(closedAvgReturnEl)
+    closedAvgReturnEl.innerText =
+        "+" + avgReturn.toFixed(2) + "%";
 }
 
 window.onload = function () {
