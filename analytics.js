@@ -956,6 +956,15 @@ function renderTradingHighlights(){
 }
 
 function renderClosedPosition(){
+    let closedSummary = {
+
+    count:0,
+    realized:0,
+    dividend:0,
+    total:0,
+    returnTotal:0
+
+};
 
     const tbody = document.getElementById("closedPositionTableBody");
 
@@ -1069,23 +1078,31 @@ let returnPercent =
     ? (totalReturn / s.totalCost) * 100
     : 0;
 
+// Closed Summary
+closedSummary.count++;
 
-        rows.push({
+closedSummary.realized += s.realized;
 
-            sym:sym,
-            date:s.lastSell,
-            realized:s.realized,
-            dividend:s.dividend,
-            totalReturn:totalReturn,
-            returnPercent:returnPercent
+closedSummary.dividend += s.dividend;
 
-        });
+closedSummary.total += totalReturn;
 
-
-    });
+closedSummary.returnTotal += returnPercent;
 
 
+rows.push({
 
+    sym:sym,
+    date:s.lastSell,
+    realized:s.realized,
+    dividend:s.dividend,
+    totalReturn:totalReturn,
+    returnPercent:returnPercent
+
+});
+        
+
+}); 
     rows.sort((a,b)=>
         b.totalReturn - a.totalReturn
     );
@@ -1144,7 +1161,50 @@ let returnPercent =
 
 
     });
+// ==========================
+// Render Closed Summary
+// ==========================
 
+const avgReturn =
+    closedSummary.count > 0
+    ? closedSummary.returnTotal / closedSummary.count
+    : 0;
+
+
+setElementText(
+    "closedSummaryCount",
+    closedSummary.count
+);
+
+
+setElementText(
+    "closedSummaryRealized",
+    "+" + closedSummary.realized.toLocaleString(undefined,{
+        minimumFractionDigits:2
+    })
+);
+
+
+setElementText(
+    "closedSummaryDividend",
+    "+" + closedSummary.dividend.toLocaleString(undefined,{
+        minimumFractionDigits:2
+    })
+);
+
+
+setElementText(
+    "closedSummaryTotal",
+    "+" + closedSummary.total.toLocaleString(undefined,{
+        minimumFractionDigits:2
+    })
+);
+
+
+setElementText(
+    "closedSummaryAvgReturn",
+    "+" + avgReturn.toFixed(2) + "%"
+);
 
 }
 
