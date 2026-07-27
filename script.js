@@ -779,10 +779,14 @@ setElementText(
 
 
 // ใช้ Growth เดิม
-const returnText =
-    (growthPercent >= 0 ? '+' : '') +
-    growthPercent.toFixed(2) + '%';
+const totalReturnPercent =
+    netDeposit > 0
+        ? (totalReturn / netDeposit) * 100
+        : 0;
 
+const returnText =
+    (totalReturnPercent >= 0 ? '+' : '') +
+    totalReturnPercent.toFixed(2) + '%';
 
 const returnElement = document.getElementById('totalReturnPercent');
 
