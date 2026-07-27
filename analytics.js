@@ -1171,7 +1171,7 @@ ${
 </td>
 
 
-            <td class="${r.totalReturn>=0?'text-success':'text-danger'}">
+           <td class="fw-bold ${r.totalReturn>=0?'text-success':'text-danger'}">
 
             ${r.totalReturn.toLocaleString(undefined,{
                 minimumFractionDigits:2
@@ -1180,7 +1180,7 @@ ${
             </td>
 
 
-            <td class="${r.returnPercent>=0?'text-success':'text-danger'}">
+            <td class="fw-bold ${r.returnPercent>=0?'text-success':'text-danger'}">
 
             ${(r.returnPercent>=0?'+':'')+
             r.returnPercent.toFixed(2)}%
