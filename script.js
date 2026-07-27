@@ -794,10 +794,10 @@ if(returnElement){
 
     returnElement.innerHTML = returnText;
 
-    returnElement.style.color =
-        growthPercent >= 0
-        ? "#15803d"   // เขียว
-        : "#dc2626";  // แดง
+returnElement.style.color =
+    totalReturnPercent >= 0
+        ? "#15803d"
+        : "#dc2626";
 
 }
     
