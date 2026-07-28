@@ -357,6 +357,10 @@ renderPortfolioAndRecords(globalTradesData);
 buildDividendYear();
 buildCalendarYear();
 renderDividendHistory();
+            renderAlertSummary([
+    "🔴 สัดส่วนพอร์ตสูงzZz",
+    "🟠 กำไรเพิ่มขึ้นมากzzz"
+]);
 
 
         })
