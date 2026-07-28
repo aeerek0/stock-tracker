@@ -45,10 +45,12 @@ function initConnection() {
         // โหลดรายชื่อหุ้น
       if (typeof buildStockDropdown === 'function') {
     buildStockDropdown();
+          
 }
 
 if (typeof buildBrokerDropdown === 'function') {
     buildBrokerDropdown();
+    updateSubmitButton(false);
 }
         // ทดสอบ Connection
         fetch(WEB_APP_URL)
@@ -366,71 +368,84 @@ function fetchAndRenderData() {
 
 // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล 
 function startEditMode(rowIndex) {
+
     const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
     if (!trade) return;
 
     let dateVal = String(trade.date || "");
+
     if (dateVal.includes("T")) {
         dateVal = dateVal.split("T")[0];
     }
 
- document.getElementById('editRowIndex').value = trade.rowIndex;
-document.getElementById('date').value = dateVal;
+    document.getElementById('editRowIndex').value = trade.rowIndex;
+    document.getElementById('date').value = dateVal;
 
-document.getElementById('type').value = trade.type;
+    document.getElementById('type').value = trade.type;
 
-document.getElementById('symbol').value = trade.symbol;
-document.getElementById('sector').value = trade.sector || '';
-document.getElementById('broker').value = trade.broker || '';
+    document.getElementById('symbol').value = trade.symbol;
+    document.getElementById('sector').value = trade.sector || '';
+    document.getElementById('broker').value = trade.broker || '';
 
-document.getElementById('xdDate').value = trade.xdDate || '';
-document.getElementById('remark').value = trade.remark || '';
+    document.getElementById('xdDate').value = trade.xdDate || '';
+    document.getElementById('remark').value = trade.remark || '';
 
-document.getElementById('price').value = trade.price;
-document.getElementById('units').value = trade.units;
-document.getElementById('feeRate').value = Number(trade.feeTax || 0).toFixed(2);
+    document.getElementById('price').value = trade.price;
+    document.getElementById('units').value = trade.units;
+    document.getElementById('feeRate').value = Number(trade.feeTax || 0).toFixed(2);
 
-document.getElementById('amount').value = trade.netAmount || '';
+    document.getElementById('amount').value = trade.netAmount || '';
 
+    // จัด layout ตามประเภท
+    document.getElementById('type')
+        .dispatchEvent(new Event('change'));
 
-// ค่อยสั่งให้ระบบจัดช่องแสดง/ซ่อน
-document.getElementById('type').dispatchEvent(new Event('change'));
 
     document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
     document.getElementById('editAlert').style.display = "block";
-    document.getElementById('submitBtn').innerText = "🆙 อัปเดตข้อมูลไปยัง Google Sheets";
-    document.getElementById('submitBtn').style.backgroundColor = "var(--pastel-edit)";
 
-    document.getElementById('tradeForm').scrollIntoView({ behavior: 'smooth' });
+
+    // เปลี่ยนปุ่มเป็นโหมดแก้ไข
+    updateSubmitButton(true);
+
+
+    document.getElementById('tradeForm')
+        .scrollIntoView({ behavior: 'smooth' });
 }
 
-// ฟังก์ชันยกเลิกโหมดแก้ไข
+
+
 function cancelEditMode() {
 
     document.getElementById('editRowIndex').value = "";
 
     document.getElementById('tradeForm').reset();
 
-    // reset ค่าเริ่มต้น
+
+    // ค่าเริ่มต้น
     document.getElementById('type').value = "ซื้อ";
     document.getElementById('date').valueAsDate = new Date();
     document.getElementById('feeRate').value = "0.0";
 
-    // ล้างช่องเพิ่มเติม
+
+    // ล้างค่าเพิ่มเติม
     document.getElementById('xdDate').value = "";
     document.getElementById('remark').value = "";
     document.getElementById('amount').value = "";
 
-    // บังคับให้เปลี่ยน layout ตาม TYPE ใหม่
-    document.getElementById('type').dispatchEvent(new Event('change'));
+
+    // ปรับ layout
+    document.getElementById('type')
+        .dispatchEvent(new Event('change'));
+
 
     document.getElementById('formTitle').innerText = "➕ บันทึกรายการใหม่";
     document.getElementById('editAlert').style.display = "none";
 
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = false;   // <<< เพิ่มบรรทัดนี้
-    btn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
-    btn.style.backgroundColor = "var(--pastel-orange-dark)";
+
+    // กลับปุ่มเป็นโหมดเพิ่มรายการ
+    updateSubmitButton(false);
+
 }
 
 function renderMonitorTable(dataMap, pnLMap, sortedKeys = null) {
@@ -2567,6 +2582,26 @@ function getHoldingAtDate(symbol, targetDate) {
         cost: cost,
         avgPrice: units > 0 ? cost / units : 0
     };
+
+}
+
+function updateSubmitButton(isEdit = false){
+
+    const btn = document.getElementById("submitBtn");
+
+    if(!btn) return;
+
+    if(isEdit){
+
+        btn.innerHTML = "🟠 💾 บันทึกการแก้ไข";
+        btn.className = "btn btn-warning w-100 fw-bold";
+
+    }else{
+
+        btn.innerHTML = "🟢 💾 บันทึกรายการใหม่";
+        btn.className = "btn btn-success w-100 fw-bold";
+
+    }
 
 }
 
