@@ -2615,40 +2615,46 @@ function updateSubmitButton(isEdit = false){
     }
 
 }
-function renderAlertSummary(alerts = []){
+function renderAlertSummary(alerts = []) {
 
     const box = document.getElementById("alertBox");
+    const title = document.getElementById("alertTitle");
     const summary = document.getElementById("alertSummary");
+    const detail = document.getElementById("alertDetail");
+    const btn = document.getElementById("alertToggleBtn");
 
-    if(!box || !summary) return;
+    if (!box || !summary) return;
 
-
-    if(alerts.length === 0){
+    // ไม่มี Alert
+    if (alerts.length === 0) {
         box.style.display = "none";
         return;
     }
 
-
     box.style.display = "block";
 
+    currentAlerts = alerts;
 
-    summary.innerHTML = alerts.map(a => `
-        <div class="small mb-1">
-            ${a}
-        </div>
-    `).join("");
-const detail = document.getElementById("alertDetail");
-const btn = document.getElementById("alertToggleBtn");
+    const danger = alerts.filter(a => a.startsWith("🔴")).length;
+    const warning = alerts.filter(a => a.startsWith("🟠")).length;
 
-if(detail){
-    detail.style.display = "none";
-    detail.innerHTML = ""; // ล้างรายละเอียดเก่า
-}
+    if (title) {
+        title.innerHTML = `🚨 สิ่งที่ควรติดตาม (${alerts.length})`;
+    }
 
-if(btn){
-    btn.innerHTML = "▼ ดูรายละเอียด";
-}
+    summary.innerHTML = `
+        <div>🔴 ความเสี่ยงสูง ${danger} รายการ</div>
+        <div>🟠 ควรติดตาม ${warning} รายการ</div>
+    `;
 
+    if (detail) {
+        detail.style.display = "none";
+        detail.innerHTML = "";
+    }
+
+    if (btn) {
+        btn.innerHTML = "▼ ดูรายละเอียด";
+    }
 }
 
 function generatePortfolioAlerts(){
@@ -2741,6 +2747,34 @@ function generatePortfolioAlerts(){
 
 
     return alerts;
+
+}
+function toggleAlertDetail(){
+
+    const detail = document.getElementById("alertDetail");
+    const btn = document.getElementById("alertToggleBtn");
+
+    if (!detail || !btn) return;
+
+    if(detail.style.display === "none"){
+
+        detail.style.display = "block";
+
+        btn.innerHTML = "▲ ซ่อนรายละเอียด";
+
+        detail.innerHTML =
+            currentAlerts
+                .map(a => `<div class="small mb-1">${a}</div>`)
+                .join("");
+
+    }else{
+
+        detail.style.display = "none";
+        detail.innerHTML = "";
+
+        btn.innerHTML = "▼ ดูรายละเอียด";
+
+    }
 
 }
 
