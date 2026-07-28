@@ -736,4 +736,35 @@
 
 }
 
+.analytics-header{
+
+    background: linear-gradient(
+        135deg,
+        #4facfe,
+        #00f2fe
+    );
+
+    color:white;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    box-shadow:0 6px 18px rgba(0,0,0,.12);
+
+}
+
+
+.analytics-header h3{
+
+    font-weight:700;
+
+}
+
     </style>
