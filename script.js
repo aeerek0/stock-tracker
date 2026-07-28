@@ -21,6 +21,7 @@ let dividendMonthlyChart = null;
 let dividendStockChart = null;
 let dividendYearChart = null;
 let chartFilter = "all";   // all | top10
+let currentAlerts = [];
 
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
@@ -2636,6 +2637,17 @@ function renderAlertSummary(alerts = []){
             ${a}
         </div>
     `).join("");
+const detail = document.getElementById("alertDetail");
+const btn = document.getElementById("alertToggleBtn");
+
+if(detail){
+    detail.style.display = "none";
+    detail.innerHTML = ""; // ล้างรายละเอียดเก่า
+}
+
+if(btn){
+    btn.innerHTML = "▼ ดูรายละเอียด";
+}
 
 }
 
