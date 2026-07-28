@@ -353,6 +353,7 @@ function fetchAndRenderData() {
             });
 
             renderPortfolioAndRecords(globalTradesData);
+            renderAlertSummary();
             buildDividendYear();
             buildCalendarYear();
             renderDividendHistory();
