@@ -60,17 +60,22 @@ if (typeof buildBrokerDropdown === 'function') {
                 }
                 return response.json();
             })
-            .then(data => {
-                globalTradesData = data.trades;
-                window.currentPrices = data.prices;
+.then(data => {
+    globalTradesData = data.trades;
+    window.currentPrices = data.prices;
 
-                if (statusEl) {
-                    statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อ Google Sheet สำเร็จ (" + data.trades.length + " รายการ)";
-                    statusEl.className = "d-block mt-2 fw-bold text-success";
-                }
+    if (statusEl) {
+        statusEl.innerHTML = "🟢 สถานะ: เชื่อมต่อ Google Sheet สำเร็จ (" + data.trades.length + " รายการ)";
+        statusEl.className = "d-block mt-2 fw-bold text-success";
+    }
 
-                renderPortfolioAndRecords(globalTradesData);
-            })
+    renderPortfolioAndRecords(globalTradesData);
+
+    renderAlertSummary([
+        "🔴 สัดส่วนพอร์ตสูงM",
+        "🟠 กำไรเพิ่มขึ้นมาก"
+    ]);
+})
             .catch(error => {
                 console.error(error);
                 if (statusEl) {
@@ -357,10 +362,6 @@ renderPortfolioAndRecords(globalTradesData);
 buildDividendYear();
 buildCalendarYear();
 renderDividendHistory();
-            renderAlertSummary([
-    "🔴 สัดส่วนพอร์ตสูงzZz",
-    "🟠 กำไรเพิ่มขึ้นมากzzz"
-]);
 
 
         })
@@ -1006,7 +1007,7 @@ row.innerHTML = `
     renderDividendTable();
     renderDividendHistory();
     renderDividendKPI();
-    renderAlertSummary();
+
 }
 
 function loadMore() {
