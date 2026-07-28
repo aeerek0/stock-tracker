@@ -1007,6 +1007,7 @@ row.innerHTML = `
     renderDividendTable();
     renderDividendHistory();
     renderDividendKPI();
+    renderAlertSummary(generatePortfolioAlerts());
 
 }
 
