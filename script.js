@@ -357,11 +357,7 @@ renderPortfolioAndRecords(globalTradesData);
 buildDividendYear();
 buildCalendarYear();
 renderDividendHistory();
-
-
-setTimeout(() => {
     renderAlertSummary();
-}, 500);
 
 
         })
@@ -2628,12 +2624,24 @@ function renderAlertSummary(){
 }
 
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
+
+
 window.onload = function() {
+
     const dateInput = document.getElementById('date');
+
     if (dateInput) {
         dateInput.valueAsDate = new Date();
     }
+
+
     initConnection();
+
+
+    setTimeout(function(){
+
+        renderAlertSummary();
+
+    },1000);
+
 };
-
-
