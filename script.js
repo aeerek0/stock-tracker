@@ -71,10 +71,9 @@ if (typeof buildBrokerDropdown === 'function') {
 
     renderPortfolioAndRecords(globalTradesData);
 
-    renderAlertSummary([
-        "🔴 สัดส่วนพอร์ตสูงM",
-        "🟠 กำไรเพิ่มขึ้นมาก"
-    ]);
+const alerts = generatePortfolioAlerts();
+
+renderAlertSummary(alerts);
 })
             .catch(error => {
                 console.error(error);
@@ -2637,6 +2636,99 @@ function renderAlertSummary(alerts = []){
             ${a}
         </div>
     `).join("");
+
+}
+
+function generatePortfolioAlerts(){
+
+    let alerts = [];
+
+    // วนหุ้นใน Portfolio
+    Object.keys(portfolio).forEach(sym => {
+
+        const stock = portfolio[sym];
+
+        if(stock.totalUnits <= 0) return;
+
+
+        // ราคาปัจจุบัน
+        const currentPrice =
+            (window.currentPrices && window.currentPrices[sym])
+            ? Number(window.currentPrices[sym])
+            : stock.avgPrice;
+
+
+        // มูลค่าหุ้นตัวนี้
+        const marketValue =
+            stock.totalUnits * currentPrice;
+
+
+        // มูลค่าพอร์ตทั้งหมด
+        const totalValue =
+            Object.keys(portfolio).reduce((sum, s) => {
+
+                const item = portfolio[s];
+
+                const price =
+                    (window.currentPrices && window.currentPrices[s])
+                    ? Number(window.currentPrices[s])
+                    : item.avgPrice;
+
+                return sum + (item.totalUnits * price);
+
+            },0);
+
+
+        // % สัดส่วนพอร์ต
+        const weight =
+            totalValue > 0
+            ? (marketValue / totalValue) * 100
+            : 0;
+
+
+        // Alert หุ้นถือเกิน 40%
+        if(weight >= 40){
+
+            alerts.push(
+                `🔴 ${sym} สัดส่วนพอร์ตสูง (${weight.toFixed(1)}%)`
+            );
+
+        }
+
+
+        // Unrealized P/L %
+        const cost = stock.totalCost;
+
+        const pnlPercent =
+            cost > 0
+            ? ((marketValue - cost) / cost) * 100
+            : 0;
+
+
+        // ขาดทุนเกิน 10%
+        if(pnlPercent <= -10){
+
+            alerts.push(
+                `🔴 ${sym} ขาดทุน ${pnlPercent.toFixed(1)}%`
+            );
+
+        }
+
+
+        // กำไรเกิน 40%
+        if(pnlPercent >= 40){
+
+            alerts.push(
+                `🟠 ${sym} กำไรเพิ่มขึ้น ${pnlPercent.toFixed(1)}%`
+            );
+
+        }
+
+
+    });
+
+
+    return alerts;
 
 }
 
