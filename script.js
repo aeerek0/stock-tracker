@@ -2608,38 +2608,18 @@ function updateSubmitButton(isEdit = false){
     }
 
 }
-
 function renderAlertSummary(){
 
     const box = document.getElementById("alertBox");
     const summary = document.getElementById("alertSummary");
 
-    if(!box || !summary) return;
 
+    box.style.display = "block";
 
-    let alerts = [
-        "🔴 GULF สัดส่วนพอร์ตสูง",
-        "🟠 TISCO กำไรเพิ่มขึ้นมาก"
-    ];
-
-
-    // มี Alert ให้แสดง
-    if(alerts.length > 0){
-
-        box.style.display = "block";
-
-        summary.innerHTML = alerts.map(a => `
-            <div class="small mb-1">
-                ${a}
-            </div>
-        `).join("");
-
-    }else{
-
-        // ไม่มี Alert ซ่อน
-        box.style.display = "none";
-
-    }
+    summary.innerHTML = `
+        <div>🔴 ทดสอบ GULF สัดส่วนพอร์ตสูง</div>
+        <div>🟠 ทดสอบ TISCO กำไรเพิ่มขึ้นมาก</div>
+    `;
 
 }
 
