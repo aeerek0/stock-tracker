@@ -2618,8 +2618,8 @@ function renderAlertSummary(){
     box.style.display = "block";
 
     summary.innerHTML = `
-        <div>🔴 GULF สัดส่วนพอร์ตสูง</div>
-        <div>🟠 TISCO กำไรเพิ่มขึ้นมาก</div>
+        <div>🔴 สัดส่วนพอร์ตสูง</div>
+        <div>🟠 กำไรเพิ่มขึ้นมาก</div>
     `;
 }
 
