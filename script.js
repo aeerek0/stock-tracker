@@ -352,12 +352,16 @@ function fetchAndRenderData() {
                 }
             });
 
-            renderPortfolioAndRecords(globalTradesData);
-            renderAlertSummary();
-          
-            buildDividendYear();
-            buildCalendarYear();
-            renderDividendHistory();
+renderPortfolioAndRecords(globalTradesData);
+
+buildDividendYear();
+buildCalendarYear();
+renderDividendHistory();
+
+
+setTimeout(() => {
+    renderAlertSummary();
+}, 500);
 
 
         })
