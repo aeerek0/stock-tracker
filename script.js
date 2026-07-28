@@ -358,8 +358,8 @@ buildDividendYear();
 buildCalendarYear();
 renderDividendHistory();
     renderAlertSummary([
-    "🔴 สัดส่วนพอร์ตสูงx",
-    "🟠 กำไรเพิ่มขึ้นมากx"
+    "🔴 สัดส่วนพอร์ตสูงทดสอบ",
+    "🟠 กำไรเพิ่มขึ้นมากทดสอบ"
 ]);
 
 
@@ -2621,12 +2621,9 @@ function renderAlertSummary(alerts = []){
     if(!box || !summary) return;
 
 
-    // ไม่มี Alert
     if(alerts.length === 0){
-
         box.style.display = "none";
         return;
-
     }
 
 
@@ -2649,14 +2646,6 @@ window.onload = function() {
         dateInput.valueAsDate = new Date();
     }
 
-
     initConnection();
-
-
-    setTimeout(function(){
-
-        renderAlertSummary();
-
-    },1000);
 
 };
