@@ -1181,6 +1181,7 @@ const tradeData = {
             if (result.status === "success") {
                 alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
                 cancelEditMode();
+                updateSubmitButton(false);
                 fetchAndRenderData();
             } else {
                 submitBtn.disabled = false;
@@ -2590,6 +2591,8 @@ function updateSubmitButton(isEdit = false){
     const btn = document.getElementById("submitBtn");
 
     if(!btn) return;
+
+    btn.disabled = false;
 
     if(isEdit){
 
