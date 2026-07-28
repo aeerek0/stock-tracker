@@ -353,14 +353,13 @@ function fetchAndRenderData() {
             });
 
             renderPortfolioAndRecords(globalTradesData);
+            renderAlertSummary();
           
             buildDividendYear();
             buildCalendarYear();
             renderDividendHistory();
 
-            setTimeout(()=>{
-    renderAlertSummary();
-},500);
+
            
         })
         .catch(error => {
@@ -2618,11 +2617,22 @@ function renderAlertSummary(){
     const summary = document.getElementById("alertSummary");
 
 
+    if(!box || !summary){
+        return;
+    }
+
+
     box.style.display = "block";
 
+
     summary.innerHTML = `
-        <div>🔴 ทดสอบ GULF สัดส่วนพอร์ตสูง</div>
-        <div>🟠 ทดสอบ TISCO กำไรเพิ่มขึ้นมาก</div>
+        <div class="small mb-1">
+            🔴 GULF สัดส่วนพอร์ตสูง
+        </div>
+
+        <div class="small mb-1">
+            🟠 TISCO กำไรเพิ่มขึ้นมาก
+        </div>
     `;
 
 }
