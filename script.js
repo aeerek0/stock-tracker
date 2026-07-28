@@ -200,6 +200,55 @@ function buildBrokerDropdown() {
     }
 }
 
+function buildDynamicSectorMap(){
+
+    dynamicSectorMap = {};
+
+    if(!globalTradesData) return;
+
+
+    globalTradesData.forEach(t=>{
+
+        const symbol = String(t.symbol || "")
+            .trim()
+            .toUpperCase();
+
+        const sector = t.sector;
+
+
+        if(symbol && sector){
+
+            dynamicSectorMap[symbol] = sector;
+
+        }
+
+    });
+
+}
+
+function getSectorBySymbol(symbol){
+
+    symbol = String(symbol || "")
+        .trim()
+        .toUpperCase();
+
+
+    // เคยมีในรายการซื้อขาย
+    if(dynamicSectorMap[symbol]){
+        return dynamicSectorMap[symbol];
+    }
+
+
+    // มีใน Master
+    if(masterSectorMap[symbol]){
+        return masterSectorMap[symbol];
+    }
+
+
+    return "";
+
+}
+
 function updateMonitor(view) {
     currentMonitorView = view;
     const dataMap = (view === 'stock') ? portfolio : sectorPortfolio;
