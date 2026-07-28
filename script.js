@@ -2608,6 +2608,40 @@ function updateSubmitButton(isEdit = false){
 
 }
 
+function renderAlertSummary(){
+
+    const box = document.getElementById("alertBox");
+    const summary = document.getElementById("alertSummary");
+
+    if(!box || !summary) return;
+
+
+    // ทดสอบก่อน
+    let alerts = [
+        "🔴 GULF สัดส่วนพอร์ตสูง",
+        "🟠 TISCO กำไรเพิ่มขึ้นมาก"
+    ];
+
+
+    if(alerts.length === 0){
+
+        box.style.display = "none";
+        return;
+
+    }
+
+
+    box.style.display = "block";
+
+
+    summary.innerHTML = alerts.map(a => `
+        <div class="small mb-1">
+            ${a}
+        </div>
+    `).join("");
+
+}
+
 // --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
 window.onload = function() {
     const dateInput = document.getElementById('date');
