@@ -2641,6 +2641,14 @@ function renderAlertSummary(alerts = []){
 
 }
 
+window.onload = function() {
+
+    const dateInput = document.getElementById('date');
+
+    if (dateInput) {
+        dateInput.valueAsDate = new Date();
+    }
+
 
     initConnection();
 
