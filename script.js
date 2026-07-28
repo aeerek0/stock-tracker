@@ -2643,10 +2643,10 @@ function renderAlertSummary(alerts = []) {
         title.innerHTML = `🚨 ALERT (${alerts.length})`;
     }
 
-    summary.innerHTML = `
-        <div>🔴 ความเสี่ยงสูง ${danger} รายการ</div>
-        <div>🟠 ควรติดตาม ${warning} รายการ</div>
-    `;
+summary.innerHTML = `
+    ${danger > 0 ? `<div>🔴 ความเสี่ยงสูง ${danger} รายการ</div>` : ""}
+    ${warning > 0 ? `<div>🟠 ควรติดตาม ${warning} รายการ</div>` : ""}
+`;
 
     if (detail) {
         detail.style.display = "none";
