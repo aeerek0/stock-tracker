@@ -275,17 +275,44 @@ function sortMonitorBy() {
 }
 
 function autoFillSector(symbolValue) {
-    if (!symbolValue) return;
-    const sym = String(symbolValue).trim().toUpperCase();
-    document.getElementById('symbol').value = sym; 
-    
-    if (masterSectorMap[sym]) {
-        document.getElementById('sector').value = masterSectorMap[sym];
-    } else if (dynamicSectorMap[sym]) {
-        document.getElementById('sector').value = dynamicSectorMap[sym];
-    }
-}
 
+    if (!symbolValue) return;
+
+    const sym = String(symbolValue)
+        .trim()
+        .toUpperCase();
+
+    document.getElementById('symbol').value = sym;
+
+
+    const sectorInput = document.getElementById('sector');
+
+
+    if (!sectorInput) return;
+
+
+    // 1. ใช้ข้อมูลเดิมของผู้ใช้ก่อน
+    if (dynamicSectorMap[sym]) {
+
+        sectorInput.value = dynamicSectorMap[sym];
+
+    }
+
+    // 2. ถ้าไม่มี ค่อยใช้ Master
+    else if (masterSectorMap[sym]) {
+
+        sectorInput.value = masterSectorMap[sym];
+
+    }
+
+    // 3. ไม่เจอ
+    else {
+
+        sectorInput.value = "";
+
+    }
+
+}
 function fetchAndRenderData() {
        console.log("เริ่ม Refresh");
     
