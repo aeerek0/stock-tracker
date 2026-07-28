@@ -1006,6 +1006,7 @@ row.innerHTML = `
     renderDividendTable();
     renderDividendHistory();
     renderDividendKPI();
+    renderAlertSummary();
 }
 
 function loadMore() {
