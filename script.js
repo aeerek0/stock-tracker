@@ -232,21 +232,22 @@ function getSectorBySymbol(symbol){
         .trim()
         .toUpperCase();
 
+    // 1. ค้นจากประวัติซื้อขาย
+    const trade = globalTradesData.find(t =>
+        String(t.symbol).trim().toUpperCase() === symbol &&
+        t.sector
+    );
 
-    // เคยมีในรายการซื้อขาย
-    if(dynamicSectorMap[symbol]){
-        return dynamicSectorMap[symbol];
+    if (trade) {
+        return trade.sector;
     }
 
-
-    // มีใน Master
-    if(masterSectorMap[symbol]){
+    // 2. ถ้าไม่มี ค่อยใช้ Master
+    if (masterSectorMap[symbol]) {
         return masterSectorMap[symbol];
     }
 
-
     return "";
-
 }
 
 function updateMonitor(view) {
@@ -273,7 +274,6 @@ function sortMonitorBy() {
     sortDirection *= -1;
     renderMonitorTable(dataMap, pnLMap, sorted);
 }
-
 function autoFillSector(symbolValue) {
 
     if (!symbolValue) return;
@@ -284,33 +284,28 @@ function autoFillSector(symbolValue) {
 
     document.getElementById('symbol').value = sym;
 
-
     const sectorInput = document.getElementById('sector');
-
-
     if (!sectorInput) return;
 
+    // 1. ค้นหาจากประวัติซื้อขายก่อน
+    const trade = globalTradesData.find(t =>
+        String(t.symbol).trim().toUpperCase() === sym &&
+        t.sector
+    );
 
-    // 1. ใช้ข้อมูลเดิมของผู้ใช้ก่อน
-    if (dynamicSectorMap[sym]) {
-
-        sectorInput.value = dynamicSectorMap[sym];
-
+    if (trade) {
+        sectorInput.value = trade.sector;
+        return;
     }
 
-    // 2. ถ้าไม่มี ค่อยใช้ Master
-    else if (masterSectorMap[sym]) {
-
+    // 2. ถ้าไม่มีในประวัติ ค่อยใช้ Master
+    if (masterSectorMap[sym]) {
         sectorInput.value = masterSectorMap[sym];
-
+        return;
     }
 
     // 3. ไม่เจอ
-    else {
-
-        sectorInput.value = "";
-
-    }
+    sectorInput.value = "";
 
 }
 function fetchAndRenderData() {
