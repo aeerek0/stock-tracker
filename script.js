@@ -2617,29 +2617,29 @@ function renderAlertSummary(){
     if(!box || !summary) return;
 
 
-    // ทดสอบก่อน
     let alerts = [
         "🔴 GULF สัดส่วนพอร์ตสูง",
         "🟠 TISCO กำไรเพิ่มขึ้นมาก"
     ];
 
 
-    if(alerts.length === 0){
+    // มี Alert ให้แสดง
+    if(alerts.length > 0){
 
+        box.style.display = "block";
+
+        summary.innerHTML = alerts.map(a => `
+            <div class="small mb-1">
+                ${a}
+            </div>
+        `).join("");
+
+    }else{
+
+        // ไม่มี Alert ซ่อน
         box.style.display = "none";
-        return;
 
     }
-
-
-    box.style.display = "block";
-
-
-    summary.innerHTML = alerts.map(a => `
-        <div class="small mb-1">
-            ${a}
-        </div>
-    `).join("");
 
 }
 
