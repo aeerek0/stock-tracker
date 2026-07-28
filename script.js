@@ -357,7 +357,10 @@ renderPortfolioAndRecords(globalTradesData);
 buildDividendYear();
 buildCalendarYear();
 renderDividendHistory();
-    renderAlertSummary();
+    renderAlertSummary([
+    "🔴 สัดส่วนพอร์ตสูงx",
+    "🟠 กำไรเพิ่มขึ้นมากx"
+]);
 
 
         })
@@ -2610,29 +2613,33 @@ function updateSubmitButton(isEdit = false){
     }
 
 }
-function renderAlertSummary(){
+function renderAlertSummary(alerts = []){
 
     const box = document.getElementById("alertBox");
     const summary = document.getElementById("alertSummary");
 
+    if(!box || !summary) return;
+
+
+    // ไม่มี Alert
+    if(alerts.length === 0){
+
+        box.style.display = "none";
+        return;
+
+    }
+
+
     box.style.display = "block";
 
-    summary.innerHTML = `
-        <div>🔴 สัดส่วนพอร์ตสูง</div>
-        <div>🟠 กำไรเพิ่มขึ้นมาก</div>
-    `;
+
+    summary.innerHTML = alerts.map(a => `
+        <div class="small mb-1">
+            ${a}
+        </div>
+    `).join("");
+
 }
-
-// --- สั่งเริ่มทำงานเมื่อเปิดหน้าเว็บ ---
-
-
-window.onload = function() {
-
-    const dateInput = document.getElementById('date');
-
-    if (dateInput) {
-        dateInput.valueAsDate = new Date();
-    }
 
 
     initConnection();
