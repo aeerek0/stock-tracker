@@ -353,16 +353,13 @@ function fetchAndRenderData() {
             });
 
             renderPortfolioAndRecords(globalTradesData);
-
+            renderAlertSummary();
           
             buildDividendYear();
             buildCalendarYear();
             renderDividendHistory();
 
-setTimeout(() => {
-    renderAlertSummary();
-}, 500);
-           
+
         })
         .catch(error => {
             console.error("Refresh Error:", error);
@@ -2618,24 +2615,36 @@ function renderAlertSummary(){
     const box = document.getElementById("alertBox");
     const summary = document.getElementById("alertSummary");
 
+    if(!box || !summary) return;
 
-    if(!box || !summary){
-        return;
+
+    const alerts = [
+        "🔴 GULF สัดส่วนพอร์ตสูง",
+        "🟠 TISCO กำไรเพิ่มขึ้นมาก"
+    ];
+
+
+    if(alerts.length > 0){
+
+        box.style.display = "block";
+
+        summary.innerHTML = "";
+
+        alerts.forEach(a => {
+
+            summary.innerHTML += `
+                <div class="small mb-1">
+                    ${a}
+                </div>
+            `;
+
+        });
+
+    }else{
+
+        box.style.display = "none";
+
     }
-
-
-    box.style.display = "block";
-
-
-    summary.innerHTML = `
-        <div class="small mb-1">
-            🔴 GULF สัดส่วนพอร์ตสูง
-        </div>
-
-        <div class="small mb-1">
-            🟠 TISCO กำไรเพิ่มขึ้นมาก
-        </div>
-    `;
 
 }
 
