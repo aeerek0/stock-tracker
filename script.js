@@ -2640,7 +2640,7 @@ function renderAlertSummary(alerts = []) {
     const warning = alerts.filter(a => a.startsWith("🟠")).length;
 
     if (title) {
-        title.innerHTML = `🚨 สิ่งที่ควรติดตาม (${alerts.length})`;
+        title.innerHTML = `🚨 ALERT (${alerts.length})`;
     }
 
     summary.innerHTML = `
