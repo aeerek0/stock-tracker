@@ -106,57 +106,92 @@ window.saveSheetUrl = function() {
 };
 
 const typeElement = document.getElementById('type');
+
 if (typeElement) {
+
     typeElement.addEventListener('change', function () {
+
         const type = this.value;
+
         const amountContainer = document.getElementById('amountContainer');
         const symbolGroup = document.getElementById('symbol').parentElement;
         const sectorGroup = document.getElementById('sector').parentElement;
         const brokerGroup = document.getElementById('broker').parentElement;
         const priceGroup = document.getElementById('price').parentElement;
         const unitsGroup = document.getElementById('units').parentElement;
-        const feeGroup = document.getElementById('feeRate').parentElement;
+
+        // ⭐ เปลี่ยนจาก feeRate เป็น fee + vat
+        const feeGroup = document.getElementById('fee').parentElement;
+        const vatGroup = document.getElementById('vat').parentElement;
+
         const xdDateContainer = document.getElementById('xdDateContainer');
 
-        // แสดงทุกอย่างก่อน
+        // -----------------------------
+        // ค่าเริ่มต้น: แสดงทุกอย่าง
+        // -----------------------------
+
         symbolGroup.style.display = "";
         sectorGroup.style.display = "";
         brokerGroup.style.display = "";
         priceGroup.style.display = "";
         unitsGroup.style.display = "";
+
         feeGroup.style.display = "";
+        vatGroup.style.display = "";
+
         amountContainer.style.display = "none";
         xdDateContainer.style.display = "none";
 
+
+        // -----------------------------
+        // ฝากเงิน / ถอนเงิน
+        // -----------------------------
+
         if (type === "ฝากเงิน" || type === "ถอนเงิน") {
+
             amountContainer.style.display = "block";
+
             symbolGroup.style.display = "none";
             sectorGroup.style.display = "none";
             brokerGroup.style.display = "none";
             priceGroup.style.display = "none";
             unitsGroup.style.display = "none";
+
             feeGroup.style.display = "none";
+            vatGroup.style.display = "none";
         }
 
-if (type === "ปันผล") {
-    amountContainer.style.display = "block";
-    xdDateContainer.style.display = "block";
 
-    // ปันผลใช้ Symbol + Sector + Price(DPU) + Units
-    symbolGroup.style.display = "";
-    sectorGroup.style.display = "";
-    brokerGroup.style.display = "";
+        // -----------------------------
+        // ปันผล
+        // -----------------------------
 
-    priceGroup.style.display = "";
-    unitsGroup.style.display = "";
+        if (type === "ปันผล") {
 
-    // ไม่ต้องใช้ค่าธรรมเนียม
-    feeGroup.style.display = "none";
+            amountContainer.style.display = "block";
+            xdDateContainer.style.display = "block";
+
+            // ปันผลใช้
+            // Symbol + Sector + Broker
+            // Price(DPU) + Units
+
+            symbolGroup.style.display = "";
+            sectorGroup.style.display = "";
+            brokerGroup.style.display = "";
+
+            priceGroup.style.display = "";
+            unitsGroup.style.display = "";
+
+            // ไม่ใช้ค่าธรรมเนียม
+            feeGroup.style.display = "none";
+            vatGroup.style.display = "none";
+        }
+
+    });
+
+    // ⭐ ให้ทำงานทันทีตอนเปิดหน้า
+    typeElement.dispatchEvent(new Event('change'));
 }
-});
-     typeElement.dispatchEvent(new Event('change'));
-}
-
 const masterSectorMap = {
     "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
     "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
@@ -399,7 +434,13 @@ function startEditMode(rowIndex) {
 
     document.getElementById('price').value = trade.price;
     document.getElementById('units').value = trade.units;
-    document.getElementById('feeRate').value = Number(trade.feeTax || 0).toFixed(2);
+    const feeTax = Number(trade.feeTax || 0);
+
+const fee = feeTax / 1.07;
+const vat = feeTax - fee;
+
+document.getElementById('fee').value = fee.toFixed(2);
+document.getElementById('vat').value = vat.toFixed(2);
 
     document.getElementById('amount').value = trade.netAmount || '';
 
@@ -432,7 +473,8 @@ function cancelEditMode() {
     // ค่าเริ่มต้น
     document.getElementById('type').value = "ซื้อ";
     document.getElementById('date').valueAsDate = new Date();
-    document.getElementById('feeRate').value = "0.0";
+    document.getElementById('fee').value = "0.00";
+document.getElementById('vat').value = "0.00";
 
 
     // ล้างค่าเพิ่มเติม
@@ -860,6 +902,17 @@ setElementText('dashUnrealizedPnL', (totalUnrealized >= 0 ? '+' : '') + totalUnr
 setElementText('dashTotalStocks', activeStocksCount);
 setElementText('dashDividend', totalDividend.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
+
+localStorage.setItem("currentPortfolioValue", totalPortfolioValue);
+localStorage.setItem("currentDividendValue", totalDividend);
+
+// แจ้ง Goals ให้รีโหลดข้อมูล
+const goalsFrame = document.querySelector("#goalsTab iframe");
+
+if (goalsFrame && goalsFrame.contentWindow && typeof goalsFrame.contentWindow.loadGoals === "function") {
+    goalsFrame.contentWindow.loadGoals();
+}
+
 // ==========================
 // Total Return
 // ==========================
@@ -1002,13 +1055,13 @@ row.innerHTML = `
     const dataMap = (currentMonitorView === 'stock') ? portfolio : sectorPortfolio;
     const pnLMap = (currentMonitorView === 'stock') ? realizedPnL : sectorPnL;
 
-    renderMonitorTable(dataMap, pnLMap);
-    drawAllocationChart(currentMonitorView);
-    renderDividendTable();
-    renderDividendHistory();
-    renderDividendKPI();
-    renderAlertSummary(generatePortfolioAlerts());
+renderMonitorTable(dataMap, pnLMap);
+drawAllocationChart(currentMonitorView);
 
+renderDividendTable();
+renderDividendHistory();
+renderDividendKPI();
+renderAlertSummary(generatePortfolioAlerts());
 }
 
 function loadMore() {
@@ -1129,7 +1182,9 @@ if (tradeForm) {
 
         const price = parseFloat(document.getElementById('price').value) || 0;
         const units = parseInt(document.getElementById('units').value) || 0;
-        const feeTax = parseFloat(document.getElementById('feeRate').value) || 0;
+        const fee = parseFloat(document.getElementById('fee').value) || 0;
+const vat = parseFloat(document.getElementById('vat').value) || 0;
+const feeTax = fee + vat;
         const type = document.getElementById('type').value;
 
         const grossAmount = price * units;
@@ -1501,6 +1556,11 @@ function renderDividendTable() {
     const year = Number(document.getElementById("dividendYear").value);
     const month = Number(document.getElementById("dividendMonth").value);
 
+    const stockFilter =
+        document.getElementById("dividendStockFilter")?.value
+        .trim()
+        .toUpperCase() || "";
+
     let result = {};
     let total = 0;
     let allTotal = 0;
@@ -1508,43 +1568,62 @@ function renderDividendTable() {
     let allStock = {};
 
     globalTradesData.forEach(t => {
-        if (String(t.type).trim() !== "ปันผล") return;
+
+        if (String(t.type).trim() !== "ปันผล") {
+            return;
+        }
+
+        const symbol = String(t.symbol || "")
+            .trim()
+            .toUpperCase();
+
+        // 🔍 Filter หุ้น
+        if (stockFilter && !symbol.includes(stockFilter)) {
+            return;
+        }
 
         const amount = Number(t.netAmount) || 0;
 
         allTotal += amount;
         allCount++;
-        allStock[String(t.symbol).toUpperCase()] = true;
+        allStock[symbol] = true;
 
         const d = new Date(t.date);
 
-        if (year > 0 && d.getFullYear() !== year) return;
-        if (month > 0 && (d.getMonth() + 1) !== month) return;
+        if (year > 0 && d.getFullYear() !== year) {
+            return;
+        }
 
-        const sym = String(t.symbol).toUpperCase();
+        if (month > 0 && (d.getMonth() + 1) !== month) {
+            return;
+        }
 
-if (!result[sym]) {
-    result[sym] = {
-        count: 0,
-        amount: 0,
-        dpu: 0,
-        units: 0
-    };
-}
+        if (!result[symbol]) {
+            result[symbol] = {
+                count: 0,
+                amount: 0,
+                dpu: 0,
+                units: 0
+            };
+        }
 
-      result[sym].count++;
-result[sym].amount += amount;
-result[sym].dpu += Number(t.price) || 0;
-result[sym].units += Number(t.units) || 0;
+        result[symbol].count++;
+        result[symbol].amount += amount;
+        result[symbol].dpu += Number(t.price) || 0;
+        result[symbol].units += Number(t.units) || 0;
 
         total += amount;
     });
 
     document.getElementById("dividendSelectedTotal").innerText =
-        total.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        total.toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        });
 
     document.getElementById("dividendAllTotal").innerText =
-        allTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        allTotal.toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        });
 
     document.getElementById("dividendStockCount").innerText =
         Object.keys(allStock).length;
@@ -1553,93 +1632,112 @@ result[sym].units += Number(t.units) || 0;
         allCount;
 
     document.getElementById("dividendYearTotal").innerText =
-        total.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        total.toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        });
 
     document.getElementById("dividendGrowth").innerText =
-    calculateDividendGrowth() + "%";
-    
-document.getElementById("dividendAvgMonth").innerText =
-    calculateAverageDividendMonth()
-    .toLocaleString(undefined,{
-        minimumFractionDigits:2
-    }) + " บาท";
-    
-const top = calculateTopDividendStock();
+        calculateDividendGrowth() + "%";
 
+    document.getElementById("dividendAvgMonth").innerText =
+        calculateAverageDividendMonth().toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        }) + " บาท";
 
-document.getElementById("dividendTopStock").innerText =
-    top.symbol;
+    const top = calculateTopDividendStock();
 
+    document.getElementById("dividendTopStock").innerText =
+        top.symbol;
 
-document.getElementById("dividendTopAmount").innerText =
-    top.amount.toLocaleString(undefined,{
-        minimumFractionDigits:2
-    }) + " บาท";
+    document.getElementById("dividendTopAmount").innerText =
+        top.amount.toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        }) + " บาท";
 
+    document.getElementById("dividendTopPercent").innerText =
+        top.percent + "% ของ Dividend ทั้งหมด";
 
-document.getElementById("dividendTopPercent").innerText =
-    top.percent + "% ของ Dividend ทั้งหมด";
-    
+    // สร้างข้อมูลก่อนเรียง
+    let rows = Object.keys(result).map(symbol => {
 
-    // สร้างข้อมูลก่อน เพื่อเอาไปเรียง
-    let rows = Object.keys(result).map(sym => {
-        const info = getDividendSummary(sym, year, month);
+        const info = getDividendSummary(
+            symbol,
+            year,
+            month
+        );
 
-   return {
-    symbol: sym,
-    count: info.count,
-    dpu: info.dpu,
-    units: result[sym].units,
-    amount: info.amount,
-    cost: info.cost,
-    yield: info.yield
-};
+        return {
+            symbol: symbol,
+            count: info.count,
+            dpu: info.dpu,
+            units: result[symbol].units,
+            amount: info.amount,
+            cost: info.cost,
+            yield: info.yield
+        };
     });
 
-    // อ่านค่าจาก Dropdown
-    const sortType = document.getElementById("dividendSort").value;
-
     // เรียงข้อมูล
+    const sortType =
+        document.getElementById("dividendSort").value;
+
     rows.sort((a, b) => {
+
         switch (sortType) {
+
             case "yield":
                 return b.yield - a.yield;
+
             case "amount":
                 return b.amount - a.amount;
+
             case "cost":
                 return b.cost - a.cost;
+
             case "dpu":
                 return b.dpu - a.dpu;
+
             case "symbol":
                 return a.symbol.localeCompare(b.symbol);
+
             default:
                 return 0;
         }
     });
 
-    // แสดงตารางหลังเรียงแล้ว
+    // แสดงตาราง
     rows.forEach(item => {
+
         const row = document.createElement("tr");
 
         row.innerHTML = `
-<td>${item.symbol}</td>
-<td>${item.count}</td>
-<td>${item.dpu.toFixed(2)}</td>
-<td>${item.units.toLocaleString()}</td>
-<td>${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-<td>${item.cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-<td>${item.yield.toFixed(2)}%</td>
+            <td>${item.symbol}</td>
+            <td>${item.count}</td>
+            <td>${item.dpu.toFixed(2)}</td>
+            <td>${item.units.toLocaleString()}</td>
+            <td>${item.amount.toLocaleString(undefined, {
+                minimumFractionDigits: 2
+            })}</td>
+            <td>${item.cost.toLocaleString(undefined, {
+                minimumFractionDigits: 2
+            })}</td>
+            <td>${item.yield.toFixed(2)}%</td>
         `;
 
         tbody.appendChild(row);
     });
 
-    // หากต้องการเปิดใช้กราฟภายหลัง สามารถปลดคอมเมนต์ด้านล่างนี้ได้ครับ
-    if (typeof renderDividendMonthlyChart === 'function') renderDividendMonthlyChart();
-    if (typeof renderDividendStockChart === 'function') renderDividendStockChart();
-    if (typeof renderDividendStockChart === 'function') renderDividendYearChart();
-    
-    
+    if (typeof renderDividendMonthlyChart === "function") {
+        renderDividendMonthlyChart();
+    }
+
+    if (typeof renderDividendStockChart === "function") {
+        renderDividendStockChart();
+    }
+
+    if (typeof renderDividendYearChart === "function") {
+        renderDividendYearChart();
+    }
 }
 function renderDividendKPI(){
 
@@ -1801,18 +1899,20 @@ document.getElementById("dividendTotalYield").innerText =
 
 function switchTab(tab) {
 
-    // ซ่อนทุกหน้า
-    document.getElementById("portfolioTab").style.display = "none";
-    document.getElementById("dividendTab").style.display = "none";
-    document.getElementById("settingsTab").style.display = "none";
-    document.getElementById("analyticsTab").style.display = "none";
+// ซ่อนทุกหน้า
+document.getElementById("portfolioTab").style.display = "none";
+document.getElementById("dividendTab").style.display = "none";
+document.getElementById("settingsTab").style.display = "none";
+document.getElementById("analyticsTab").style.display = "none";
+document.getElementById("goalsTab").style.display = "none";
 
 
-    // รีเซ็ตสีปุ่ม
-    document.getElementById("tabPortfolioBtn").classList.remove("active");
-    document.getElementById("tabDividendBtn").classList.remove("active");
-    document.getElementById("tabSettingsBtn").classList.remove("active");
-    document.getElementById("tabAnalyticsBtn").classList.remove("active");
+// รีเซ็ตสีปุ่ม
+document.getElementById("tabPortfolioBtn").classList.remove("active");
+document.getElementById("tabDividendBtn").classList.remove("active");
+document.getElementById("tabSettingsBtn").classList.remove("active");
+document.getElementById("tabAnalyticsBtn").classList.remove("active");
+document.getElementById("tabGoalsBtn").classList.remove("active");
 
 
     // Portfolio
@@ -1840,6 +1940,18 @@ function switchTab(tab) {
 
     }
 
+if (tab === "goals") {
+
+    document.getElementById("goalsTab").style.display = "block";
+    document.getElementById("tabGoalsBtn").classList.add("active");
+
+    const frame = document.querySelector("#goalsTab iframe");
+
+    if (frame && frame.contentWindow && typeof frame.contentWindow.loadGoals === "function") {
+        frame.contentWindow.loadGoals();
+    }
+
+}
 
     // Settings
     if (tab === "settings") {
