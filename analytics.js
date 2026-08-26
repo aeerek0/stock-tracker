@@ -1252,3 +1252,4 @@ function toggleClosedTable(){
 window.onload = function () {
     loadAnalytics();
 };
+
