@@ -1,770 +1,829 @@
- <style>
-        :root {
-            --pastel-bg: #fffbf7;
-            --pastel-orange-dark: #e88d67;
-            --pastel-orange-light: #fff0e6;
-            --pastel-orange-accent: #fcd5c1;
-            --pastel-card-bg: #ffffff;
-            --pastel-buy: #4faba2;
-            --pastel-sell: #e56b6f;
-            --pastel-edit: #f4a261;
-        }
+<style>
+:root {
+    --pastel-bg: #fffbf7;
+    --pastel-orange-dark: #e88d67;
+    --pastel-orange-light: #fff0e6;
+    --pastel-orange-accent: #fcd5c1;
+    --pastel-card-bg: #ffffff;
+    --pastel-buy: #4faba2;
+    --pastel-sell: #e56b6f;
+    --pastel-edit: #f4a261;
+}
 
-        body { 
-            background-color: var(--pastel-bg); 
-            padding: 12px; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            color: #4a3f38;
-        }
+body { 
+    background-color: var(--pastel-bg); 
+    padding: 12px; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    color: #4a3f38;
+}
 
-        .card { 
-            border-radius: 16px; 
-            box-shadow: 0 4px 12px rgba(232, 141, 103, 0.06); 
-            border: 1px solid rgba(252, 213, 193, 0.4); 
-            background-color: var(--pastel-card-bg);
-            padding: 16px !important;
-            margin-bottom: 16px !important;
-        }
+.card { 
+    border-radius: 16px; 
+    box-shadow: 0 4px 12px rgba(232, 141, 103, 0.06); 
+    border: 1px solid rgba(252, 213, 193, 0.4); 
+    background-color: var(--pastel-card-bg);
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+}
 
-        .card-title {
-            font-size: 1.1rem;
-            color: #6e3b23;
-            font-weight: bold;
-        }
+.card-title {
+    font-size: 1.1rem;
+    color: #6e3b23;
+    font-weight: bold;
+}
 
-        .form-label {
-            font-size: 0.85rem;
-            margin-bottom: 4px;
-            font-weight: 500;
-            color: #61534b;
-        }
+.form-label {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #61534b;
+}
 
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 1px solid #ebd2c5;
-            padding: 10px 12px;
-            font-size: 0.95rem;
-            background-color: #fffdfb;
-        }
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid #ebd2c5;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    background-color: #fffdfb;
+}
 
-        .form-control:focus, .form-select:focus {
-            border-color: var(--pastel-orange-dark);
-            box-shadow: 0 0 0 0.25rem rgba(232, 141, 103, 0.2);
-        }
+.form-control:focus, .form-select:focus {
+    border-color: var(--pastel-orange-dark);
+    box-shadow: 0 0 0 0.25rem rgba(232, 141, 103, 0.2);
+}
 
-        .table-header-custom { 
-            background-color: var(--pastel-orange-accent); 
-            color: #542713;
-            font-size: 0.85rem;
-        }
+.table-header-custom { 
+    background-color: var(--pastel-orange-accent); 
+    color: #542713;
+    font-size: 0.85rem;
+}
 
-        .table-header-custom th {
-            font-weight: 600;
-            padding: 12px 8px;
-            white-space: nowrap;
-        }
+.table-header-custom th {
+    font-weight: 600;
+    padding: 12px 8px;
+    white-space: nowrap;
+}
 
-        .table { font-size: 0.85rem; }
-       .table td { 
+.table { font-size: 0.85rem; }
+.table td { 
     padding: 8px 6px;
     white-space: nowrap;
 }
 
-        .type-buy { color: var(--pastel-buy); font-weight: bold; }
-        .type-sell { color: var(--pastel-sell); font-weight: bold; }
-        .profit { color: var(--pastel-buy); font-weight: bold; }
-        .loss { color: var(--pastel-sell); font-weight: bold; }
+.type-buy { color: var(--pastel-buy); font-weight: bold; }
+.type-sell { color: var(--pastel-sell); font-weight: bold; }
+.profit { color: var(--pastel-buy); font-weight: bold; }
+.loss { color: var(--pastel-sell); font-weight: bold; }
 
-        .btn-primary {
-            background-color: var(--pastel-orange-dark);
-            border-color: var(--pastel-orange-dark);
-            border-radius: 10px;
-            padding: 12px;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #cf7956 !important;
-            color: white !important;
-        }
-        
-        .btn-secondary-custom {
-            background-color: #ebd2c5;
-            color: #6e3b23;
-            border: none;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
+.btn-primary {
+    background-color: var(--pastel-orange-dark);
+    border-color: var(--pastel-orange-dark);
+    border-radius: 10px;
+    padding: 12px;
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #cf7956 !important;
+    color: white !important;
+}
+    
+.btn-secondary-custom {
+    background-color: #ebd2c5;
+    color: #6e3b23;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
 
-        .btn-action-edit {
-            background-color: transparent;
-            color: var(--pastel-edit);
-            border: 1px solid rgba(244, 162, 97, 0.5);
-            border-radius: 6px;
-            padding: 2px 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-right: 4px;
-        }
-        .btn-action-edit:hover {
-            background-color: var(--pastel-edit);
-            color: white;
-        }
+.btn-action-edit {
+    background-color: transparent;
+    color: var(--pastel-edit);
+    border: 1px solid rgba(244, 162, 97, 0.5);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-right: 4px;
+}
+.btn-action-edit:hover {
+    background-color: var(--pastel-edit);
+    color: white;
+}
 
-        .btn-delete {
-            background-color: transparent;
-            color: var(--pastel-sell);
-            border: 1px solid rgba(229, 107, 111, 0.4);
-            border-radius: 6px;
-            padding: 2px 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        .btn-delete:hover {
-            background-color: var(--pastel-sell);
-            color: white;
-        }
+.btn-delete {
+    background-color: transparent;
+    color: var(--pastel-sell);
+    border: 1px solid rgba(229, 107, 111, 0.4);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.btn-delete:hover {
+    background-color: var(--pastel-sell);
+    color: white;
+}
 
-        .monitor-header {
-            background-color: var(--pastel-orange-light) !important;
-            color: #6e3b23;
-        }
+.monitor-header {
+    background-color: var(--pastel-orange-light) !important;
+    color: #6e3b23;
+}
 
-        .config-box {
-            background-color: #fff5ee;
-            border: 1px dashed var(--pastel-orange-dark);
-            border-radius: 12px;
-            padding: 12px;
-        }
+.config-box {
+    background-color: #fff5ee;
+    border: 1px dashed var(--pastel-orange-dark);
+    border-radius: 12px;
+    padding: 12px;
+}
 
-        .edit-mode-alert {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            margin-bottom: 12px;
-            display: none;
-        }
+.edit-mode-alert {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    display: none;
+}
+
 .monitor-table {
-    width:100%;
-    min-width:650px;
-    table-layout:auto;
-    border-collapse:collapse;
+    width: 100%;
+    min-width: 650px;
+    table-layout: auto;
+    border-collapse: collapse;
 }
 
 .monitor-table th,
 .monitor-table td {
-    text-align:center !important;
-    vertical-align:middle;
-    white-space:nowrap;
-    padding:6px 8px;
-    font-size:0.8rem;
+    text-align: center !important;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 6px 8px;
+    font-size: 0.8rem;
 }
 
-
-/* กำหนดความกว้างแต่ละ Column */
 .monitor-table th:nth-child(1),
 .monitor-table td:nth-child(1){
-    width:90px;
+    width: 90px;
 }
 
 .monitor-table th:nth-child(2),
 .monitor-table td:nth-child(2){
-    width:90px;
+    width: 90px;
 }
 
 .monitor-table th:nth-child(3),
 .monitor-table td:nth-child(3){
-    width:120px;
+    width: 120px;
 }
 
 .monitor-table th:nth-child(4),
 .monitor-table td:nth-child(4){
-    width:120px;
+    width: 120px;
 }
 
 .monitor-table th:nth-child(5),
 .monitor-table td:nth-child(5){
-    width:80px;
+    width: 80px;
 }
 
 .monitor-table th:nth-child(6),
 .monitor-table td:nth-child(6){
-    width:140px;
+    width: 140px;
 }
-
 
 .monitor-scroll{
-    border-radius:10px;
-    border:1px solid #f7dfd3;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
+    border-radius: 10px;
+    border: 1px solid #f7dfd3;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
-@media (max-width:576px){
 
+@media (max-width: 576px){
     .monitor-table {
-        min-width:600px;
+        min-width: 600px;
     }
 
     .monitor-table th,
     .monitor-table td {
-        padding:5px 4px;
-        font-size:0.75rem;
+        padding: 5px 4px;
+        font-size: 0.75rem;
     }
-
 }
+
 .calendar-card{
-    border-radius:12px;
-    border:1px solid #ddd;
-    padding:12px;
-    height:100%;
-    transition:.2s;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    padding: 12px;
+    height: 100%;
+    transition: .2s;
 }
 
 .calendar-card.has-dividend{
-    border-left:5px solid #198754;
-    background:#f8fff9;
+    border-left: 5px solid #198754;
+    background: #f8fff9;
 }
 
 .calendar-card.no-dividend{
-    background:#fafafa;
+    background: #fafafa;
 }
 
 .calendar-title{
-    font-weight:bold;
-    font-size:18px;
+    font-weight: bold;
+    font-size: 18px;
 }
 
 .calendar-total{
-    color:#198754;
-    font-weight:bold;
+    color: #198754;
+    font-weight: bold;
 }
 
 .calendar-item{
-    display:flex;
-    justify-content:space-between;
-    margin:4px 0;
+    display: flex;
+    justify-content: space-between;
+    margin: 4px 0;
 }
 
 .calendar-more{
-    color:#0d6efd;
-    cursor:pointer;
-    font-size:13px;
+    color: #0d6efd;
+    cursor: pointer;
+    font-size: 13px;
 }
 
 .calendar-empty{
-    color:#999;
-    text-align:center;
-    padding:18px 0;
+    color: #999;
+    text-align: center;
+    padding: 18px 0;
 }
 
 /* ==============================
    Dividend Dashboard
 ================================ */
-
 .dividend-summary-card {
-    background: linear-gradient(135deg,#fff8f2,#ffffff);
-    border:1px solid #fcd5c1;
-    border-left:5px solid #e88d67;
+    background: linear-gradient(135deg, #fff8f2, #ffffff);
+    border: 1px solid #fcd5c1;
+    border-left: 5px solid #e88d67;
 }
-
 
 .dividend-kpi-card {
-    background: linear-gradient(135deg,#fffaf0,#ffffff);
-    border:1px solid #f8dfb0;
-    border-left:5px solid #f4a261;
+    background: linear-gradient(135deg, #fffaf0, #ffffff);
+    border: 1px solid #f8dfb0;
+    border-left: 5px solid #f4a261;
 }
 
-
-/* Title */
 .dividend-section-title {
-    font-size:1.05rem;
-    font-weight:bold;
-    color:#6e3b23;
-    margin-bottom:15px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #6e3b23;
+    margin-bottom: 15px;
 }
 
-
-/* Summary Box */
 .dividend-summary-grid {
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:12px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
 }
-
 
 .dividend-summary-item {
-    background:#ffffff;
-    border-radius:12px;
-    padding:12px;
-    text-align:center;
-    border:1px solid #f7dfd3;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #f7dfd3;
 }
-
 
 .dividend-summary-label {
-    font-size:.8rem;
-    color:#856f63;
+    font-size: .8rem;
+    color: #856f63;
 }
-
 
 .dividend-summary-value {
-    font-size:1.2rem;
-    font-weight:bold;
-    color:#e88d67;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #e88d67;
 }
 
-
-/* KPI */
 .dividend-kpi-grid {
-
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:12px;
-
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
 }
-
 
 .dividend-kpi-item {
-
-    background:#ffffff;
-    border-radius:14px;
-    padding:14px;
-
-    border:1px solid #f3e3c2;
-
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px;
+    border: 1px solid #f3e3c2;
 }
-
 
 .dividend-kpi-label {
-
-    font-size:.8rem;
-    color:#806b5c;
-
+    font-size: .8rem;
+    color: #806b5c;
 }
-
 
 .dividend-kpi-value {
-
-    font-size:1.3rem;
-    font-weight:bold;
-    color:#6e3b23;
-
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #6e3b23;
 }
-
 
 .dividend-kpi-item.highlight {
-
-    background:#fff4df;
-    border-color:#f4a261;
-
+    background: #fff4df;
+    border-color: #f4a261;
 }
 
-
-/* Mobile */
-@media(max-width:576px){
-
-
+@media(max-width: 576px){
     .dividend-summary-grid {
-
-        grid-template-columns:repeat(2,1fr);
-
+        grid-template-columns: repeat(2, 1fr);
     }
-
 
     .dividend-kpi-grid {
-
-        grid-template-columns:1fr;
-
+        grid-template-columns: 1fr;
     }
-
 
     .dividend-summary-item {
-
-        padding:10px;
-
+        padding: 10px;
     }
-
 
     .dividend-summary-value {
-
-        font-size:1rem;
-
+        font-size: 1rem;
     }
-
 
     .dividend-kpi-value {
-
-        font-size:1.15rem;
-
+        font-size: 1.15rem;
     }
-
 }
 
 .dividend-kpi-item:nth-child(1){
-    border-left:5px solid #e88d67;
+    border-left: 5px solid #e88d67;
 }
-
 
 .dividend-kpi-item:nth-child(2){
-    border-left:5px solid #4faba2;
+    border-left: 5px solid #4faba2;
 }
-
 
 .dividend-kpi-item:nth-child(3){
-    border-left:5px solid #f4a261;
+    border-left: 5px solid #f4a261;
 }
-
 
 .dividend-kpi-item:nth-child(4){
-    border-left:5px solid #6c8cff;
+    border-left: 5px solid #6c8cff;
 }
-
 
 .dividend-kpi-item:nth-child(5){
-    border-left:5px solid #9b72cf;
+    border-left: 5px solid #9b72cf;
 }
 
-
 .dividend-kpi-item:nth-child(6){
-    border-left:5px solid #43aa8b;
+    border-left: 5px solid #43aa8b;
 }
 
 /* ==========================
    Analytics Dashboard Cards
 ========================== */
-
-/* ===========================
-   Analytics KPI Card
-=========================== */
-
 .analytics-card{
-
-    position:relative;
-
-    border:none;
-
-    border-radius:14px;
-
-    box-shadow:0 3px 8px rgba(0,0,0,.08);
-
-    transition:all .2s ease;
-
-    padding:8px !important;
-
-    min-height:68px;
-
-    overflow:hidden;
-
+    position: relative;
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.08);
+    transition: all .2s ease;
+    padding: 8px !important;
+    min-height: 68px;
+    overflow: hidden;
 }
 
 .analytics-card:hover{
-
-    transform:translateY(-2px);
-
-    box-shadow:0 8px 16px rgba(0,0,0,.12);
-
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,.12);
 }
 
 .analytics-card::before{
-
-    content:"";
-
-    position:absolute;
-
-    left:0;
-
-    top:0;
-
-    width:6px;
-
-    height:100%;
-
-    border-radius:14px 0 0 14px;
-
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 6px;
+    height: 100%;
+    border-radius: 14px 0 0 14px;
 }
 
 .analytics-card h6{
-
-    font-size:.68rem;
-
-    font-weight:600;
-
-    color:#6e625b;
-
-    margin-bottom:4px;
-
-    line-height:1.2;
-
+    font-size: .68rem;
+    font-weight: 600;
+    color: #6e625b;
+    margin-bottom: 4px;
+    line-height: 1.2;
 }
 
 .analytics-card h4{
-
-    font-size:1.1rem;
-
-    font-weight:700;
-
-    margin:0;
-
-    line-height:1.2;
-
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .analytics-card small{
-
-    display:block;
-
-    margin-top:2px;
-
-    font-size:.70rem;
-
-    color:#888;
-
+    display: block;
+    margin-top: 2px;
+    font-size: .70rem;
+    color: #888;
 }
 
-
-/* เงินต้น */
 .analytics-money{
-    background:#fff5ee;
+    background: #fff5ee;
 }
 
 .analytics-money::before{
-    background:#d97706;
+    background: #d97706;
 }
 
 .analytics-money h4{
-    color:#d97706;
+    color: #d97706;
 }
 
-/* ต้นทุนหุ้น */
 .analytics-cost {
-
-    background:#fff9db;
-
+    background: #fff9db;
 }
 .analytics-cost::before{
-    background:#8a6d1d;
+    background: #8a6d1d;
 }
 
 .analytics-cost h4 {
-
-    color:#8a6d1d;
-
+    color: #8a6d1d;
 }
 
-
-/* Realized Profit */
 .analytics-profit {
-
-    background:#eaf8f2;
-
+    background: #eaf8f2;
 }
 .analytics-profit::before{
-    background:#198754;
+    background: #198754;
 }
 
 .analytics-profit h4 {
-
-    color:#198754;
-
+    color: #198754;
 }
 
-
-/* Trade Win Rate */
 .analytics-win {
-
-    background:#eef6ff;
-
+    background: #eef6ff;
 }
 .analytics-win::before{
-    background:#2563eb;
+    background: #2563eb;
 }
 .analytics-win h4 {
-
-    color:#2563eb;
-
+    color: #2563eb;
 }
 
-
-/* Stock Win Rate */
 .analytics-stock {
-
-    background:#f4edff;
-
+    background: #f4edff;
 }
 .analytics-stock::before{
-    background:#7c3aed;
+    background: #7c3aed;
 }
 
 .analytics-stock h4 {
-
-    color:#7c3aed;
-
+    color: #7c3aed;
 }
 
-
-/* Return */
 .analytics-return {
-
-    background:#fff3cd;
-
+    background: #fff3cd;
 }
 .analytics-return::before{
-    background:#b7791f;
+    background: #b7791f;
 }
 .analytics-return h4 {
-
-    color:#b7791f;
-
+    color: #b7791f;
 }
+
 .analytics-highlight{
-
-    border:none;
-
-    border-radius:14px;
-
-    background:#fffaf5;
-
-    box-shadow:0 3px 8px rgba(0,0,0,.08);
-
+    border: none;
+    border-radius: 14px;
+    background: #fffaf5;
+    box-shadow: 0 3px 8px rgba(0,0,0,.08);
 }
-
 
 .analytics-highlight h6{
-
-    font-size:.8rem;
-
-    font-weight:700;
-
-    color:#6e3b23;
-
+    font-size: .8rem;
+    font-weight: 700;
+    color: #6e3b23;
 }
-
 
 .analytics-highlight .small{
-
-    font-size:.7rem;
-
+    font-size: .7rem;
 }
-
 
 .analytics-highlight .fw-bold{
-
-    font-size:1rem;
-
+    font-size: 1rem;
 }
-/* ===========================
-   Total Return Small Card
-=========================== */
 
 .total-return-card{
-
-    border:none;
-
-    border-radius:14px;
-
-    background:#ecfdf5;
-
-    box-shadow:0 3px 8px rgba(0,0,0,.08);
-
-    padding:10px;
-
+    border: none;
+    border-radius: 14px;
+    background: #ecfdf5;
+    box-shadow: 0 3px 8px rgba(0,0,0,.08);
+    padding: 10px;
 }
-
 
 .total-return-card small{
-
-    font-size:.72rem;
-
-    color:#166534;
-
-    font-weight:600;
-
+    font-size: .72rem;
+    color: #166534;
+    font-weight: 600;
 }
-
 
 .total-return-card div{
-
-    font-size:1.25rem;
-
-    font-weight:800;
-
-    color:#15803d;
-
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #15803d;
 }
-
-/* ===========================
-   Return Percent Card
-=========================== */
 
 .return-percent-card{
-
-    border:none;
-
-    border-radius:14px;
-
-    background:#fff3cd;
-
-    box-shadow:0 3px 8px rgba(0,0,0,.08);
-
-    padding:10px;
-
+    border: none;
+    border-radius: 14px;
+    background: #fff3cd;
+    box-shadow: 0 3px 8px rgba(0,0,0,.08);
+    padding: 10px;
 }
-
 
 .return-percent-card small{
-
-    font-size:.72rem;
-
-    color:#856404;
-
-    font-weight:600;
-
+    font-size: .72rem;
+    color: #856404;
+    font-weight: 600;
 }
 
-
 .return-percent-card div{
-
-    font-size:1.25rem;
-
-    font-weight:800;
-
-    color:#b7791f;
-
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #b7791f;
 }
 
 .analytics-header{
-
     background: linear-gradient(
         135deg,
         #4facfe,
         #00f2fe
     );
-
-    color:white;
-
-    padding:18px;
-
-    border-radius:18px;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    box-shadow:0 6px 18px rgba(0,0,0,.12);
-
+    color: white;
+    padding: 18px;
+    border-radius: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
 }
-
 
 .analytics-header h3{
-
-    font-weight:700;
-
+    font-weight: 700;
+}
+  
+.goal-card {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
 }
 
-    </style>
+.goal-card .card-body {
+    padding: 16px;
+}
+
+.goal-title {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.goal-number {
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+.goal-sub {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.portfolio-goal {
+    background: linear-gradient(135deg, #e3f2fd, #ffffff);
+}
+
+.dividend-goal {
+    background: linear-gradient(135deg, #e8f5e9, #ffffff);
+}
+
+.progress {
+    height: 8px;
+    border-radius: 20px;
+}
+
+.progress-bar {
+    border-radius: 20px;
+}
+
+.goal-health-card {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.goal-health-card .card-body{
+    padding: 16px;
+}
+
+.goal-health-card h5{
+    font-weight: 700;
+    color: #6e3b23;
+    font-size: 1.05rem;
+}
+
+.goal-status-box{
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    background: linear-gradient(
+        135deg,
+        #dff7e8,
+        #f6fff8
+    );
+    color: #198754;
+    font-size: 18px;
+    font-weight: 800;
+    box-shadow: 0 3px 8px rgba(25,135,84,.10);
+}
+
+.health-item{
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 10px 8px;
+    border: 1px solid #f0e6df;
+    box-shadow: 0 2px 6px rgba(0,0,0,.04);
+    transition: .2s;
+}
+
+.health-item:hover{
+    transform: translateY(-2px);
+}
+
+.health-label{
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 2px;
+}
+
+.health-value{
+    font-size: 18px;
+    font-weight: 800;
+    color: #6e3b23;
+}
+
+.goal-status-box.warning{
+    background: #fff3cd;
+    color: #856404;
+}
+
+.goal-status-box.danger{
+    background: #fde2e1;
+    color: #b02a37;
+}
+
+@media(max-width: 576px){
+    .goal-health-card .card-body{
+        padding: 12px;
+    }
+
+    .goal-status-box{
+        font-size: 17px;
+        padding: 9px;
+    }
+
+    .health-item{
+        padding: 9px 6px;
+    }
+
+    .health-value{
+        font-size: 17px;
+    }
+}
+
+.goal-save-btn,
+.btn-primary {
+    background-color: #e88d67 !important;
+    border-color: #e88d67 !important;
+    color: white !important;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: 600;
+}
+
+.goal-save-btn:hover,
+.btn-primary:hover {
+    background-color: #cf7956 !important;
+    border-color: #cf7956 !important;
+    color: white !important;
+}
+
+.goal-progress-card {
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(
+        135deg,
+        #fff8f2,
+        #ffffff
+    );
+    border-left: 5px solid #e88d67;
+}
+
+.goal-progress-card h5 {
+    font-weight: 700;
+    color: #6e3b23;
+}
+
+.goal-progress-card h4 {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.goal-progress-card .progress {
+    height: 9px;
+    background: #f3e8df;
+}
+
+.goal-progress-card #goalProgressBar {
+    background: linear-gradient(
+        90deg,
+        #4facfe,
+        #00c6ff
+    );
+}
+
+.goal-coach-card {
+    margin-top: 15px;
+    padding: 18px;
+    border-radius: 18px;
+    background: linear-gradient(
+        135deg,
+        #fff3cd,
+        #fffaf0
+    );
+    border-left: 6px solid #f4a261;
+    box-shadow: 0 4px 12px rgba(244,162,97,.18);
+}
+
+.goal-coach-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #6e3b23;
+    margin-bottom: 12px;
+}
+
+.goal-coach-alert {
+    background: #fff8e1;
+    color: #856404;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.coach-box {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #f0e6df;
+}
+
+.coach-box.current strong {
+    color: #6c757d;
+}
+
+.coach-box.recommend {
+    background: #e8f5e9;
+    border: 1px solid #b7e4c7;
+}
+
+.coach-box.recommend strong {
+    color: #198754;
+}
+
+.coach-extra {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 18px;
+    color: #d97706;
+}
+
+.coach-extra b {
+    font-size: 22px;
+}
+
+.goal-progress-card #dividendGoalProgressBar {
+    background: linear-gradient(
+        90deg,
+        #43aa8b,
+        #90be6d
+    ) !important;
+}
+
+</style>
