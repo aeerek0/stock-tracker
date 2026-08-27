@@ -22,7 +22,7 @@ let dividendStockChart = null;
 let dividendYearChart = null;
 let chartFilter = "all";   // all | top10
 let currentAlerts = [];
-
+let dividendMonitorShowAll = false;
 
 // --- ฟังก์ชัน initConnection ที่ปรับปรุงให้เหมือนเวอร์ชันล่าสุด ---
 function initConnection() {
@@ -1548,24 +1548,35 @@ units += item.units || 0;
 }
 
 function renderDividendTable() {
+
     const tbody = document.getElementById("dividendTableBody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    const year = Number(document.getElementById("dividendYear").value);
-    const month = Number(document.getElementById("dividendMonth").value);
+    const year = Number(
+        document.getElementById("dividendYear").value
+    );
+
+    const month = Number(
+        document.getElementById("dividendMonth").value
+    );
 
     const stockFilter =
-        document.getElementById("dividendStockFilter")?.value
-        .trim()
-        .toUpperCase() || "";
+        document.getElementById("dividendStockFilter")
+            ?.value
+            .trim()
+            .toUpperCase() || "";
 
     let result = {};
     let total = 0;
     let allTotal = 0;
     let allCount = 0;
     let allStock = {};
+
+    // ==========================================
+    // เตรียมข้อมูล Dividend
+    // ==========================================
 
     globalTradesData.forEach(t => {
 
@@ -1577,109 +1588,196 @@ function renderDividendTable() {
             .trim()
             .toUpperCase();
 
-        // 🔍 Filter หุ้น
+        // 🔍 Filter ตามชื่อหุ้น
         if (stockFilter && !symbol.includes(stockFilter)) {
             return;
         }
 
-        const amount = Number(t.netAmount) || 0;
+        const amount =
+            Number(t.netAmount) || 0;
 
+        // ข้อมูลทั้งหมดหลัง Filter หุ้น
         allTotal += amount;
         allCount++;
         allStock[symbol] = true;
 
         const d = new Date(t.date);
 
-        if (year > 0 && d.getFullYear() !== year) {
+        // Filter ปี
+        if (
+            year > 0 &&
+            d.getFullYear() !== year
+        ) {
             return;
         }
 
-        if (month > 0 && (d.getMonth() + 1) !== month) {
+        // Filter เดือน
+        if (
+            month > 0 &&
+            (d.getMonth() + 1) !== month
+        ) {
             return;
         }
 
+        // สร้างข้อมูลหุ้น
         if (!result[symbol]) {
+
             result[symbol] = {
                 count: 0,
                 amount: 0,
                 dpu: 0,
                 units: 0
             };
+
         }
 
         result[symbol].count++;
+
         result[symbol].amount += amount;
-        result[symbol].dpu += Number(t.price) || 0;
-        result[symbol].units += Number(t.units) || 0;
+
+        result[symbol].dpu +=
+            Number(t.price) || 0;
+
+        result[symbol].units +=
+            Number(t.units) || 0;
 
         total += amount;
+
     });
 
-    document.getElementById("dividendSelectedTotal").innerText =
+
+    // ==========================================
+    // Dividend Summary
+    // ==========================================
+
+    document.getElementById(
+        "dividendSelectedTotal"
+    ).innerText =
         total.toLocaleString(undefined, {
             minimumFractionDigits: 2
         });
 
-    document.getElementById("dividendAllTotal").innerText =
+
+    document.getElementById(
+        "dividendAllTotal"
+    ).innerText =
         allTotal.toLocaleString(undefined, {
             minimumFractionDigits: 2
         });
 
-    document.getElementById("dividendStockCount").innerText =
+
+    document.getElementById(
+        "dividendStockCount"
+    ).innerText =
         Object.keys(allStock).length;
 
-    document.getElementById("dividendCount").innerText =
+
+    document.getElementById(
+        "dividendCount"
+    ).innerText =
         allCount;
 
-    document.getElementById("dividendYearTotal").innerText =
+
+    document.getElementById(
+        "dividendYearTotal"
+    ).innerText =
         total.toLocaleString(undefined, {
             minimumFractionDigits: 2
         });
 
-    document.getElementById("dividendGrowth").innerText =
+
+    // ==========================================
+    // Dividend KPI
+    // ==========================================
+
+    document.getElementById(
+        "dividendGrowth"
+    ).innerText =
         calculateDividendGrowth() + "%";
 
-    document.getElementById("dividendAvgMonth").innerText =
-        calculateAverageDividendMonth().toLocaleString(undefined, {
-            minimumFractionDigits: 2
-        }) + " บาท";
 
-    const top = calculateTopDividendStock();
+    document.getElementById(
+        "dividendAvgMonth"
+    ).innerText =
+        calculateAverageDividendMonth()
+            .toLocaleString(undefined, {
+                minimumFractionDigits: 2
+            }) + " บาท";
 
-    document.getElementById("dividendTopStock").innerText =
+
+    const top =
+        calculateTopDividendStock();
+
+
+    document.getElementById(
+        "dividendTopStock"
+    ).innerText =
         top.symbol;
 
-    document.getElementById("dividendTopAmount").innerText =
+
+    document.getElementById(
+        "dividendTopAmount"
+    ).innerText =
         top.amount.toLocaleString(undefined, {
             minimumFractionDigits: 2
         }) + " บาท";
 
-    document.getElementById("dividendTopPercent").innerText =
-        top.percent + "% ของ Dividend ทั้งหมด";
 
-    // สร้างข้อมูลก่อนเรียง
-    let rows = Object.keys(result).map(symbol => {
+    document.getElementById(
+        "dividendTopPercent"
+    ).innerText =
+        top.percent +
+        "% ของ Dividend ทั้งหมด";
 
-        const info = getDividendSummary(
-            symbol,
-            year,
-            month
-        );
 
-        return {
-            symbol: symbol,
-            count: info.count,
-            dpu: info.dpu,
-            units: result[symbol].units,
-            amount: info.amount,
-            cost: info.cost,
-            yield: info.yield
-        };
-    });
+    // ==========================================
+    // สร้าง Rows
+    // ==========================================
 
+    let rows =
+        Object.keys(result).map(symbol => {
+
+            const info =
+                getDividendSummary(
+                    symbol,
+                    year,
+                    month
+                );
+
+            return {
+
+                symbol: symbol,
+
+                count: info.count,
+
+                dpu: info.dpu,
+
+                units:
+                    result[symbol].units,
+
+                amount:
+                    info.amount,
+
+                cost:
+                    info.cost,
+
+                yield:
+                    info.yield
+
+            };
+
+        });
+
+
+    // ==========================================
     // เรียงข้อมูล
+    // ==========================================
+
     const sortType =
-        document.getElementById("dividendSort").value;
+        document.getElementById(
+            "dividendSort"
+        ).value;
+
 
     rows.sort((a, b) => {
 
@@ -1698,46 +1796,139 @@ function renderDividendTable() {
                 return b.dpu - a.dpu;
 
             case "symbol":
-                return a.symbol.localeCompare(b.symbol);
+                return a.symbol.localeCompare(
+                    b.symbol
+                );
 
             default:
                 return 0;
+
         }
+
     });
 
-    // แสดงตาราง
-    rows.forEach(item => {
 
-        const row = document.createElement("tr");
+    // ==========================================
+    // แสดง 10 รายการแรก
+    // หรือแสดงทั้งหมด
+    // ==========================================
+
+    const displayRows =
+        dividendMonitorShowAll
+            ? rows
+            : rows.slice(0, 10);
+
+
+    displayRows.forEach(item => {
+
+        const row =
+            document.createElement("tr");
+
 
         row.innerHTML = `
+
             <td>${item.symbol}</td>
+
             <td>${item.count}</td>
-            <td>${item.dpu.toFixed(2)}</td>
-            <td>${item.units.toLocaleString()}</td>
-            <td>${item.amount.toLocaleString(undefined, {
-                minimumFractionDigits: 2
-            })}</td>
-            <td>${item.cost.toLocaleString(undefined, {
-                minimumFractionDigits: 2
-            })}</td>
-            <td>${item.yield.toFixed(2)}%</td>
+
+            <td>
+                ${item.dpu.toFixed(2)}
+            </td>
+
+            <td>
+                ${item.units.toLocaleString()}
+            </td>
+
+            <td>
+                ${item.amount.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2
+                    }
+                )}
+            </td>
+
+            <td>
+                ${item.cost.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2
+                    }
+                )}
+            </td>
+
+            <td>
+                ${item.yield.toFixed(2)}%
+            </td>
+
         `;
 
+
         tbody.appendChild(row);
+
     });
 
-    if (typeof renderDividendMonthlyChart === "function") {
+
+    // ==========================================
+    // ปุ่ม ดูเพิ่มเติม / ย่อ
+    // ==========================================
+
+    const moreBtn =
+        document.getElementById(
+            "btnDividendMonitorMore"
+        );
+
+
+    if (moreBtn) {
+
+        if (rows.length > 10) {
+
+            moreBtn.style.display =
+                "inline-block";
+
+
+            moreBtn.innerText =
+                dividendMonitorShowAll
+                    ? "🔼 ย่อ"
+                    : `📄 ดูเพิ่มเติม (${rows.length - 10})`;
+
+        } else {
+
+            moreBtn.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    // ==========================================
+    // Charts
+    // ==========================================
+
+    if (
+        typeof renderDividendMonthlyChart ===
+        "function"
+    ) {
         renderDividendMonthlyChart();
     }
 
-    if (typeof renderDividendStockChart === "function") {
+
+    if (
+        typeof renderDividendStockChart ===
+        "function"
+    ) {
         renderDividendStockChart();
     }
 
-    if (typeof renderDividendYearChart === "function") {
+
+    if (
+        typeof renderDividendYearChart ===
+        "function"
+    ) {
         renderDividendYearChart();
     }
+
 }
 function renderDividendKPI(){
 
@@ -2888,6 +3079,14 @@ function toggleAlertDetail(){
         btn.innerHTML = "▼ ดูรายละเอียด";
 
     }
+
+}
+
+function toggleDividendMonitor() {
+
+    dividendMonitorShowAll = !dividendMonitorShowAll;
+
+    renderDividendTable();
 
 }
 
