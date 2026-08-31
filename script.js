@@ -192,12 +192,59 @@ if (typeElement) {
     // ⭐ ให้ทำงานทันทีตอนเปิดหน้า
     typeElement.dispatchEvent(new Event('change'));
 }
+const masterSectorList = [
+    "AGRI",
+    "FOOD",
+    "FASHION",
+    "HOME",
+    "PERSON",
+    "BANK",
+    "FIN",
+    "INSUR",
+    "AUTO",
+    "IMM",
+    "PAPER",
+    "PETRO",
+    "PKG",
+    "STEEL",
+    "CONMAT",
+    "CONS",
+    "PF&REITs",
+    "PROP",
+    "ENERG",
+    "MINE",
+    "COMM",
+    "HELTH",
+    "MEDIA",
+    "PROF",
+    "TOURISM",
+    "TRANS",
+    "ETRON",
+    "ICT"
+];
 const masterSectorMap = {
-    "BA": "Transport", "BCH": "Health Care", "BDMS": "Health Care", "BGRIM": "Energy",
-    "CENTEL": "Tourism", "CPALL": "Commerce", "CPN": "Property", "EPG": "Property & Construction",
-    "EA": "Energy", "HMPRO": "Commerce", "LH": "Property", "MC": "Fashion", "MINT": "Tourism",
-    "SABINA": "Fashion", "SAT": "Automotive", "SPALI": "Property", "TIPH": "Insurance",
-    "TISCO": "Banking", "TLI": "Insurance", "TU": "Food & Bev", "WHA": "Property (Indus)","TRUE": "Telecommunications"
+    "BA": "TRANS",
+    "BCH": "HELTH",
+    "BDMS": "HELTH",
+    "BGRIM": "ENERG",
+    "CENTEL": "TOURISM",
+    "CPALL": "COMM",
+    "CPN": "PROP",
+    "EPG": "CONMAT",
+    "EA": "ENERG",
+    "HMPRO": "COMM",
+    "LH": "PROP",
+    "MC": "FASHION",
+    "MINT": "TOURISM",
+    "SABINA": "FASHION",
+    "SAT": "AUTO",
+    "SPALI": "PROP",
+    "TIPH": "INSUR",
+    "TISCO": "BANK",
+    "TLI": "INSUR",
+    "TU": "FOOD",
+    "WHA": "PROP",
+    "TRUE": "ICT"
 };
 
 const masterBrokerList = [
@@ -205,6 +252,8 @@ const masterBrokerList = [
     "Yuanta",
     "Pi"
 ];
+
+
 
 let dynamicSectorMap = {}; 
 
@@ -292,6 +341,66 @@ function getSectorBySymbol(symbol){
     return "";
 }
 
+function loadSectorOptions() {
+
+    const sectorSelect = document.getElementById("sector");
+
+    if (!sectorSelect) return;
+
+    sectorSelect.innerHTML = `
+        <option value="">-- เลือก Sector --</option>
+    `;
+
+    masterSectorList.forEach(sector => {
+
+        const option = document.createElement("option");
+
+        option.value = sector;
+        option.textContent = sector;
+
+        sectorSelect.appendChild(option);
+
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    // โหลดรายการ Sector ลง Dropdown
+    loadSectorOptions();
+
+
+    // ดึงช่องกรอกหุ้น
+    const symbolInput =
+        document.getElementById("symbol");
+
+    // ป้องกัน Error กรณีหา element ไม่เจอ
+    if (!symbolInput) return;
+
+
+    // เมื่อพิมพ์หรือเปลี่ยนชื่อหุ้น
+    symbolInput.addEventListener("input", function() {
+
+        const symbol = this.value
+            .trim()
+            .toUpperCase();
+
+
+        // ค้นหา Sector
+        const sector =
+            getSectorBySymbol(symbol);
+
+
+        // ถ้าพบ Sector
+        if (sector) {
+
+            document.getElementById("sector").value =
+                sector;
+
+        }
+
+    });
+
+});
 function updateMonitor(view) {
     currentMonitorView = view;
     const dataMap = (view === 'stock') ? portfolio : sectorPortfolio;
@@ -3563,6 +3672,8 @@ function showOtherDividendStocks(
     modal.show();
 
 }
+
+
 
 window.onload = function() {
 
