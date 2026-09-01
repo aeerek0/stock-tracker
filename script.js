@@ -182,9 +182,11 @@ if (typeElement) {
             priceGroup.style.display = "";
             unitsGroup.style.display = "";
 
-            // ไม่ใช้ค่าธรรมเนียม
-            feeGroup.style.display = "none";
-            vatGroup.style.display = "none";
+    // ไม่ใช้ค่าธรรมเนียม
+    feeGroup.style.display = "none";
+
+    // ✅ ปันผลสามารถกรอก VAT เอง
+    vatGroup.style.display = "";
         }
 
     });
