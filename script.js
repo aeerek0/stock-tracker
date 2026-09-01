@@ -804,14 +804,14 @@ function startEditMode(rowIndex) {
         Number(trade.feeTax) || 0;
 
 
-    if (trade.type === "ปันผล") {
+if (trade.type === "ปันผล") {
 
-        // ปันผล → ใช้ VAT ที่บันทึกไว้โดยตรง
-        document.getElementById('fee').value =
-            "0.00";
+    document.getElementById('fee').value =
+        "0.00";
 
-        document.getElementById('vat').value =
-            Number(trade.vat || 0).toFixed(2);
+    // ปันผล → VAT อยู่ในช่อง feeTax เดิม
+    document.getElementById('vat').value =
+        feeTax.toFixed(2);
 
     } else {
 
@@ -1752,7 +1752,7 @@ feeTax:
         };
 
 
-        feeTax:
+   
  
 
         // ==========================================
