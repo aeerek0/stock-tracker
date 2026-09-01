@@ -753,7 +753,10 @@ renderDividendHistory();
 // ✏️ ฟังก์ชันดึงค่าเข้าสู่โหมดแก้ไขข้อมูล 
 function startEditMode(rowIndex) {
 
-    const trade = globalTradesData.find(t => t.rowIndex == rowIndex);
+    const trade = globalTradesData.find(
+        t => t.rowIndex == rowIndex
+    );
+
     if (!trade) return;
 
     let dateVal = String(trade.date || "");
@@ -762,47 +765,100 @@ function startEditMode(rowIndex) {
         dateVal = dateVal.split("T")[0];
     }
 
-    document.getElementById('editRowIndex').value = trade.rowIndex;
-    document.getElementById('date').value = dateVal;
+    document.getElementById('editRowIndex').value =
+        trade.rowIndex;
 
-    document.getElementById('type').value = trade.type;
+    document.getElementById('date').value =
+        dateVal;
 
-    document.getElementById('symbol').value = trade.symbol;
-    document.getElementById('sector').value = trade.sector || '';
-    document.getElementById('broker').value = trade.broker || '';
+    document.getElementById('type').value =
+        trade.type;
 
-    document.getElementById('xdDate').value = trade.xdDate || '';
-    document.getElementById('remark').value = trade.remark || '';
+    document.getElementById('symbol').value =
+        trade.symbol || '';
 
-    document.getElementById('price').value = trade.price;
-    document.getElementById('units').value = trade.units;
-    const feeTax = Number(trade.feeTax || 0);
+    document.getElementById('sector').value =
+        trade.sector || '';
 
-const fee = feeTax / 1.07;
-const vat = feeTax - fee;
+    document.getElementById('broker').value =
+        trade.broker || '';
 
-document.getElementById('fee').value = fee.toFixed(2);
-document.getElementById('vat').value = vat.toFixed(2);
+    document.getElementById('xdDate').value =
+        trade.xdDate || '';
 
-    document.getElementById('amount').value = trade.netAmount || '';
+    document.getElementById('remark').value =
+        trade.remark || '';
 
-    // จัด layout ตามประเภท
+    document.getElementById('price').value =
+        trade.price || '';
+
+    document.getElementById('units').value =
+        trade.units || '';
+
+
+    // ==========================================
+    // Fee + VAT
+    // ==========================================
+
+    const feeTax =
+        Number(trade.feeTax) || 0;
+
+
+    if (trade.type === "ปันผล") {
+
+        // ปันผล → ใช้ VAT ที่บันทึกไว้โดยตรง
+        document.getElementById('fee').value =
+            "0.00";
+
+        document.getElementById('vat').value =
+            Number(trade.vat || 0).toFixed(2);
+
+    } else {
+
+        // รายการอื่น → คำนวณแบบเดิม
+        const fee =
+            feeTax / 1.07;
+
+        const vat =
+            feeTax - fee;
+
+        document.getElementById('fee').value =
+            fee.toFixed(2);
+
+        document.getElementById('vat').value =
+            vat.toFixed(2);
+    }
+
+
+    document.getElementById('amount').value =
+        trade.netAmount || '';
+
+
+    // ==========================================
+    // จัด Layout ตาม Type
+    // ==========================================
+
     document.getElementById('type')
-        .dispatchEvent(new Event('change'));
+        .dispatchEvent(
+            new Event('change')
+        );
 
 
-    document.getElementById('formTitle').innerText = "✏️ แก้ไขข้อมูลรายการ";
-    document.getElementById('editAlert').style.display = "block";
+    document.getElementById('formTitle').innerText =
+        "✏️ แก้ไขข้อมูลรายการ";
+
+    document.getElementById('editAlert').style.display =
+        "block";
 
 
-    // เปลี่ยนปุ่มเป็นโหมดแก้ไข
     updateSubmitButton(true);
 
 
     document.getElementById('tradeForm')
-        .scrollIntoView({ behavior: 'smooth' });
+        .scrollIntoView({
+            behavior: 'smooth'
+        });
 }
-
 
 
 function cancelEditMode() {
@@ -1516,91 +1572,255 @@ if (tradeForm) {
             return;
         }
 
-        const submitBtn = document.getElementById('submitBtn');
-        const editRowIndex = document.getElementById('editRowIndex').value;
+        const submitBtn =
+            document.getElementById('submitBtn');
+
+        const editRowIndex =
+            document.getElementById('editRowIndex').value;
 
         submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ กำลังบันทึกข้อมูล...";
+        submitBtn.innerText =
+            "⏳ กำลังบันทึกข้อมูล...";
 
-        const price = parseFloat(document.getElementById('price').value) || 0;
-        const units = parseInt(document.getElementById('units').value) || 0;
-        const fee = parseFloat(document.getElementById('fee').value) || 0;
-const vat = parseFloat(document.getElementById('vat').value) || 0;
-const feeTax = fee + vat;
-        const type = document.getElementById('type').value;
 
-        const grossAmount = price * units;
-        
+        const price =
+            parseFloat(
+                document.getElementById('price').value
+            ) || 0;
 
-        // แก้ไขตรงนี้: คำนวณ netAmount ให้จบในที่เดียว
+        const units =
+            parseInt(
+                document.getElementById('units').value
+            ) || 0;
+
+        const fee =
+            parseFloat(
+                document.getElementById('fee').value
+            ) || 0;
+
+        const vat =
+            parseFloat(
+                document.getElementById('vat').value
+            ) || 0;
+
+        const feeTax = fee + vat;
+
+        const type =
+            document.getElementById('type').value;
+
+
+        const grossAmount =
+            price * units;
+
+
+        // ==========================================
+        // คำนวณ Net Amount
+        // ==========================================
+
         let netAmount = 0;
-        if (type === 'ฝากเงิน' || type === 'ถอนเงิน') {
-            netAmount = parseFloat(document.getElementById('amount').value) || 0;
+
+        if (
+            type === 'ฝากเงิน' ||
+            type === 'ถอนเงิน'
+        ) {
+
+            netAmount =
+                parseFloat(
+                    document.getElementById('amount').value
+                ) || 0;
+
         } else if (type === 'ปันผล') {
-            netAmount = parseFloat(document.getElementById('amount').value) || 0;
+
+            netAmount =
+                parseFloat(
+                    document.getElementById('amount').value
+                ) || 0;
+
         } else {
-            netAmount = type === 'ซื้อ' ? grossAmount + feeTax : grossAmount - feeTax;
+
+            netAmount =
+                type === 'ซื้อ'
+                    ? grossAmount + feeTax
+                    : grossAmount - feeTax;
         }
 
-        const isCash = type === 'ฝากเงิน' || type === 'ถอนเงิน';
-        const isDividend = type === 'ปันผล';
 
-const tradeData = {
-    action: editRowIndex !== "" ? "edit" : "insert",
-    rowIndex: editRowIndex,
-    date: document.getElementById('date').value,
-    type: type,
-    symbol: document.getElementById('symbol').value.trim().toUpperCase(),
-    sector: isCash ? 'Cash Management' : document.getElementById('sector').value,
-    broker: document.getElementById('broker').value.trim(),
-    xdDate: document.getElementById('xdDate').value,
-    remark: document.getElementById('remark').value.trim(),
+        const isCash =
+            type === 'ฝากเงิน' ||
+            type === 'ถอนเงิน';
 
-    // ซื้อ / ขาย / ปันผล เก็บราคาและจำนวนหุ้น
-    price: (type === 'ซื้อ' || type === 'ขาย' || type === 'ปันผล') ? price : 0,
+        const isDividend =
+            type === 'ปันผล';
 
-    units: (type === 'ซื้อ' || type === 'ขาย' || type === 'ปันผล') ? units : 0,
 
-    // Gross ของปันผล = DPU x จำนวนหุ้น
-    grossAmount: (type === 'ซื้อ' || type === 'ขาย' || type === 'ปันผล')
-        ? grossAmount.toFixed(2)
-        : 0,
+        // ==========================================
+        // ข้อมูลที่จะส่งไป Google Apps Script
+        // ==========================================
 
-    feeTax: (type === 'ซื้อ' || type === 'ขาย')
-        ? feeTax.toFixed(2)
-        : 0,
+        const tradeData = {
 
-    netAmount: netAmount.toFixed(2)
-};
+            action:
+                editRowIndex !== ""
+                    ? "edit"
+                    : "insert",
+
+            rowIndex:
+                editRowIndex,
+
+            date:
+                document.getElementById('date').value,
+
+            type:
+                type,
+
+            symbol:
+                document.getElementById('symbol')
+                    .value
+                    .trim()
+                    .toUpperCase(),
+
+            sector:
+                isCash
+                    ? 'Cash Management'
+                    : document.getElementById('sector').value,
+
+            broker:
+                document.getElementById('broker')
+                    .value
+                    .trim(),
+
+            xdDate:
+                document.getElementById('xdDate').value,
+
+            remark:
+                document.getElementById('remark')
+                    .value
+                    .trim(),
+
+
+            // ======================================
+            // ซื้อ / ขาย / ปันผล
+            // ======================================
+
+            price:
+                (
+                    type === 'ซื้อ' ||
+                    type === 'ขาย' ||
+                    type === 'ปันผล'
+                )
+                    ? price
+                    : 0,
+
+            units:
+                (
+                    type === 'ซื้อ' ||
+                    type === 'ขาย' ||
+                    type === 'ปันผล'
+                )
+                    ? units
+                    : 0,
+
+
+            // Gross = Price × Units
+            grossAmount:
+                (
+                    type === 'ซื้อ' ||
+                    type === 'ขาย' ||
+                    type === 'ปันผล'
+                )
+                    ? grossAmount.toFixed(2)
+                    : 0,
+
+
+            // Fee + VAT สำหรับซื้อ / ขาย
+            feeTax:
+                (
+                    type === 'ซื้อ' ||
+                    type === 'ขาย'
+                )
+                    ? feeTax.toFixed(2)
+                    : 0,
+
+
+            // ⭐ VAT ที่กรอกเองสำหรับปันผล
+            vat:
+                isDividend
+                    ? vat.toFixed(2)
+                    : 0,
+
+
+            netAmount:
+                netAmount.toFixed(2)
+        };
+
+
+        // ==========================================
+        // ส่งข้อมูลไป Google Apps Script
+        // ==========================================
 
         fetch(WEB_APP_URL, {
+
             method: "POST",
+
             cache: "no-cache",
+
             headers: {
-                "Content-Type": "text/plain;charset=utf-8"
+                "Content-Type":
+                    "text/plain;charset=utf-8"
             },
-            body: JSON.stringify(tradeData)
+
+            body:
+                JSON.stringify(tradeData)
+
         })
-        .then(response => response.json())
+
+        .then(response =>
+            response.json()
+        )
+
         .then(result => {
+
             console.log(result);
+
             if (result.status === "success") {
-                alert(editRowIndex !== "" ? "อัปเดตข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
+
+                alert(
+                    editRowIndex !== ""
+                        ? "อัปเดตข้อมูลสำเร็จ!"
+                        : "บันทึกข้อมูลสำเร็จ!"
+                );
+
                 cancelEditMode();
+
                 updateSubmitButton(false);
+
                 fetchAndRenderData();
+
             } else {
+
                 submitBtn.disabled = false;
-                submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+
+                submitBtn.innerText =
+                    "💾 บันทึกส่งไปยัง Google Sheets";
+
                 alert("เกิดข้อผิดพลาด");
             }
+
         })
+
         .catch(err => {
+
             console.error(err);
+
             submitBtn.disabled = false;
-            submitBtn.innerText = "💾 บันทึกส่งไปยัง Google Sheets";
+
+            submitBtn.innerText =
+                "💾 บันทึกส่งไปยัง Google Sheets";
+
             alert("บันทึกข้อมูลไม่สำเร็จ");
+
         });
+
     });
 }
 
