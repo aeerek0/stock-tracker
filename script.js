@@ -223,29 +223,260 @@ const masterSectorList = [
     "ICT"
 ];
 const masterSectorMap = {
-    "BA": "TRANS",
-    "BCH": "HELTH",
-    "BDMS": "HELTH",
-    "BGRIM": "ENERG",
-    "CENTEL": "TOURISM",
-    "CPALL": "COMM",
-    "CPN": "PROP",
-    "EPG": "CONMAT",
-    "EA": "ENERG",
-    "HMPRO": "COMM",
-    "LH": "PROP",
-    "MC": "FASHION",
-    "MINT": "TOURISM",
-    "SABINA": "FASHION",
-    "SAT": "AUTO",
-    "SPALI": "PROP",
-    "TIPH": "INSUR",
-    "TISCO": "BANK",
-    "TLI": "INSUR",
+
+    // =========================
+    // AGRI
+    // =========================
+    "AAI": "FOOD",
+    "APURE": "FOOD",
+    "ASIAN": "FOOD",
+    "CFRESH": "FOOD",
+    "CPF": "FOOD",
+    "FM": "FOOD",
+    "GFPT": "FOOD",
+    "ITC": "FOOD",
+    "KSL": "FOOD",
+    "M": "FOOD",
+    "OSP": "FOOD",
+    "PLUS": "FOOD",
+    "SAPPE": "FOOD",
+    "SNNP": "FOOD",
+    "STA": "AGRI",
+    "STGT": "AGRI",
     "TU": "FOOD",
+
+    // =========================
+    // FASHION
+    // =========================
+    "AFC": "FASHION",
+    "BTS": "TRANS",
+
+    // =========================
+    // HOME
+    // =========================
+    "DOHOME": "HOME",
+    "GLOBAL": "COMM",
+    "HOMEPRO": "COMM",
+    "ILM": "COMM",
+
+    // =========================
+    // PERSON
+    // =========================
+    "BH": "HELTH",
+    "BDMS": "HELTH",
+    "CHG": "HELTH",
+    "PR9": "HELTH",
+
+    // =========================
+    // BANK
+    // =========================
+    "BBL": "BANK",
+    "KBANK": "BANK",
+    "KTB": "BANK",
+    "SCB": "BANK",
+    "TTB": "BANK",
+    "BAY": "BANK",
+    "KKP": "BANK",
+    "TISCO": "BANK",
+    "KTC": "FIN",
+
+    // =========================
+    // FIN
+    // =========================
+    "AEONTS": "FIN",
+    "ASK": "FIN",
+    "MTC": "FIN",
+    "SAWAD": "FIN",
+    "TIDLOR": "FIN",
+    "THANI": "FIN",
+
+    // =========================
+    // INSUR
+    // =========================
+    "BLA": "INSUR",
+    "TIPH": "INSUR",
+    "TQM": "INSUR",
+
+    // =========================
+    // AUTO
+    // =========================
+    "AH": "AUTO",
+    "APCS": "AUTO",
+    "SAT": "AUTO",
+    "STANLY": "AUTO",
+    "TSC": "AUTO",
+
+    // =========================
+    // IMM / INDUSTRIAL
+    // =========================
+    "CCET": "ETRON",
+    "DELTA": "ETRON",
+    "HANA": "ETRON",
+    "KCE": "ETRON",
+    "SVI": "ETRON",
+
+    // =========================
+    // PAPER
+    // =========================
+    "SCGP": "PKG",
+    "UTP": "PAPER",
+
+    // =========================
+    // PETRO
+    // =========================
+    "IVL": "PETRO",
+    "PTTGC": "PETRO",
+    "SCC": "PETRO",
+    "TPIA": "PETRO",
+
+    // =========================
+    // STEEL
+    // =========================
+    "BSBM": "STEEL",
+    "GJS": "STEEL",
+    "MILL": "STEEL",
+    "TMT": "STEEL",
+    "TSTH": "STEEL",
+
+    // =========================
+    // CONMAT
+    // =========================
+    "DCC": "CONMAT",
+    "DRT": "CONMAT",
+    "SCC": "CONMAT",
+    "SCCC": "CONMAT",
+    "TASCO": "CONMAT",
+    "TOA": "CONMAT",
+    "TPIPL": "CONMAT",
+
+    // =========================
+    // CONS
+    // =========================
+    "CK": "CONS",
+    "ITD": "CONS",
+    "STEC": "CONS",
+    "UNIQ": "CONS",
+
+    // =========================
+    // PROP
+    // =========================
+    "AP": "PROP",
+    "AMATA": "PROP",
+    "CPN": "PROP",
+    "LH": "PROP",
+    "OR": "ENERG",
+    "PSH": "PROP",
+    "QH": "PROP",
+    "SPALI": "PROP",
     "WHA": "PROP",
-    "TRUE": "ICT"
+
+    // =========================
+    // PF&REIT
+    // =========================
+    "AIMIRT": "PF&REIT",
+    "ALLY": "PF&REIT",
+    "CPNREIT": "PF&REIT",
+    "DIF": "PF&REIT",
+    "FTREIT": "PF&REIT",
+    "WHAIR": "PF&REIT",
+
+    // =========================
+    // ENERG
+    // =========================
+    "BANPU": "ENERG",
+    "BCP": "ENERG",
+    "BCPG": "ENERG",
+    "BGRIM": "ENERG",
+    "EA": "ENERG",
+    "EGCO": "ENERG",
+    "GPSC": "ENERG",
+    "GULF": "ENERG",
+    "OR": "ENERG",
+    "PTT": "ENERG",
+    "PTTEP": "ENERG",
+    "RATCH": "ENERG",
+    "TOP": "ENERG",
+
+    // =========================
+    // MINE
+    // =========================
+    "LANNA": "MINE",
+    "AGE": "MINE",
+
+    // =========================
+    // COMM
+    // =========================
+    "BJC": "COMM",
+    "CPALL": "COMM",
+    "CRC": "COMM",
+    "COM7": "COMM",
+    "HMPRO": "COMM",
+    "JMART": "COMM",
+    "MOSHI": "COMM",
+
+    // =========================
+    // HELTH
+    // =========================
+    "BDMS": "HELTH",
+    "BH": "HELTH",
+    "CHG": "HELTH",
+    "EKH": "HELTH",
+    "PR9": "HELTH",
+    "RAM": "HELTH",
+    "THG": "HELTH",
+
+    // =========================
+    // MEDIA
+    // =========================
+    "BEC": "MEDIA",
+    "PLANB": "MEDIA",
+    "VGI": "MEDIA",
+    "WORK": "MEDIA",
+
+    // =========================
+    // PROF
+    // =========================
+    "MASTER": "PROF",
+    "PROS": "PROF",
+    "WICE": "PROF",
+
+    // =========================
+    // TOURISM
+    // =========================
+    "AOT": "TOURISM",
+    "CENTEL": "TOURISM",
+    "ERW": "TOURISM",
+    "MINT": "TOURISM",
+
+    // =========================
+    // TRANS
+    // =========================
+    "AAV": "TRANS",
+    "BEM": "TRANS",
+    "BTS": "TRANS",
+    "PSL": "TRANS",
+    "THAI": "TRANS",
+    "TTA": "TRANS",
+
+    // =========================
+    // ETRON
+    // =========================
+    "DELTA": "ETRON",
+    "HANA": "ETRON",
+    "KCE": "ETRON",
+    "SVI": "ETRON",
+
+    // =========================
+    // ICT
+    // =========================
+    "ADVANC": "ICT",
+    "INTUCH": "ICT",
+    "TRUE": "ICT",
+    "DTAC": "ICT",
+    "THCOM": "ICT"
 };
+
+
 
 const masterBrokerList = [
     "Finansia",
