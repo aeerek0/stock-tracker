@@ -1733,12 +1733,12 @@ if (tradeForm) {
 
 
             // Fee + VAT สำหรับซื้อ / ขาย
-feeTax:
-    type === 'ปันผล'
-        ? vat.toFixed(2)
-        : (type === 'ซื้อ' || type === 'ขาย')
-            ? feeTax.toFixed(2)
-            : 0,
+   (type === 'ซื้อ' ||
+     type === 'ขาย')
+        ? feeTax.toFixed(2)
+        : (type === 'ปันผล'
+            ? vat.toFixed(2)
+            : 0),
             // ⭐ VAT ที่กรอกเองสำหรับปันผล
             vat:
                 isDividend
@@ -1750,6 +1750,9 @@ feeTax:
                 netAmount.toFixed(2)
         };
 
+
+        feeTax:
+ 
 
         // ==========================================
         // ส่งข้อมูลไป Google Apps Script
