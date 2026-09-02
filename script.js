@@ -1377,7 +1377,7 @@ setElementColor('dashUnrealizedPnL', totalUnrealized);
         const feeRate = gross > 0 ? (fee / gross) * 100 : 0;
 
         const isDepositOrWithdraw = (trade.type === 'ฝากเงิน' || trade.type === 'ถอนเงิน');
-        const isExemptFee = ['ฝากเงิน', 'ถอนเงิน', 'ปันผล'].includes(trade.type);
+        const isExemptFee = ['ฝากเงิน', 'ถอนเงิน'].includes(trade.type);
 
         const row = document.createElement('tr');
 row.innerHTML = `
